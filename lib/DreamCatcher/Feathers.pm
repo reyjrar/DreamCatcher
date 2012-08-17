@@ -23,7 +23,7 @@ has 'chain' => (
 
 has 'feathers' => (
     is      => 'ro',
-    isa     => 'ArrayRef',
+    isa     => 'HashRef',
     lazy    => 1,
     builder => '_build_feathers'
 );
@@ -32,7 +32,7 @@ has 'feathers' => (
 # Collect all of the plugins, though not ordered
 sub _build_feathers {
     my $self = shift;
-    return [ sort { $a->priority <=> $b->priority } @{ $self->plugins } ];
+    return { map { $_->name => $_ } @{ $self->plugins } };
 }
 
 # DAG Tree for determining plguin ordering
@@ -41,8 +41,10 @@ sub _build_tree {
     $tree->name("DreamCatcher::Feathers");
 
     # Build the feathers list
-    my @feathers = map { { tries => 0, obj => $_ } } @{ $self->feathers };
+    my $F = $self->feathers;
+    my @feathers = map { { tries => 0, obj => $F->{$_} } } sort { $F->{$a}->priority <=> $F->{$b}->priority } keys %{ $F };
 
+    # Object cache
     my %objects = ();
 
     # Cycle through the feathers
@@ -73,6 +75,9 @@ sub _build_tree {
 # Order the plugins using their "after" attributes
 sub _build_chain {
     my $self = shift;
+
+    my $F = $self->feathers;
+    return [ map { $F->{$_} } $self->tree->descendants ];
 }
 
 # Return True
