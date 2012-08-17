@@ -2,9 +2,9 @@ package DreamCatcher::Feathers;
 
 use Mouse;
 use Tree::DAG_Node;
-use Module::Pluggable => (
-    instantiate => 1,
-    search_path => 'DreamCatcher::Feathers',
+use Module::Pluggable (
+    instantiate => 'new',
+    search_path => 'DreamCatcher::Feather',
 );
 
 has 'tree' => (
@@ -32,11 +32,12 @@ has 'feathers' => (
 # Collect all of the plugins, though not ordered
 sub _build_feathers {
     my $self = shift;
-    return { map { $_->name => $_ } @{ $self->plugins } };
+    return { map { $_->name => $_ } $self->plugins };
 }
 
 # DAG Tree for determining plguin ordering
 sub _build_tree {
+    my $self = shift;
     my $tree = Tree::DAG_Node->new();
     $tree->name("DreamCatcher::Feathers");
 
@@ -75,9 +76,8 @@ sub _build_tree {
 # Order the plugins using their "after" attributes
 sub _build_chain {
     my $self = shift;
-
     my $F = $self->feathers;
-    return [ map { $F->{$_} } $self->tree->descendants ];
+    return [ map { $F->{$_} } map { $_->name } $self->tree->descendants ];
 }
 
 # Return True

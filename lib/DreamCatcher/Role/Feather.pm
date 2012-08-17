@@ -12,7 +12,7 @@ has 'name'  => (
 );
 has 'after' => (
     is      => 'ro',
-    isa     => 'ArrayRef',
+    isa     => 'Str',
     lazy    => 1,
     builder => '_build_after',
 );
