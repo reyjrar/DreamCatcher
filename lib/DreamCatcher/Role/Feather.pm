@@ -30,7 +30,15 @@ sub _build_priority { 10; }
 sub _build_after { 'base'; }
 
 # Default Naming Convention
-sub _build_name { return substr( __PACKAGE__, length('DreamCatcher::Feather::') -1  ); }
+sub _build_name {
+    my $self = shift;
+    my $class = ref $self;
+
+    if( my($name) = ( $class =~ /\:\:Feather\:\:(.*)/ ) ) {
+        return $name;
+    }
+    die "cannot guess $class name and none is set, override _build_name().\n";
+}
 
 # Return True
 1;
