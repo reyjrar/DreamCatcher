@@ -1,0 +1,19 @@
+# NAME
+
+DreamCatcher - DreamCatcher is a DNS Monitoring Suite
+
+# VERSION
+
+version 0.1
+
+# AUTHOR
+
+Brad Lhotsky <brad@divisionbyzero.net>
+
+# COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2012 by Brad Lhotsky.
+
+This is free software, licensed under:
+
+    The (three-clause) BSD License

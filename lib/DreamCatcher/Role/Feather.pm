@@ -2,7 +2,7 @@ package DreamCatcher::Role::Feather;
 
 use Mouse::Role;
 
-requires qw(process _build_after);
+requires qw(process);
 
 has 'name'  => (
     is      => 'ro',

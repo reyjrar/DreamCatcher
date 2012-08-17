@@ -63,9 +63,11 @@ sub _build_tree {
             $feather->{tries}++;
             if($feather->{tries} > 3) {
                 # Possible throw exception?
-                next;
             }
-            push @feathers, $obj;
+            else {
+                push @feathers, $feather;
+            }
+            next;
         }
         $node->name($obj->name);
         $objects{$obj->name} = $node;
