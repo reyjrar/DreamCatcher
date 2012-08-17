@@ -1,0 +1,12 @@
+*.bak
+.svn
+inc
+blib
+DreamCatcher-*
+MANIFEST
+Makefile
+Makefile.old
+.cvsignore
+pm_to_blib
+MYMETA.*
+.build
