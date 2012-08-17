@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="<%= url_for '/css/bootstrap.min.css' %>"/>
+    <link rel="stylesheet" type="text/css" href="<%= url_for '/css/bootstrap-responsive.min.css' %>"/>
+    <link rel="stylesheet" type="text/css" href="<%= url_for '/css/jquery.dataTables.css' %>"/>
+    <link rel="stylesheet" type="text/css" href="<%= url_for '/css/main.css' %>"/>
+    <script type="text/javascript" src="<%= url_for '/js/jquery.min.js' %>"></script>
+    <script type="text/javascript" src="<%= url_for '/js/jquery.dataTables.min.js' %>"></script>
+    <script type="text/javascript" src="<%= url_for '/js/bootstrap.min.js' %>"></script>
+    <script type="text/javascript" src="<%= url_for '/js/bootstrap-datatables.js' %>"></script>
+</head>
+<body>
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a href="<%= url_for '/' %>"><span class="brand">DreamCatcher</span></a>
+                <ul class="nav">
+                    <li class="divider-vertical"></li>
+                    <li id="nav_main"><a href="<%= url_for '/' %>">Home</a></li>
+                </ul>
+                <!-- Disabled as this is not implemented
+                <form class="navbar-search pull-left">
+                    <input type="text" class="search-query" placeholder="Search Dashboards">
+                </form>
+                -->
+            </div>
+        </div>
+    </div>
+    <div id="content" class="container">
+        <h1><%= title %></h1>
+        <%= content %>
+    </div>
+
+    <!-- Flashes -->
+    <div class="row">
+        <div class="span4">&nbsp;</div>
+% my $message = flash 'message';
+% if ( defined $message ) {
+    <div class="row">
+    <div id='flash' class="span4 alert alert-success">
+        <a class="close" data-dismiss="alert">x</a>
+        <%= $message %>
+    </div>
+    </div>
+% }
+% my $error = flash 'error';
+% if ( defined $error ) {
+    <div id='flash' class="span4 alert alert-error">
+        <a class="close" data-dismiss="alert">x</a>
+        <%= $error %>
+    </div>
+    </div>
+% }
+</body>
+</html>
