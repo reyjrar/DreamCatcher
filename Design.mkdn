@@ -1,0 +1,46 @@
+# Overview of the DreamCatcher Architecture #
+
+DreamCatcher is a rewrite of an old DNS Monitoring project.  It is based on
+that work and redesigned around the idea of a Native American Dream Catcher.
+
+## Basic Components ##
+
+The DreamCatcher daemon consists of two primary object types, the first is
+the net, the second are feathers.  The net catches packets off the write and
+processes them for handling by the feathers.
+
+The feathers receive the "good packets" from the net, either directly or
+through a trickle down mechanism from other feathers.  A feather may tie
+itself to another feather.  If that feather has not been loaded, then that
+feather will be shutdown.
+
+### The Net ###
+
+The net is the network capture session.  It implements a packet sniffer and
+packet processor which classifies and passes the packets to the first level
+feathers.
+
+Information passed to feathers from the net include:
+
+* *server_ip*
+* *server_port*
+* *client_ip*
+* *client_port*
+* *time* - hires time packet was captured)
+* *dns* - Net::DNS::Packet object
+* *ip* - NetPacket::IP decoded hash
+
+### Feathers ###
+
+Feathers serve to deliver the good packets to the user.  This means that the
+feathers provide context, sort, filter, and store the good packets in
+some fashion.  Feathers may provide additional information about the
+packets.  This information is then used to generate a dependency graph which
+allows feathers to receive packets in the correct order.
+
+Information that feathers may implement include:
+
+* store
+    * *server_id* - integer id for quick reference in data store
+    * *client_id* - integer id for quick reference in data store
+    * *conversation_id* - integer id denoting the unique transacation
