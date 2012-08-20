@@ -1,7 +1,7 @@
 package DreamCatcher::Feather::stats::graphite;
 
 use Mouse;
-with 'DreamCatcher::Role::Feather';
+with qw( DreamCatcher::Role::Feather DreamCatcher::Role::Feather::Sniffer );
 
 # Install this after stats
 sub _build_after { return 'stats'; }

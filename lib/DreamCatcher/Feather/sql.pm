@@ -1,7 +1,7 @@
 package DreamCatcher::Feather::sql;
 
 use Mouse;
-with 'DreamCatcher::Role::Feather';
+with qw( DreamCatcher::Role::Feather DreamCatcher::Role::Feather::Sniffer );
 
 # Make sure that stats are loaded
 sub _build_after { 'stats'; }

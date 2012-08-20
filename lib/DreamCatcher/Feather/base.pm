@@ -1,7 +1,7 @@
 package DreamCatcher::Feather::base;
 
 use Mouse;
-with 'DreamCatcher::Role::Feather';
+with qw( DreamCatcher::Role::Feather DreamCatcher::Role::Feather::Sniffer );
 
 # Name is
 sub _build_name { 'base'; }
