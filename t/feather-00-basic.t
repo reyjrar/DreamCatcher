@@ -10,7 +10,7 @@ my $plumage = new_ok( "DreamCatcher::Feathers" );
 
 # By calling chain, we test feathers and tree as well
 foreach my $feather ( @{ $plumage->chain } ) {
-    can_ok( $feather, qw{name priority after process});
+    can_ok( $feather, qw{name priority after});
 }
 
 # Now we're OK
