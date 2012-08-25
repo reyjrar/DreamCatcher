@@ -1,7 +1,11 @@
 package DreamCatcher::Feather::sql;
+# ABSTRACT: Provides Storage in an SQL database
 
 use Mouse;
-with qw( DreamCatcher::Role::Feather DreamCatcher::Role::Feather::Sniffer );
+with qw(
+    DreamCatcher::Role::Feather
+    DreamCatcher::Role::Feather::Sniffer
+);
 
 # Make sure that stats are loaded
 sub _build_after { 'stats'; }

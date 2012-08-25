@@ -1,7 +1,11 @@
 package DreamCatcher::Feather::base;
+# ABSTRACT: Base DNS Parsing
 
 use Mouse;
-with qw( DreamCatcher::Role::Feather DreamCatcher::Role::Feather::Sniffer );
+with qw(
+    DreamCatcher::Role::Feather
+    DreamCatcher::Role::Feather::Sniffer
+);
 
 # Name is
 sub _build_name { 'base'; }
