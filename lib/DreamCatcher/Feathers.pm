@@ -32,7 +32,7 @@ has 'feathers' => (
 # Collect all of the plugins, though not ordered
 sub _build_feathers {
     my $self = shift;
-    return { map { $_->name => $_ } $self->plugins };
+    return { map { $_->name => $_ } grep { $_->enabled } $self->plugins };
 }
 
 # DAG Tree for determining plguin ordering

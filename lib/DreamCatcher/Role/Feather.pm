@@ -20,12 +20,21 @@ has 'priority' => (
     lazy    => 1,
     builder => '_build_priority',
 );
+has 'enabled' => (
+    is => 'ro',
+    isa => 'Bool',
+    lazy => 1,
+    builder => '_build_enabled',
+);
 
 # Default, can be overridden in children
 sub _build_priority { 10; }
 
 # Default, can be overridden in children
 sub _build_after { 'base'; }
+
+# Default, enabled
+sub _build_enabled { 1; }
 
 # Default Naming Convention
 sub _build_name {
