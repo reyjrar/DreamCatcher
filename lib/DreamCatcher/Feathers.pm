@@ -7,27 +7,25 @@ use Module::Pluggable (
     search_path => 'DreamCatcher::Feather',
 );
 
+# Attributes
 has 'tree' => (
     is => 'ro',
     isa => 'Object',
     lazy => 1,
     builder => '_build_tree',
 );
-
 has 'chain' => (
     is      => 'ro',
     isa     => 'ArrayRef',
     lazy    => 1,
     builder => '_build_chain',
 );
-
 has 'feathers' => (
     is      => 'ro',
     isa     => 'HashRef',
     lazy    => 1,
     builder => '_build_feathers'
 );
-
 
 # Collect all of the plugins, though not ordered
 sub _build_feathers {
@@ -59,7 +57,7 @@ sub _build_tree {
             $node = $objects{$obj->after}->new_daughter();
         }
         else {
-            # Retry, maybe out of order
+            # Retry, may be out of order
             $feather->{tries}++;
             if($feather->{tries} > 3) {
                 # Possible throw exception?
