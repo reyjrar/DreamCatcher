@@ -1,0 +1,20 @@
+---
+time_zone: America/New_York
+db:
+  dsn: dbi:Pg:host=localhost;database=dreamcatcher
+  user: admin
+  pass:
+
+network:
+  nameservers: &GLOBALnameservers
+    - 8.8.8.8
+    - 8.8.4.4
+  clients: &GLOBALclients
+    - 192.168.1.0/24
+
+pcap:
+  dev: any
+  snaplen: 1518
+  timeout: 100
+  filter: (tcp or udp) and port 53
+  promisc: 0

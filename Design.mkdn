@@ -6,8 +6,8 @@ that work and redesigned around the idea of a Native American Dream Catcher.
 ## Basic Components ##
 
 The DreamCatcher daemon consists of two primary object types, the first is
-the net, the second are feathers.  The net catches packets off the write and
-processes them for handling by the feathers.
+the net, the second are feathers.  The net catches packets and performs
+basic processing for handling by the feathers.
 
 The feathers receive the "good packets" from the net, either directly or
 through a trickle down mechanism from other feathers.  A feather may tie

@@ -10,3 +10,4 @@ Makefile.old
 pm_to_blib
 MYMETA.*
 .build
+*.yml

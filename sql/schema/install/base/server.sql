@@ -1,0 +1,15 @@
+-- Server Table
+CREATE TABLE server
+(
+  id bigserial NOT NULL,
+  ip inet NOT NULL,
+  hostname character varying(255),
+  first_ts timestamp(6) without time zone NOT NULL DEFAULT now(),
+  last_ts timestamp(6) without time zone NOT NULL DEFAULT now(),
+  is_authorized boolean NOT NULL DEFAULT false,
+  CONSTRAINT server_pkey PRIMARY KEY (id),
+  CONSTRAINT server_uniq_ip UNIQUE (ip)
+)
+WITH (
+  OIDS=FALSE
+);
