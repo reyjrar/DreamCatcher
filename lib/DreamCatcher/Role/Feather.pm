@@ -21,10 +21,15 @@ has 'priority' => (
     builder => '_build_priority',
 );
 has 'enabled' => (
-    is => 'ro',
-    isa => 'Bool',
-    lazy => 1,
+    is      => 'ro',
+    isa     => 'Bool',
+    lazy    => 1,
     builder => '_build_enabled',
+);
+has 'config' => (
+    is       => 'ro',
+    isa      => 'HashRef',
+    init_arg => 'Config',
 );
 
 # Default, can be overridden in children
@@ -46,6 +51,23 @@ sub _build_name {
     }
     die "cannot guess $class name and none is set, override _build_name().\n";
 }
+
+# Wrap the BUILDARGS function
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $class = shift;
+    my %args = @_;
+
+    my $prefix = "DreamCatcher::Feather::";
+    my $name = substr($class, length $prefix);
+
+    my %FeatherConfig = ();
+    if( exists $args{Config} && exists $args{Config}->{$name} ) {
+        %FeatherConfig = %{ $args{Config}->{$name} };
+    }
+
+    $class->$orig( Config => \%FeatherConfig );
+};
 
 # Return True
 1;

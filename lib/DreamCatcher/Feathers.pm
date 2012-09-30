@@ -26,11 +26,17 @@ has 'feathers' => (
     lazy    => 1,
     builder => '_build_feathers'
 );
+has 'config' => (
+    is => 'ro',
+    isa => 'HashRef',
+    init_arg => 'Config',
+    default => sub { {} },
+);
 
 # Collect all of the plugins, though not ordered
 sub _build_feathers {
     my $self = shift;
-    return { map { $_->name => $_ } grep { $_->enabled } $self->plugins };
+    return { map { $_->name => $_ } grep { $_->enabled } $self->plugins( Config => $self->config ) };
 }
 
 # DAG Tree for determining plguin ordering
