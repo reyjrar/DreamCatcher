@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 use Mojo::Base -strict;
+# PODNAME: dream_catcher
 
 use File::Basename 'dirname';
 use File::Spec::Functions qw(catdir splitdir);
