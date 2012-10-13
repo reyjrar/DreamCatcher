@@ -4,15 +4,6 @@ package DreamCatcher;
 our $VERSION = 0.1;
 
 use Mojo::Base 'Mojolicious';
-use DBIx::Connector;
-
-
-# Database Connection
-has dbconn => sub {
-    my ($self) = @_;
-    my %c = %{ $self->config->{db} };
-    return DBIx::Connector->new( @c{qw{dsn user pass}});
-};
 
 # This method will run once at server start
 sub startup {
