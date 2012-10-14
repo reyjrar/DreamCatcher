@@ -11,7 +11,7 @@
     <script type="text/javascript" src="<%= url_for '/js/bootstrap.min.js' %>"></script>
     <script type="text/javascript" src="<%= url_for '/js/bootstrap-datatables.js' %>"></script>
     <script type="text/javascript" src="<%= url_for '/js/date.js' %>"></script>
-    <script type="text/javascript" src="<%= url_for '/js/functions.js' %>"></script>
+    <script type="text/javascript" src="<%= url_for '/js/dreamcatcher.js' %>"></script>
 </head>
 <body>
     <div class="navbar navbar-fixed-top">
@@ -58,8 +58,8 @@
 % }
     </div>
 <script type="text/javascript">
-$(document).ready(function() {
-        alert("doign stufff");
+$(function() {
+
     $('.textDate').each( function (idx) {
         var newStr = dc_format_date( $(this).text() );
         $(this).text( newStr );

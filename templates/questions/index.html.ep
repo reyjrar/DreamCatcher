@@ -2,9 +2,14 @@
 
 <p>Details about questions being viewed can be found here.</p>
 
-<div class="row">
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#top" data-toggle="tab">Top Questions</a></li>
+    <li><a href="#newest" data-toggle="tab">Recently Asked</a></li>
+</ul>
 
-<div class="span12">
+<div class="tab-content">
+
+<div id="top" class="active tab-pane">
 <h2>Top Questions</h2>
 <table class="data table table-striped table-condensed">
 <thead>
@@ -26,12 +31,9 @@
 % }
 </tbody>
 </table>
-</div>
+</div><!-- End of top tab-pane -->
 
-</div>
-
-<div class="row">
-<div class="span12">
+<div id="newest" class="tab-pane">
 <h2>Newest Questions</h2>
 <table class="data table table-striped table-condensed">
 <thead>
@@ -53,7 +55,7 @@
 % }
 </tbody>
 </table>
-</div>
+</div><!-- End of newest tab-pane -->
 
 
 </div>
@@ -63,13 +65,11 @@
 $(function() {
     /* Set Active Nav Item */
     $('#nav_questions').addClass('active');
-    $("table.data").dataTable({
-        "iDisplayLength": 10,
-        "bSortClasses": false,
-        "sPaginationType": "bootstrap",
-        "oLanguage": {
-            "sLengthMenu": "_MENU_ records per page"
-         },
+    $("#top table.data").dataTable({
+        "aaSorting": [[ 3, "desc" ]],
+    });
+    $("#newest table.data").dataTable({
+        "aaSorting": [[ 1, "desc" ]],
     });
 });
 </script>

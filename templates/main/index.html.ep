@@ -45,13 +45,6 @@
 <script type="text/javascript">
 $(function() {
     $("#nav_main").addClass("active");
-    $("table.data").dataTable({
-        "iDisplayLength": 10,
-        "bSortClasses": false,
-        "sPaginationType": "bootstrap",
-        "oLanguage": {
-            "sLengthMenu": "_MENU_ records per page"
-         },
-    });
+    $("table.data").dataTable( { "sPaginationType": "two_button" } );
 });
 </script>
