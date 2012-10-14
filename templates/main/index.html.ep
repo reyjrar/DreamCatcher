@@ -1,3 +1,44 @@
 %title 'Quick Overview';
 
-<p>Place holder for future awesomeness.</p>
+<p>DreamCatcher is a DNS inspection suite.</p>
+
+<div class="row">
+
+<div class="span4">
+<h2>DNS Servers Discovered</h2>
+<table>
+<thead>
+    <th>IP</th>
+    <th>Conversations</th>
+</thead>
+<tbody>
+% while( my $row = $STH->{servers}->fetchrow_hashref ) {
+    <tr>
+        <td><%= $row->{ip} %></td>
+        <td><%= $row->{clients} %></td>
+    </tr>
+% }
+</tbody>
+</table>
+</div>
+
+<div class="span4">
+<h2>Top Zones</h2>
+<table>
+<thead>
+    <th>Zone</th>
+    <th>References</th>
+</thead>
+<tbody>
+% while( my $row = $STH->{top_zones}->fetchrow_hashref ) {
+    <tr>
+        <td><%= $row->{name} %></td>
+        <td><%= $row->{reference_count} %></td>
+    </tr>
+% }
+</tbody>
+</table>
+</div>
+
+
+</div>

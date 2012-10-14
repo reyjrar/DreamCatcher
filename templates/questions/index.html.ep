@@ -1,0 +1,56 @@
+%title 'Question Overview';
+
+<p>Details about questions being viewed can be found here.</p>
+
+<div class="row">
+
+<div class="span6">
+<h2>Top Questions</h2>
+<table>
+<thead>
+<tr>
+    <th>Query</th>
+    <th>First</th>
+    <th>Last</th>
+    <th>Count</th>
+</tr>
+</thead>
+<tbody>
+% while( my $row = $STH->{top_questions}->fetchrow_hashref ) {
+    <tr>
+        <td><%= $row->{class} %> <%= $row->{type} %> <%= $row->{name} %></td>
+        <td><%= $row->{first_ts} %></td>
+        <td><%= $row->{last_ts} %></td>
+        <td><%= $row->{reference_count} %></td>
+    </tr>
+% }
+</tbody>
+</table>
+</div>
+
+<div class="span6">
+<h2>Newest Questions</h2>
+<table>
+<tr>
+    <th>Query</th>
+    <th>First</th>
+    <th>Last</th>
+    <th>Count</th>
+</tr>
+<thead>
+</thead>
+<tbody>
+% while( my $row = $STH->{recent_questions}->fetchrow_hashref ) {
+    <tr>
+        <td><%= $row->{class} %> <%= $row->{type} %> <%= $row->{name} %></td>
+        <td><%= $row->{first_ts} %></td>
+        <td><%= $row->{last_ts} %></td>
+        <td><%= $row->{reference_count} %></td>
+    </tr>
+% }
+</tbody>
+</table>
+</div>
+
+
+</div>

@@ -32,6 +32,9 @@ sub startup {
 
     # Normal route to controller
     $r->get('/')->to('main#index');
+
+    # Questions Module
+    $r->get('/questions')->to('questions#index');
 }
 
 1;
