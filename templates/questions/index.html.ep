@@ -4,9 +4,9 @@
 
 <div class="row">
 
-<div class="span6">
+<div class="span12">
 <h2>Top Questions</h2>
-<table>
+<table class="data table table-striped table-condensed">
 <thead>
 <tr>
     <th>Query</th>
@@ -19,8 +19,8 @@
 % while( my $row = $STH->{top_questions}->fetchrow_hashref ) {
     <tr>
         <td><%= $row->{class} %> <%= $row->{type} %> <%= $row->{name} %></td>
-        <td><%= $row->{first_ts} %></td>
-        <td><%= $row->{last_ts} %></td>
+        <td><span class="textDate"><%= $row->{first_ts} %></span></td>
+        <td><span class="textDate"><%= $row->{last_ts} %></span></td>
         <td><%= $row->{reference_count} %></td>
     </tr>
 % }
@@ -28,23 +28,26 @@
 </table>
 </div>
 
-<div class="span6">
+</div>
+
+<div class="row">
+<div class="span12">
 <h2>Newest Questions</h2>
-<table>
+<table class="data table table-striped table-condensed">
+<thead>
 <tr>
     <th>Query</th>
     <th>First</th>
     <th>Last</th>
     <th>Count</th>
 </tr>
-<thead>
 </thead>
 <tbody>
 % while( my $row = $STH->{recent_questions}->fetchrow_hashref ) {
     <tr>
         <td><%= $row->{class} %> <%= $row->{type} %> <%= $row->{name} %></td>
-        <td><%= $row->{first_ts} %></td>
-        <td><%= $row->{last_ts} %></td>
+        <td><span class="textDate"><%= $row->{first_ts} %></span></td>
+        <td><span class="textDate"><%= $row->{last_ts} %></span></td>
         <td><%= $row->{reference_count} %></td>
     </tr>
 % }
@@ -54,3 +57,19 @@
 
 
 </div>
+
+<!-- jQuery Bindings -->
+<script type="text/javascript">
+$(function() {
+    /* Set Active Nav Item */
+    $('#nav_questions').addClass('active');
+    $("table.data").dataTable({
+        "iDisplayLength": 10,
+        "bSortClasses": false,
+        "sPaginationType": "bootstrap",
+        "oLanguage": {
+            "sLengthMenu": "_MENU_ records per page"
+         },
+    });
+});
+</script>

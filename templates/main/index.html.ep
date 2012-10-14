@@ -2,11 +2,11 @@
 
 <p>DreamCatcher is a DNS inspection suite.</p>
 
-<div class="row">
+<div class="row"><!-- Start Row 1 -->
 
-<div class="span4">
+<div class="span6">
 <h2>DNS Servers Discovered</h2>
-<table>
+<table class="data table table-striped table-condensed">
 <thead>
     <th>IP</th>
     <th>Conversations</th>
@@ -22,9 +22,9 @@
 </table>
 </div>
 
-<div class="span4">
+<div class="span6">
 <h2>Top Zones</h2>
-<table>
+<table class="data table table-striped table-condensed">
 <thead>
     <th>Zone</th>
     <th>References</th>
@@ -41,4 +41,17 @@
 </div>
 
 
-</div>
+</div><!-- End Row 1 -->
+<script type="text/javascript">
+$(function() {
+    $("#nav_main").addClass("active");
+    $("table.data").dataTable({
+        "iDisplayLength": 10,
+        "bSortClasses": false,
+        "sPaginationType": "bootstrap",
+        "oLanguage": {
+            "sLengthMenu": "_MENU_ records per page"
+         },
+    });
+});
+</script>

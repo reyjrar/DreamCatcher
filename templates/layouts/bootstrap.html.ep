@@ -10,6 +10,8 @@
     <script type="text/javascript" src="<%= url_for '/js/jquery.dataTables.min.js' %>"></script>
     <script type="text/javascript" src="<%= url_for '/js/bootstrap.min.js' %>"></script>
     <script type="text/javascript" src="<%= url_for '/js/bootstrap-datatables.js' %>"></script>
+    <script type="text/javascript" src="<%= url_for '/js/date.js' %>"></script>
+    <script type="text/javascript" src="<%= url_for '/js/functions.js' %>"></script>
 </head>
 <body>
     <div class="navbar navbar-fixed-top">
@@ -54,5 +56,15 @@
     </div>
     </div>
 % }
+    </div>
+<script type="text/javascript">
+$(document).ready(function() {
+        alert("doign stufff");
+    $('.textDate').each( function (idx) {
+        var newStr = dc_format_date( $(this).text() );
+        $(this).text( newStr );
+    });
+});
+</script>
 </body>
 </html>
