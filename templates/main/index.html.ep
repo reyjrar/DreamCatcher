@@ -45,6 +45,9 @@
 <script type="text/javascript">
 $(function() {
     $("#nav_main").addClass("active");
-    $("table.data").dataTable( { "sPaginationType": "two_button" } );
+    $("table.data").dataTable( {
+        "aaSorting": [[ 1, "desc" ]],
+        "sPaginationType": "two_button",
+    });
 });
 </script>
