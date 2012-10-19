@@ -2,6 +2,7 @@
 .svn
 inc
 blib
+log
 DreamCatcher-*
 MANIFEST
 Makefile
