@@ -14,7 +14,7 @@
 <tbody>
 % while( my $row = $STH->{servers}->fetchrow_hashref ) {
     <tr>
-        <td><%= $row->{ip} %></td>
+        <td><a href="<%= url_for "/server/" . $row->{id} %>"><%= $row->{ip} %></a></td>
         <td><%= $row->{clients} %></td>
     </tr>
 % }
