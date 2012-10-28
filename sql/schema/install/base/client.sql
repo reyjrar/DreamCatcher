@@ -7,6 +7,7 @@ CREATE TABLE client
   last_ts timestamp(6) without time zone NOT NULL DEFAULT now(),
   is_local boolean NOT NULL DEFAULT false,
   role_server_id bigint,
+  reference_count bigint NOT NULL DEFAULT 1,
   CONSTRAINT client_pkey PRIMARY KEY (id),
   CONSTRAINT client_role_server_id_fkey FOREIGN KEY (role_server_id)
       REFERENCES server (id) MATCH SIMPLE

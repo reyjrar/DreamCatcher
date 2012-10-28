@@ -6,6 +6,7 @@ CREATE TABLE conversation
   first_ts timestamp(6) without time zone NOT NULL DEFAULT now(),
   last_ts timestamp(6) without time zone NOT NULL DEFAULT now(),
   client_is_server boolean NOT NULL DEFAULT false,
+  reference_count bigint NOT NULL DEFAULT 1,
   CONSTRAINT conversation_pkey PRIMARY KEY (id),
   CONSTRAINT conversation_client_id_fkey FOREIGN KEY (client_id)
       REFERENCES client (id) MATCH SIMPLE

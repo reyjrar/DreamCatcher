@@ -19,7 +19,7 @@ BEGIN
 		select currval('client_id_seq') into var_client_id;
 	ELSE
 		var_client_is_server := var_client_server_id is not null;
-		update client set last_ts = NOW() where id = var_client_id;
+		update client set last_ts = NOW(), reference_count = reference_count + 1 where id = var_client_id;
 	END IF;
 
 	-- Find the Server ID
@@ -29,7 +29,7 @@ BEGIN
 		insert into server ( ip ) values ( in_server_ip );
 		select currval('server_id_seq') into var_server_id;
 	ELSE
-		update server set last_ts = NOW() where id = var_server_id;
+		update server set last_ts = NOW(), reference_count = reference_count + 1 where id = var_server_id;
 	END IF;
 
 	-- Find the Conversation Record
@@ -41,7 +41,7 @@ BEGIN
 			values ( var_client_id, var_server_id, var_client_is_server );
 		select currval('conversation_id_seq') into var_convo_id;
 	ELSE
-		update conversation set last_ts = NOW() where id = var_convo_id;
+		update conversation set last_ts = NOW(), reference_count = reference_count + 1 where id = var_convo_id;
 	END IF;
 
 	select * into out_convo_row from conversation where id = var_convo_id;
