@@ -47,10 +47,13 @@ has common_queries => sub {
                 sum(conversation.reference_count) as conversations
             from conversation
                 inner join server on conversation.server_id = server.id
-            where conversation.last_ts > NOW() - interval '15 days'
+            where conversation.last_ts > NOW() - interval '30 days'
                 group by server.id, server.ip
         },
-    };
+        top_zones => qq{
+            select id, name, reference_count from zone order by reference_count DESC limit 100
+        },
+};
 };
 
 # Prepare a common query and stash it

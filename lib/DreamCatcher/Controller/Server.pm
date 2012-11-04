@@ -31,6 +31,7 @@ sub view {
         },
         clients => qq{
             select  cli.ip,
+                    cv.id,
                     cv.first_ts,
                     cv.last_ts,
                     cv.reference_count as conversation_count,

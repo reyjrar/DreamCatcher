@@ -21,6 +21,7 @@
                 <ul class="nav">
                     <li class="divider-vertical"></li>
                     <li id="nav_main"><a href="<%= url_for '/' %>">Home</a></li>
+                    <li id="nav_servers"><a href="<%= url_for '/server' %>">Servers</a></li>
                     <li id="nav_questions"><a href="<%= url_for '/questions' %>">Questions</a></li>
                 </ul>
                 <!-- Disabled as this is not implemented

@@ -3,3 +3,9 @@
 <p>Overview of server statistics</p>
 
 %= include 'server/top_servers'
+
+%= javascript begin
+$(function() {
+    $('#nav_servers').addClass('active');
+});
+%= end

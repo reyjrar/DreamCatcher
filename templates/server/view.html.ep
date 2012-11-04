@@ -12,6 +12,7 @@
     <th>Last</th>
     <th>Conversations</th>
     <th>Total</th>
+    <th>&nbsp;</th>
   </tr>
 </thead>
 <tbody>
@@ -22,6 +23,7 @@
     <td><span class="textDate"><%= $row->{last_ts} %></span></td>
     <td><%= $row->{conversation_count} %></td>
     <td><%= $row->{total_count} %></td>
+    <td><a href="<%= url_for '/conversation/' . $row->{id} %>" alt="details of <%= $server->{ip} %> and <%= $row->{ip} %>">view details</a></td>
   </tr>
 % }
 </tbody>
@@ -31,6 +33,7 @@
 
 %= javascript begin
 $( function() {
+    $('#nav_servers').addClass('active');
     $('#clients').dataTable({
         "aaSorting": [[ 2, "desc" ]],
     });

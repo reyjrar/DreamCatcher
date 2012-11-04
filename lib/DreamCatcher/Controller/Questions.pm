@@ -5,6 +5,7 @@ use Mojo::Base 'DreamCatcher::Controller';
 sub index {
     my $self = shift;
 
+    # Queries
     my %sql = (
         top_questions => qq{
             select * from packet_record_question
