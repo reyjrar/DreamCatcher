@@ -3,7 +3,6 @@
 <p>DreamCatcher is a DNS inspection suite.</p>
 
 <div class="row"><!-- Start Row 1 -->
-
 <div class="span6">
 %= include 'server/top_servers';
 </div>
@@ -11,11 +10,16 @@
 <div class="span6">
 %= include 'zone/top_zones';
 </div>
-
-
 </div><!-- End Row 1 -->
-<script type="text/javascript">
+
+<div class="row"><!-- Start Row 2 -->
+<div class="span6">
+%= include 'server/server_responses';
+</div>
+</div><!-- End Row 2 -->
+
+%= javascript begin
 $(function() {
     $("#nav_main").addClass("active");
 });
-</script>
+%= end

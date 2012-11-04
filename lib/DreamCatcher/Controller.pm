@@ -53,7 +53,14 @@ has common_queries => sub {
         top_zones => qq{
             select id, name, reference_count from zone order by reference_count DESC limit 100
         },
-};
+        server_responses => q{
+            select
+                srv.id, srv.ip, r.opcode, r.status, count(1) as queries, sum(count(1)) OVER (PARTITION BY r.server_id) as total
+            from packet_response r
+                inner join server srv on r.server_id = srv.id
+            group by srv.id, r.server_id, r.opcode, r.status
+        },
+    };
 };
 
 # Prepare a common query and stash it
@@ -62,7 +69,7 @@ sub common_query {
 
 
 
-    do { warn "fuck me"; return } unless exists $self->common_queries->{$query};
+    return unless exists $self->common_queries->{$query};
 
     $self->stash->{STH} = {} unless exists $self->stash->{STH};
     $self->stash->{STH}{$query} = $self->prepare_statement( $self->common_queries->{$query} );

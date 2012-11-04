@@ -6,7 +6,7 @@ sub index {
     my $self = shift;
 
     # Load some common queries
-    $self->common_query( $_ ) for qw{top_servers top_zones};
+    $self->common_query( $_ ) for qw{top_servers top_zones server_responses};
 
     $self->render();
 }
