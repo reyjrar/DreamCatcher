@@ -4,6 +4,8 @@
 
 %= include 'server/top_servers'
 
+%= include 'server/server_responses'
+
 %= javascript begin
 $(function() {
     $('#nav_servers').addClass('active');

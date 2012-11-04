@@ -14,7 +14,7 @@ sub index {
     # Stash
     $self->stash( STH => $STH );
 
-    $self->common_query( $_ ) for qw{top_servers};
+    $self->common_query( $_ ) for qw{top_servers server_responses};
 
     $self->render();
 }
