@@ -6,6 +6,12 @@ DreamCatcher - DreamCatcher is a DNS Monitoring Suite
 
 version 0.1
 
+# SCREENSHOTS
+
+* [Overview Page](https://raw.github.com/reyjrar/DreamCatcher/blob/master/examples/screenshots/0-main.png)
+* [Viewing a Server](https://raw.github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/1-server.png)
+* [Recently Asked Questions](https://raw.github.com/reyjrar/DreamCatcher/blob/master/examples/screenshots/3-questions.png)
+
 # AUTHOR
 
 Brad Lhotsky <brad@divisionbyzero.net>
