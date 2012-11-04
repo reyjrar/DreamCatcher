@@ -6,11 +6,32 @@ DreamCatcher - DreamCatcher is a DNS Monitoring Suite
 
 version 0.1
 
+# SYNOPSIS
+
+This is a complete DNS Monitoring Suite.  It is currently in __alpha__ status.
+
+# INSTALLATION
+
+Installation in the works, for now try:
+
+    perl Makefile.PL
+    make
+
+# USAGE
+
+Currently the sniffer does not work.  It is possible to use this project in conjunction with
+the [DNS Monitor](https://github.com/reyjrar/dns-monitor) as the databases are compatible.
+
+Once you have the dns-monitor sniffer and analyzer running, you can startup the DreamCatcher front
+end using:
+
+    morbo -v script/dream_catcher
+
 # SCREENSHOTS
 
-* [Overview Page](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/0-main.png)
-* [Viewing a Server](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/1-server.png)
-* [Recently Asked Questions](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/3-questions.png)
+- [Overview Page](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/0-main.png)
+- [Viewing a Server](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/1-server.png)
+- [Recently Asked Questions](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/3-questions.png)
 
 # AUTHOR
 

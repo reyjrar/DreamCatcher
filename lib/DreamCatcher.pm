@@ -42,3 +42,40 @@ sub startup {
 }
 
 1;
+__END__
+=head1 SYNOPSIS
+
+This is a complete DNS Monitoring Suite.  It is currently in B<alpha> status.
+
+=head1 INSTALLATION
+
+Installation in the works, for now try:
+
+   perl Makefile.PL
+   make
+
+=head1 USAGE
+
+Currently the sniffer does not work.  It is possible to use this project in conjunction with
+the L<DNS Monitor|https://github.com/reyjrar/dns-monitor> as the databases are compatible.
+
+Once you have the dns-monitor sniffer and analyzer running, you can startup the DreamCatcher front
+end using:
+
+    morbo -v script/dream_catcher
+
+=head1 SCREENSHOTS
+
+=over
+
+=item L<Overview Page|https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/0-main.png>
+
+=item L<Viewing a Server|https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/1-server.png>
+
+=item L<Recently Asked Questions|https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/3-questions.png>
+
+=back
+
+=end html
+
+=cut
