@@ -37,7 +37,8 @@ sub startup {
     $r->get('/questions')->to('questions#index');
 
     # Server Module
-    $r->get('/server/:id')->to('server#index');
+    $r->get('/server')->to('server#index');
+    $r->get('/server/:id')->to('server#view');
 }
 
 1;

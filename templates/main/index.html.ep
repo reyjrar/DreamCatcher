@@ -5,21 +5,7 @@
 <div class="row"><!-- Start Row 1 -->
 
 <div class="span6">
-<h2>DNS Servers Discovered</h2>
-<table class="data table table-striped table-condensed">
-<thead>
-    <th>IP</th>
-    <th>Conversations</th>
-</thead>
-<tbody>
-% while( my $row = $STH->{servers}->fetchrow_hashref ) {
-    <tr>
-        <td><a href="<%= url_for "/server/" . $row->{id} %>"><%= $row->{ip} %></a></td>
-        <td><%= $row->{clients} %></td>
-    </tr>
-% }
-</tbody>
-</table>
+%= include 'server/top_servers';
 </div>
 
 <div class="span6">

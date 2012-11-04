@@ -5,6 +5,23 @@ use Mojo::Base 'DreamCatcher::Controller';
 sub index {
     my $self = shift;
 
+    my %sql = (
+    );
+    # Prepare SQL
+    my $STH = $self->prepare_statements( \%sql );
+    # Execute it!
+    $STH->{$_}->execute() for keys %{ $STH };
+    # Stash
+    $self->stash( STH => $STH );
+
+    $self->common_query( $_ ) for qw{top_servers};
+
+    $self->render();
+}
+
+sub view {
+    my $self = shift;
+
     my $id = $self->stash('id');
 
     my %sql = (

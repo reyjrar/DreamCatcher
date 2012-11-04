@@ -6,13 +6,6 @@ sub index {
     my $self = shift;
 
     my %sql = (
-        servers => qq{
-			select server.id, server.ip as ip, count(1) as clients, max(conversation.last_ts) as last_ts
-   				from conversation
-			  		inner join server on conversation.server_id = server.id
-				where conversation.last_ts > NOW() - interval '15 days'
-					group by server.id, server.ip
-        },
         top_zones => qq{
             select id, name, reference_count from zone order by reference_count DESC limit 100
         },
@@ -33,6 +26,9 @@ sub index {
     $STH->{$_}->execute() for keys %{ $STH };
     # Stash
     $self->stash( STH => $STH );
+
+    # Load some common queries
+    $self->common_query( $_ ) for qw{top_servers};
 
     $self->render();
 }

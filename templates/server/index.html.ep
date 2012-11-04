@@ -1,38 +1,5 @@
-%title "Server Details :: $server->{ip}";
+%title "Server Overview";
 
 <p>Overview of server statistics</p>
 
-<div>
-<h2>Clients</h2>
-<table id="clients" class="table table-condensed table-striped">
-<thead>
-  <tr>
-    <th>Client</th>
-    <th>First</th>
-    <th>Last</th>
-    <th>Conversations</th>
-    <th>Total</th>
-  </tr>
-</thead>
-<tbody>
-% while ( my $row = $clients_sth->fetchrow_hashref) {
-  <tr>
-    <td><%= $row->{ip} %></td>
-    <td><span class="textDate"><%= $row->{first_ts} %></span></td>
-    <td><span class="textDate"><%= $row->{last_ts} %></span></td>
-    <td><%= $row->{conversation_count} %></td>
-    <td><%= $row->{total_count} %></td>
-  </tr>
-% }
-</tbody>
-</table>
-
-</div>
-
-%= javascript begin
-$( function() {
-    $('#clients').dataTable({
-        "aaSorting": [[ 2, "desc" ]],
-    });
-});
-%= end
+%= include 'server/top_servers'
