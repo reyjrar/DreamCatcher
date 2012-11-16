@@ -9,11 +9,11 @@ sub index {
     my %sql = (
         top_questions => qq{
             select * from packet_record_question
-                order by reference_count DESC limit 100
+                order by reference_count DESC limit 200
         },
         recent_questions => qq{
             select * from packet_record_question
-                order by first_ts DESC limit 100
+                order by first_ts DESC limit 200
         },
 
     );
