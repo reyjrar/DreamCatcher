@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 #
+$|=1;           # Autoflush STDOUT for POE::Filter::Reference
 use strict;
 use warnings;
 
@@ -26,7 +27,11 @@ while( sysread(STDIN, $raw, 4096) ) {
         my $packet = DreamCatcher::Packet->new( $raw_packet );
 
         if( $packet->valid ) {
-            print STDERR $packet->details->{qa} . "\n";
+            my $out = $FILTER->put( [ $packet ] );
+            print STDOUT @$out;
+        }
+        else {
+            print STDERR $packet->error . "\n";
         }
 	}
 }

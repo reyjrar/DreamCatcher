@@ -110,14 +110,15 @@ sub sniffer_start {
     # Create Workers
     $heap->{_workers} = {};
     $heap->{workers} = 0;
-    for ( 1 .. 10 ) {
+    for ( 1 .. 5 ) {
         $kernel->yield('spawn_worker');
     }
 
-    $kernel->delay( show_stats => 5 );
-
     # Start the Packet Capture
     $kernel->post( pcap => 'run' );
+
+    # Statistics Event
+    $kernel->delay( show_stats => 5 );
 }
 sub sniffer_show_stats {
     my ($kernel,$heap) = @_[KERNEL,HEAP];
@@ -137,6 +138,7 @@ sub sniffer_dispatch_packets {
     foreach my $packet ( @{ $packets } ) {
         # Reset worker back to 0
         $heap->{worker} = 0 if $heap->{worker} >= scalar @{ $heap->{workers} };
+        $heap->{stats}{total}++;
 
         # Dispatch to the child
         my $wheel_id = $heap->{workers}[$heap->{worker}];
@@ -178,7 +180,6 @@ sub sniffer_spawn_worker {
         my $err = shift;
         ERROR("proc_spawn_worker unable to assign CPU affinity for worker: " . $worker->ID);
     };
-
     INFO("proc_spawn_worker successfully spawned worker:" . $worker->ID . " (cpus:" . join(',', @cpus) . ")");
 }
 sub sniffer_kill_worker {
@@ -209,15 +210,14 @@ sub worker_error {
     }
 }
 sub worker_stdout {
-    my ($heap,$obj) = @_[HEAP,ARG0];
+    my ($heap,$obj,$wheel_id) = @_[HEAP,ARG0,ARG1];
 
     no warnings;
-    $heap->{stats}{total}++;
-    $heap->{stats}{$obj->details->{qa}}++;
+    $heap->{stats}{success}++;
+    #$heap->{stats}{$obj->details->{qa}}++;
 }
 sub worker_stderr {
-    my ($heap,$failure) = @_[HEAP,ARG0];
+    my ($heap,$failure,$wheel_id) = @_[HEAP,ARG0,ARG1];
     no warnings;
     $heap->{stats}{$failure}++;
-    $heap->{stats}{total}++;
 }
