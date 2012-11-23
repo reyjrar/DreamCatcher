@@ -1,0 +1,36 @@
+Packet comes in:
+  - Base Decoding
+  - Protocol Decoding
+
+  o Generic Plugin handlers
+    o Any child plugins
+
+
+
+---
+Sample
+
+db:
+ - conversation
+   -> adds: conversation_id, client_id, server_id
+ - query
+   -> adds: query_id
+ - response
+   -> adds: response_id
+ - zone
+   -> adds: zone_id
+
+stats:
+ - graphite
+ - logging
+
+
+DreamCatcher::Packet
+
+new( <raw packet> );
+
+raw_packet
+
+dns
+network
+

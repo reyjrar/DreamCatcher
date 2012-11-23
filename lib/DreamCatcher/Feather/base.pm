@@ -20,9 +20,10 @@ sub _build_priority { 1; }
 sub _build_after { 'none'; }
 
 sub process {
-	my ($self,$packet,$data) = @_;
+	my ($self,$inst,$data) = @_;
 
     # Begin Decoding
+    my ($hdr, $packet) = @{ $inst };
     my $ip_pkt  = NetPacket::IP->decode( eth_strip($packet) );
 
     return unless defined $ip_pkt;
@@ -45,7 +46,7 @@ sub process {
 
     # Informations!
     $data->{bytes}     = length $packet;
-    $data->{time}      = join('.', $data->{_header}{tv_sec}, sprintf("%0.6d", $data->{_header}{tv_usec}) );
+    $data->{time}      = join('.', $hdr->{tv_sec}, sprintf("%0.6d", $hdr->{tv_usec}) );
     $data->{src_ip}    = $ip_pkt->{src_ip};
     $data->{dest_ip}   = $ip_pkt->{dest_ip};
     $data->{src_port}  = $layer4->{src_port};
