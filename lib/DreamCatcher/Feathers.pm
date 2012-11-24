@@ -56,6 +56,10 @@ sub _build_tree {
     while ( my $feather = shift @feathers ) {
         my $node;
         my $obj = $feather->{obj};
+
+        # Skip feathers that are disabled
+        next unless $obj->enabled;
+
         if( $obj->after eq 'none' ) {
             $node = $tree->new_daughter();
         }

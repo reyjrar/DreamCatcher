@@ -2,6 +2,8 @@ package DreamCatcher::Role::Feather;
 
 use Mouse::Role;
 
+requires qw(process);
+
 has 'name'  => (
     is      => 'ro',
     isa     => 'Str',
@@ -36,10 +38,20 @@ has 'config' => (
 sub _build_priority { 10; }
 
 # Default, can be overridden in children
-sub _build_after { 'base'; }
+sub _build_after { 'none'; }
 
 # Default, enabled
-sub _build_enabled { 1; }
+sub _build_enabled {
+    my $self = shift;
+    my $config = $self->config;
+
+    if( defined $config && ref $config eq 'HASH' && exists $config->{feather}{$self->name} ) {
+        if( exists $config->{feather}{$self->name}{disabled} && $config->{feather}{$self->name}{disabled} ) {
+            return 0;
+        }
+    }
+    return 1;
+}
 
 # Default Naming Convention
 sub _build_name {

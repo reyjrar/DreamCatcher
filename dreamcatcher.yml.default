@@ -18,3 +18,7 @@ pcap:
   timeout: 100
   filter: (tcp or udp) and port 53
   promisc: 0
+
+feather:
+  conversation:
+    disabled: 0
