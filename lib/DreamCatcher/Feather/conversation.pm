@@ -6,7 +6,6 @@ use warnings;
 use Mouse;
 with qw(
     DreamCatcher::Role::Feather
-    DreamCatcher::Role::Feather::Sniffer
 );
 
 # Override default priority
@@ -15,7 +14,7 @@ sub _build_priority { 1; }
 sub process {
     my ($self,$packet) = @_;
 
-    $packet->data->{conversation_id} = 1;
+    $packet->details->{conversation_id} = 1;
 }
 
 # Return True;

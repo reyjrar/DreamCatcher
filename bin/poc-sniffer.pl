@@ -210,11 +210,11 @@ sub worker_error {
     }
 }
 sub worker_stdout {
-    my ($heap,$obj,$wheel_id) = @_[HEAP,ARG0,ARG1];
+    my ($heap,$details,$wheel_id) = @_[HEAP,ARG0,ARG1];
 
     no warnings;
     $heap->{stats}{success}++;
-    #$heap->{stats}{$obj->details->{qa}}++;
+    $heap->{stats}{$details->{qa}}++;
 }
 sub worker_stderr {
     my ($heap,$failure,$wheel_id) = @_[HEAP,ARG0,ARG1];

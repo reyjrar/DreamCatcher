@@ -94,7 +94,7 @@ sub _build_error {
     return $self->_get_data( 'error' );
 }
 sub _build_raw_data {
-	my $self = shift;
+    my $self = shift;
     my %data = (
         details => undef,
         dns     => undef,

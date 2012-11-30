@@ -1,6 +1,5 @@
 #!/usr/bin/env perl
 #
-$|=1;           # Autoflush STDOUT for POE::Filter::Reference
 use strict;
 use warnings;
 
@@ -12,13 +11,16 @@ use lib "$FindBin::Bin/../lib";
 use DreamCatcher::Packet;
 use DreamCatcher::Feathers;
 
+# Global Object Instances
 my $CFG = YAML::LoadFile( $ARGV[0] );
 my $FILTER = POE::Filter::Reference->new();
+my $FEATHERS = DreamCatcher::Feathers->new( Config => $CFG );
+my $raw = undef;
 
 # Handle reading events back and forth
-my $raw = undef;
 binmode(STDIN);
 binmode(STDOUT);
+$|=1;           # Autoflush STDOUT for POE::Filter::Reference
 
 while( sysread(STDIN, $raw, 4096) ) {
 	my $packets = $FILTER->get([$raw]);
@@ -26,8 +28,12 @@ while( sysread(STDIN, $raw, 4096) ) {
 	foreach my $raw_packet (@{ $packets }) {
         my $packet = DreamCatcher::Packet->new( $raw_packet );
 
+        foreach my $feather ( @{ $FEATHERS->chain }) {
+            $feather->process( $packet );
+        }
+
         if( $packet->valid ) {
-            my $out = $FILTER->put( [ $packet ] );
+            my $out = $FILTER->put( [ $packet->details ] );
             print STDOUT @$out;
         }
         else {
