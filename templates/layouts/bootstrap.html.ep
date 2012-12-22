@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="<%= url_for '/css/main.css' %>"/>
     <script type="text/javascript" src="<%= url_for '/js/jquery.min.js' %>"></script>
     <script type="text/javascript" src="<%= url_for '/js/jquery.dataTables.min.js' %>"></script>
+    <script type="text/javascript" src="<%= url_for '/js/jquery.bootstrap-growl.js' %>"></script>
     <script type="text/javascript" src="<%= url_for '/js/bootstrap.min.js' %>"></script>
     <script type="text/javascript" src="<%= url_for '/js/bootstrap-datatables.js' %>"></script>
     <script type="text/javascript" src="<%= url_for '/js/date.js' %>"></script>
@@ -17,10 +18,9 @@
     <div class="navbar navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
-                <a href="<%= url_for '/' %>"><span class="brand">DreamCatcher</span></a>
+                <a id="nav_main" href="<%= url_for '/' %>"><span class="brand">DreamCatcher</span></a>
                 <ul class="nav">
                     <li class="divider-vertical"></li>
-                    <li id="nav_main"><a href="<%= url_for '/' %>">Home</a></li>
                     <li id="nav_servers"><a href="<%= url_for '/server' %>">Servers</a></li>
                     <li id="nav_questions"><a href="<%= url_for '/questions' %>">Questions</a></li>
                 </ul>
@@ -37,27 +37,6 @@
         <%= content %>
     </div>
 
-    <!-- Flashes -->
-    <div class="row">
-        <div class="span4">&nbsp;</div>
-% my $message = flash 'message';
-% if ( defined $message ) {
-    <div class="row">
-    <div id='flash' class="span4 alert alert-success">
-        <a class="close" data-dismiss="alert">x</a>
-        <%= $message %>
-    </div>
-    </div>
-% }
-% my $error = flash 'error';
-% if ( defined $error ) {
-    <div id='flash' class="span4 alert alert-error">
-        <a class="close" data-dismiss="alert">x</a>
-        <%= $error %>
-    </div>
-    </div>
-% }
-    </div>
 <script type="text/javascript">
 $(function() {
 
@@ -65,6 +44,17 @@ $(function() {
         var newStr = dc_format_date( $(this).text() );
         $(this).text( newStr );
     });
+
+    /* Flashes */
+% my $message = flash 'message';
+% if ( defined $message ) {
+    $.bootstrapGrowl("<%= $message %>", { type: 'success' });
+% }
+% my $error = flash 'error';
+% if ( defined $error ) {
+    $.bootstrapGrowl("<%= $error %>", { type: 'error' });
+% }
+
 });
 </script>
 </body>
