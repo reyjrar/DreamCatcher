@@ -60,14 +60,20 @@ has common_queries => sub {
                 inner join server srv on r.server_id = srv.id
             group by srv.id, r.server_id, r.opcode, r.status
         },
+        top_questions => qq{
+            select * from packet_record_question
+                order by reference_count DESC limit 200
+        },
+        recent_questions => qq{
+            select * from packet_record_question
+                order by first_ts DESC limit 200
+        },
     };
 };
 
 # Prepare a common query and stash it
 sub common_query {
     my ($self,$query, @parms) = @_;
-
-
 
     return unless exists $self->common_queries->{$query};
 

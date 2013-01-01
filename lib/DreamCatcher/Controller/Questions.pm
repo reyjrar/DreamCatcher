@@ -5,25 +5,8 @@ use Mojo::Base 'DreamCatcher::Controller';
 sub index {
     my $self = shift;
 
-    # Queries
-    my %sql = (
-        top_questions => qq{
-            select * from packet_record_question
-                order by reference_count DESC limit 200
-        },
-        recent_questions => qq{
-            select * from packet_record_question
-                order by first_ts DESC limit 200
-        },
-
-    );
-
-    # Prepare SQL
-    my $STH = $self->prepare_statements( \%sql );
-    # Execute it!
-    $STH->{$_}->execute() for keys %{ $STH };
-    # Stash
-    $self->stash( STH => $STH );
+    # Load some common queries
+    $self->common_query( $_ ) for qw{top_questions recent_questions};
 
     $self->render();
 }
