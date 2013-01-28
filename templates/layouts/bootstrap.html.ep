@@ -23,6 +23,7 @@
                     <li class="divider-vertical"></li>
                     <li id="nav_servers"><a href="<%= url_for '/server' %>">Servers</a></li>
                     <li id="nav_questions"><a href="<%= url_for '/questions' %>">Questions</a></li>
+                    <li id="nav_utility"><a href="<%= url_for '/utility' %>">Utilities</a></li>
                 </ul>
                 <!-- Disabled as this is not implemented
                 <form class="navbar-search pull-left">

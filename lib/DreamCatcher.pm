@@ -39,6 +39,11 @@ sub startup {
     # Server Module
     $r->get('/server')->to('server#index');
     $r->get('/server/:id')->to('server#view');
+
+    # Utilities Module
+    $r->get('/utility')->to('utility#index');
+    $r->get('/utilities')->to('utility#index');
+    $r->post('/utility/reverse')->to(controller => 'Utility', action => 'reverse_lookup');
 }
 
 1;

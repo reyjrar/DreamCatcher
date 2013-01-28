@@ -1,0 +1,12 @@
+%title 'Utilities';
+
+<p>A list of utilities which may be useful for DNS investigations.</p>
+
+%= include 'utility/reverse_form';
+<!-- jQuery Bindings -->
+<script type="text/javascript">
+$(function() {
+    /* Set Active Nav Item */
+    $('#nav_utility').addClass('active');
+});
+</script>

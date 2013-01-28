@@ -1,0 +1,9 @@
+<!-- Begin utility/reverse_form -->
+<div id="reverse_lookup">
+<form method="POST" action="<%= url_for "/utility/reverse" %>" class="form-inline">
+    <div class="lead">Reverse IP Lookup</div>
+    <input class="input-medium search-query" id="RVip" name="ip" type="text" placeholder="IP Address.."/>
+    <button class="btn" type="submit"><i class="icon icon-search"></i> Reverse Lookup</button>
+</form>
+</div>
+<!-- End utility/reverse_form -->

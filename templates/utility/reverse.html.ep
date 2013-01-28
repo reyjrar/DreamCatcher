@@ -1,0 +1,53 @@
+%title 'Fake Reverse Utility';
+
+<p>Utility which uses information gleaned from forward DNS records to assemble
+a dynamic, "fake" list of DNS reverses.  This can be especially useful if you
+have network alerts about malicious activity from external IP's and you'd like
+to know which DNS forwards are responsible for those IP's.</p>
+
+%= include 'utility/reverse_form';
+
+% if ( defined $ip && $STH->{reverse_lookup}->rows > 0 ) {
+<div id="reverses">
+<h2>Forward Queries for: <%= $ip %> </h2>
+<table class="data table table-striped table-condensed">
+<thead>
+<tr>
+    <th>Query</th>
+    <th>Answer</th>
+    <th>First</th>
+    <th>Last</th>
+    <th>Count</th>
+    <th>Functions</th>
+</tr>
+</thead>
+<tbody>
+% while( my $row = $STH->{reverse_lookup}->fetchrow_hashref ) {
+    <tr>
+        <td><%= $row->{class} %> <%= $row->{type} %> <%= $row->{name} %></td>
+        <td><%= $row->{value} %></td>
+        <td><span class="textDate"><%= $row->{first_ts} %></span></td>
+        <td><span class="textDate"><%= $row->{last_ts} %></span></td>
+        <td><%= $row->{reference_count} %></td>
+        <td>&nbsp;</td>
+    </tr>
+% }
+</tbody>
+</table>
+</div><!-- End of newest tab-pane -->
+
+% } else {
+<h2 class="error">No results found for IP:<%= $ip %>.</h2>
+% }
+
+
+<!-- jQuery Bindings -->
+<script type="text/javascript">
+$(function() {
+    /* Set Active Nav Item */
+    $('#nav_utility').addClass('active');
+    $("#reverses table.data").dataTable({
+        "aaSorting": [[ 3, "desc" ]],
+    });
+});
+</script>
