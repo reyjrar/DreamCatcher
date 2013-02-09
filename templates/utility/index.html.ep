@@ -3,6 +3,9 @@
 <p>A list of utilities which may be useful for DNS investigations.</p>
 
 %= include 'utility/reverse_form';
+
+%= include 'utility/form_clients_asking';
+
 <!-- jQuery Bindings -->
 <script type="text/javascript">
 $(function() {

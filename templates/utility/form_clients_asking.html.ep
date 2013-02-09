@@ -1,0 +1,9 @@
+<!-- Begin utility/form_clients_asking -->
+<div id="clients_asking">
+<form method="POST" action="<%= url_for "/utility/clients_asking" %>" class="form-inline">
+    <div class="lead">Clients Asking</div>
+    <input class="input-medium search-query" id="question" name="question" type="text" placeholder="google.com"/>
+    <button class="btn" type="submit"><i class="icon icon-eye-open"></i> Clients Asking</button>
+</form>
+</div>
+<!-- End utility/form_clients_asking -->

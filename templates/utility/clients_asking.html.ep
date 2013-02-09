@@ -1,0 +1,46 @@
+%title 'Clients Asking';
+
+<p>Utility to see which clients have been discovered asking certain questions.</p>
+
+%= include 'utility/form_clients_asking';
+
+% if ( defined $question && $STH->{clients_asking}->rows > 0 ) {
+<div id="clients">
+<h2>Clients who asked '<%= $class %> <%= $type %> <%= $name %>' </h2>
+<table class="data table table-striped table-condensed">
+<thead>
+<tr>
+    <th>Client</th>
+    <th>First</th>
+    <th>Last</th>
+    <th>Count</th>
+</tr>
+</thead>
+<tbody>
+% while( my $row = $STH->{clients_asking}->fetchrow_hashref ) {
+    <tr>
+        <td><%= $row->{client} %></td>
+        <td><span class="textDate"><%= $row->{first_ts} %></span></td>
+        <td><span class="textDate"><%= $row->{last_ts} %></span></td>
+        <td><%= $row->{reference_count} %></td>
+    </tr>
+% }
+</tbody>
+</table>
+</div><!-- End of newest tab-pane -->
+
+% } else {
+<h2 class="error">No results found for question: '<%= $class %> <%= $type %> <%= $name %>'</h2>
+% }
+
+
+<!-- jQuery Bindings -->
+<script type="text/javascript">
+$(function() {
+    /* Set Active Nav Item */
+    $('#nav_utility').addClass('active');
+    $("#clients table.data").dataTable({
+        "aaSorting": [[ 3, "desc" ]],
+    });
+});
+</script>
