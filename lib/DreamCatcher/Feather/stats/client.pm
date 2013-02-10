@@ -1,4 +1,4 @@
-package DreamCatcher::Feather::store;
+package DreamCatcher::Feather::stats::client;
 # ABSTRACT: Store the DNS packet in the database.
 
 use strict;

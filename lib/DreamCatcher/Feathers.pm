@@ -21,11 +21,11 @@ has 'chain' => (
     lazy    => 1,
     builder => '_build_chain',
 );
-has 'feathers' => (
+has 'hash' => (
     is      => 'ro',
     isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
     lazy    => 1,
-    builder => '_build_feathers'
+    builder => '_build_hash'
 );
 has 'config' => (
     is       => 'ro',
@@ -34,7 +34,7 @@ has 'config' => (
 );
 
 # Collect all of the plugins, though not ordered
-sub _build_feathers {
+sub _build_hash {
     my $self = shift;
     return { map { $_->name => $_ } grep { $_->enabled } $self->plugins( Config => $self->config ) };
 }
@@ -46,7 +46,7 @@ sub _build_tree {
     $tree->name("DreamCatcher::Feathers");
 
     # Build the feathers list
-    my $F = $self->feathers;
+    my $F = $self->hash;
     my @feathers = map { { tries => 0, obj => $F->{$_} } } sort { $F->{$a}->priority <=> $F->{$b}->priority } keys %{ $F };
 
     # Object cache
@@ -60,11 +60,11 @@ sub _build_tree {
         # Skip feathers that are disabled
         next unless $obj->enabled;
 
-        if( $obj->after eq 'none' ) {
+        if( $obj->parent eq 'none' ) {
             $node = $tree->new_daughter();
         }
-        elsif( exists $objects{$obj->after} ) {
-            $node = $objects{$obj->after}->new_daughter();
+        elsif( exists $objects{$obj->parent} ) {
+            $node = $objects{$obj->parent}->new_daughter();
         }
         else {
             # Retry, may be out of order
@@ -83,10 +83,10 @@ sub _build_tree {
     return $tree;
 }
 
-# Order the plugins using their "after" attributes
+# Order the plugins using their "parent" attributes
 sub _build_chain {
     my $self = shift;
-    my $F = $self->feathers;
+    my $F = $self->hash;
     return [ map { $F->{$_} } map { $_->name } $self->tree->descendants ];
 }
 

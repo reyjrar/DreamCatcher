@@ -8,19 +8,16 @@ requires qw(process);
 has 'name'  => (
     is      => 'ro',
     isa     => quote_sub(q{ die "Not a string" if ref $_[0] || $_[0] =~ /[^0-9a-z:_\-]/i; }),
-    lazy    => 1,
     builder => '_build_name',
 );
-has 'after' => (
+has 'parent' => (
     is      => 'ro',
     isa     => quote_sub(q{ die "Not a string" if ref $_[0] || $_[0] =~ /[^0-9a-z:_\-]/i; }),
-    lazy    => 1,
-    builder => '_build_after',
+    builder => '_build_parent',
 );
 has 'priority' => (
     is      => 'ro',
     isa     => quote_sub(q{ die "Not an integer" if ref $_[0] || $_[0] =~ /[^0-9]/i; }),
-    lazy    => 1,
     builder => '_build_priority',
 );
 has 'enabled' => (
@@ -39,17 +36,15 @@ has 'config' => (
 sub _build_priority { 10; }
 
 # Default, can be overridden in children
-sub _build_after { 'none'; }
+sub _build_parent { 'none'; }
 
 # Default, enabled
 sub _build_enabled {
     my $self = shift;
     my $config = $self->config;
 
-    if( defined $config && ref $config eq 'HASH' && exists $config->{feather}{$self->name} ) {
-        if( exists $config->{feather}{$self->name}{disabled} && $config->{feather}{$self->name}{disabled} ) {
-            return 0;
-        }
+    if( defined $config && ref $config eq 'HASH' && exists $config->{disabled} ) {
+        return !$config->{disabled};
     }
     return 1;
 }

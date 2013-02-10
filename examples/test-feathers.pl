@@ -8,9 +8,10 @@ use lib "$ENV{HOME}/code/dreamcatcher/lib";
 use DreamCatcher::Feathers;
 
 my $feathers = DreamCatcher::Feathers->new(Config => LoadFile("$ENV{HOME}/code/dreamcatcher/dreamcatcher.yml"));
-print Dump($feathers->feathers);
+printf("Feathers found %s(%s):  => %s\n", $_->name, $_->priority, $_->parent ) for values %{ $feathers->hash };
+
 my $collection = $feathers->chain();
 
 foreach my $feather ( @{ $collection }) {
-    printf "loaded %s [%d] after %s\n", $feather->name, $feather->priority, $feather->after;
+    printf "chained %s [%d] after %s\n", $feather->name, $feather->priority, $feather->parent;
 }
