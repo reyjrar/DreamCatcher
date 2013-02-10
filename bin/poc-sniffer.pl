@@ -11,7 +11,6 @@ use File::Basename;
 use File::Spec;
 use FindBin;
 use Log::Log4perl qw(:easy);
-use Try::Tiny;
 use YAML;
 
 # DreamCatcher Libraries
@@ -169,17 +168,17 @@ sub sniffer_spawn_worker {
     $heap->{worker} = 0;
 
     my @cpus = ();
-    try {
+    eval {
         require Sys::CpuAffinity;
         my $cpus = $heap->{_cpus} > $CFG->{sniffer}{workers} ? 2 : 1;
         for (1 .. $cpus ) {
             push @cpus, int(rand($heap->{_cpus})) + 1;
         }
         Sys::CpuAffinity::setAffinity($worker->PID, \@cpus);
-    } catch {
-        my $err = shift;
-        ERROR("proc_spawn_worker unable to assign CPU affinity for worker: " . $worker->ID);
     };
+    if( my $err = $@ ) {
+        ERROR("proc_spawn_worker unable to assign CPU affinity for worker: " . $worker->ID);
+    }
     INFO("proc_spawn_worker successfully spawned worker:" . $worker->ID . " (cpus:" . join(',', @cpus) . ")");
 }
 sub sniffer_kill_worker {

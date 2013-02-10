@@ -1,14 +1,14 @@
 package DreamCatcher::Packet;
 
 # ABSTRACT: DreamCatcher Packet Parsing object
-use Mouse;
+use Moo;
+use Sub::Quote;
 
 # Packet Parsing
 use NetPacket::Ethernet qw(:strip);
 use NetPacket::IP qw(:strip :protos);
 use NetPacket::UDP;
 use NetPacket::TCP;
-use Try::Tiny;
 
 # DNS Decoding
 use Net::DNS::Packet;
@@ -16,7 +16,7 @@ use Net::DNS::Packet;
 # The Raw Packet off the wire
 has 'raw_packet' => (
     is       => 'ro',
-    isa      => 'ArrayRef',
+    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'ARRAY'; }),
     required => 1,
     init_arg => 'Packet',
 );
@@ -30,7 +30,7 @@ has 'raw_data' => (
 # Is the packet valid
 has 'valid' => (
     is       => 'ro',
-    isa      => 'Bool',
+    isa      => quote_sub(q{ die "Not a bool" if ref $_[0]; }),
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_valid',
@@ -38,7 +38,7 @@ has 'valid' => (
 # Details Extracted by BUILD
 has 'details' => (
     is       => 'rw',
-    isa      => 'HashRef',
+    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_details',
@@ -46,7 +46,7 @@ has 'details' => (
 # Net::DNS::Packet Object
 has 'dns' => (
     is       => 'ro',
-    isa      => 'Object',
+    isa      => quote_sub(q{ die "Not a Net::DNS::Packet" if ref $_[0] ne 'Net::DNS::Packet'; }),
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_dns',
@@ -54,7 +54,7 @@ has 'dns' => (
 # Errors with this packet
 has 'error' => (
     is       => 'ro',
-    isa      => 'Defined',
+    isa      => quote_sub(q{ die "Not defined" unless defined $_[0]; }),
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_error',
@@ -133,7 +133,7 @@ sub _build_raw_data {
 
     # Parse DNS Packet
     my $dnsp = undef;
-    try {
+    eval {
         $dnsp = Net::DNS::Packet->new( \$layer4->{data} );
     };
     return { %data, error => "Net::DNS unable to parse DNS Packet" } unless defined $dnsp;

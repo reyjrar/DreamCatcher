@@ -1,36 +1,37 @@
 package DreamCatcher::Role::Feather;
 
-use Mouse::Role;
+use Moo::Role;
+use Sub::Quote;
 
 requires qw(process);
 
 has 'name'  => (
     is      => 'ro',
-    isa     => 'Str',
+    isa     => quote_sub(q{ die "Not a string" if ref $_[0] || $_[0] =~ /[^0-9a-z:_\-]/i; }),
     lazy    => 1,
     builder => '_build_name',
 );
 has 'after' => (
     is      => 'ro',
-    isa     => 'Str',
+    isa     => quote_sub(q{ die "Not a string" if ref $_[0] || $_[0] =~ /[^0-9a-z:_\-]/i; }),
     lazy    => 1,
     builder => '_build_after',
 );
 has 'priority' => (
     is      => 'ro',
-    isa     => 'Int',
+    isa     => quote_sub(q{ die "Not an integer" if ref $_[0] || $_[0] =~ /[^0-9]/i; }),
     lazy    => 1,
     builder => '_build_priority',
 );
 has 'enabled' => (
     is      => 'ro',
-    isa     => 'Bool',
+    isa     => quote_sub(q{ die "Not a bool" if ref $_[0]; }),
     lazy    => 1,
     builder => '_build_enabled',
 );
 has 'config' => (
     is       => 'ro',
-    isa      => 'HashRef',
+    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
     init_arg => 'Config',
 );
 

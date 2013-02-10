@@ -1,6 +1,7 @@
 package DreamCatcher::Feathers;
 
-use Mouse;
+use Moo;
+use Sub::Quote;
 use Tree::DAG_Node;
 use Module::Pluggable (
     instantiate => 'new',
@@ -9,28 +10,27 @@ use Module::Pluggable (
 
 # Attributes
 has 'tree' => (
-    is => 'ro',
-    isa => 'Object',
-    lazy => 1,
+    is      => 'ro',
+    isa      => quote_sub(q{ die "Not an Object" unless ref $_[0]; }),
+    lazy    => 1,
     builder => '_build_tree',
 );
 has 'chain' => (
     is      => 'ro',
-    isa     => 'ArrayRef',
+    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'ARRAY'; }),
     lazy    => 1,
     builder => '_build_chain',
 );
 has 'feathers' => (
     is      => 'ro',
-    isa     => 'HashRef',
+    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
     lazy    => 1,
     builder => '_build_feathers'
 );
 has 'config' => (
-    is => 'ro',
-    isa => 'HashRef',
+    is       => 'ro',
+    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
     init_arg => 'Config',
-    default => sub { {} },
 );
 
 # Collect all of the plugins, though not ordered
