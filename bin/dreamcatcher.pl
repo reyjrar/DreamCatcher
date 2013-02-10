@@ -1,6 +1,8 @@
 #!/usr/bin/env perl
+# PODNAME: dreamcatcher.pl
 #
-# Proof of concept, multi-tasking DNS Sniffer
+# Sniffer based on the Feathers
+# Also Includes the Analysis pieces
 #
 use strict;
 use warnings;
