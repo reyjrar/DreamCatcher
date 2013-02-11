@@ -4,26 +4,43 @@ use strict;
 use warnings;
 
 use FindBin;
-use POE::Filter::Reference;
+use POE qw(
+    Filter::Reference
+    Wheel::ReadWrite
+);
 use YAML;
 
 use lib "$FindBin::Bin/../lib";
 use DreamCatcher::Packet;
 use DreamCatcher::Feathers;
 
+
 # Global Object Instances
-my $CFG = YAML::LoadFile( $ARGV[0] );
-my $FILTER = POE::Filter::Reference->new();
+my $CFG      = YAML::LoadFile( $ARGV[0] );
 my $FEATHERS = DreamCatcher::Feathers->new( Config => $CFG );
-my $raw = undef;
 
-# Handle reading events back and forth
-binmode(STDIN);
-binmode(STDOUT);
-$|=1;           # Autoflush STDOUT for POE::Filter::Reference
+my $session_id = POE::Session->create(inline_states => {
+    _start      => \&start_session,
+    _stop       => sub { },
+    input       => \&handle_input,
+});
 
-while( sysread(STDIN, $raw, 4096) ) {
-	my $packets = $FILTER->get([$raw]);
+POE::Kernel->run();
+exit(0);
+
+sub start_session {
+    my ($kernel,$heap) = @_[KERNEL,HEAP];
+
+    # IO :)
+    $heap->{wheel} = POE::Wheel::ReadWrite->new(
+        InputHandle  => \*STDIN,
+        OutputHandle => \*STDOUT,
+        Filter       => POE::Filter::Reference->new(),
+    );
+}
+
+sub handle_input {
+    my ($kernel,$heap,$packets) = @_[KERNEL,HEAP,ARG0];
 
 	foreach my $raw_packet (@{ $packets }) {
         my $packet = DreamCatcher::Packet->new( $raw_packet );
@@ -33,13 +50,10 @@ while( sysread(STDIN, $raw, 4096) ) {
         }
 
         if( $packet->valid ) {
-            my $out = $FILTER->put( [ $packet->details ] );
-            print STDOUT @$out;
+            $heap->{wheel}->put( $packet->details );
         }
         else {
             print STDERR $packet->error . "\n";
         }
 	}
 }
-
-exit (0);

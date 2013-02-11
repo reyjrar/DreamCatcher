@@ -150,9 +150,10 @@ sub sniffer_dispatch_packets {
 sub sniffer_spawn_worker {
     my ($kernel,$heap) = @_[KERNEL,HEAP];
 
+    my $program = File::Spec->catfile( $HELPERS, "parse-packets.pl" );
     my $worker = POE::Wheel::Run->new(
-        Program => File::Spec->catfile( $HELPERS, "parse-packets.pl" ),
-        ProgramArgs  => [ $config_file ],
+        Program      => $^X, # Special variable, current running Perl Version
+        ProgramArgs  => [ $program, $config_file ],
         ErrorEvent   => 'worker_error',
         StdoutEvent  => 'worker_stdout',
         StderrEvent  => 'worker_stderr',
@@ -172,9 +173,12 @@ sub sniffer_spawn_worker {
     my @cpus = ();
     eval {
         require Sys::CpuAffinity;
+        $heap->{_cpus} ||= Sys::CpuAffinity::getNumCpus();
+        die "not enough cpu's to tune affinity" if $heap->{_cpus} < 8;
         my $cpus = $heap->{_cpus} > $CFG->{sniffer}{workers} ? 2 : 1;
         for (1 .. $cpus ) {
-            push @cpus, int(rand($heap->{_cpus})) + 1;
+            my $cpu = int(rand($heap->{_cpus})) + 1;
+            push @cpus, $cpu > $heap->{_cpus} ? $heap->{_cpus} : $cpu;
         }
         Sys::CpuAffinity::setAffinity($worker->PID, \@cpus);
     };
@@ -211,14 +215,15 @@ sub worker_error {
     }
 }
 sub worker_stdout {
-    my ($heap,$details,$wheel_id) = @_[HEAP,ARG0,ARG1];
+    my ($heap,$details) = @_[HEAP,ARG0];
 
     no warnings;
     $heap->{stats}{success}++;
     $heap->{stats}{$details->{qa}}++;
 }
 sub worker_stderr {
-    my ($heap,$failure,$wheel_id) = @_[HEAP,ARG0,ARG1];
+    my ($heap,$errmsg) = @_[HEAP,ARG0];
     no warnings;
-    $heap->{stats}{$failure}++;
+    DEBUG("Packet processing error: $errmsg");
+    $heap->{stats}{error}++;
 }
