@@ -7,6 +7,7 @@ use Moo;
 
 with qw(
     DreamCatcher::Role::Feather
+	DreamCatcher::Role::Logger
 	DreamCatcher::Role::DBH
 	DreamCatcher::Role::Cache
 	DreamCatcher::Role::RRData

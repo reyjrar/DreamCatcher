@@ -28,7 +28,6 @@ Information passed to feathers from the net include:
 * *client_port*
 * *time* - hires time packet was captured)
 * *dns* - Net::DNS::Packet object
-* *ip* - NetPacket::IP decoded hash
 
 ### Feathers ###
 
@@ -40,7 +39,7 @@ allows feathers to receive packets in the correct order.
 
 Information that feathers may implement include:
 
-* store
+* conversation
     * *server_id* - integer id for quick reference in data store
     * *client_id* - integer id for quick reference in data store
     * *conversation_id* - integer id denoting the unique transacation

@@ -16,9 +16,9 @@ use Net::DNS::Packet;
 # The Raw Packet off the wire
 has 'raw_packet' => (
     is       => 'ro',
-    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'ARRAY'; }),
+    isa      => quote_sub(q{ die "Not a ArrayRef" if ref $_[0] ne 'ARRAY'; }),
     required => 1,
-    init_arg => 'Packet',
+    init_arg => 'Raw',
 );
 # Process the packet, ready for other attributes
 has 'raw_data' => (
@@ -30,7 +30,7 @@ has 'raw_data' => (
 # Is the packet valid
 has 'valid' => (
     is       => 'ro',
-    isa      => quote_sub(q{ die "Not a bool" if ref $_[0]; }),
+#    isa      => quote_sub(q{ die "Not a bool" if ref $_[0]; }),
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_valid',
@@ -38,7 +38,7 @@ has 'valid' => (
 # Details Extracted by BUILD
 has 'details' => (
     is       => 'rw',
-    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
+#    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_details',
@@ -46,7 +46,7 @@ has 'details' => (
 # Net::DNS::Packet Object
 has 'dns' => (
     is       => 'ro',
-    isa      => quote_sub(q{ die "Not a Net::DNS::Packet" if ref $_[0] ne 'Net::DNS::Packet'; }),
+#    isa      => quote_sub(q{ die "Not a Net::DNS::Packet" if ref $_[0] ne 'Net::DNS::Packet'; }),
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_dns',
@@ -54,21 +54,11 @@ has 'dns' => (
 # Errors with this packet
 has 'error' => (
     is       => 'ro',
-    isa      => quote_sub(q{ die "Not defined" unless defined $_[0]; }),
+#    isa      => quote_sub(q{ die "Not defined" unless defined $_[0]; }),
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_error',
 );
-# If just a packet is sent, we set the Packet parameter
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $class = shift;
-
-    if( @_ == 1 && ref $_[0] ne 'HASH' ) {
-        return $class->$orig( Packet => $_[0] );
-    }
-    return $class->$orig( @_ );
-};
 
 # BUILDERS FOR ATTRIBUTES
 sub _get_data {
@@ -83,7 +73,8 @@ sub _build_valid {
 }
 sub _build_details {
     my $self = shift;
-    return $self->_get_data( 'details' );
+    my $dt = $self->_get_data( 'details' );
+    return defined $dt ? $dt : {};
 }
 sub _build_dns {
     my $self = shift;
@@ -102,7 +93,7 @@ sub _build_raw_data {
     );
 
     # Begin Decoding
-    my ($hdr,$packet) = @{ $self->raw_packet() };
+    my ($hdr,$packet) = @{ $self->raw_packet };
     my $ip_pkt  = NetPacket::IP->decode( eth_strip($packet) );
 
     return { %data, error => "NetPacket decode failed!" } unless defined $ip_pkt;
@@ -134,7 +125,7 @@ sub _build_raw_data {
     # Parse DNS Packet
     my $dnsp = undef;
     eval {
-        $dnsp = Net::DNS::Packet->new( \$layer4->{data} );
+        $dnsp = Net::DNS::Packet->new( \$layer4->{data}, 1 );
     };
     return { %data, error => "Net::DNS unable to parse DNS Packet" } unless defined $dnsp;
 

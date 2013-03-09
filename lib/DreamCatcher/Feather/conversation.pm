@@ -7,6 +7,7 @@ use Moo;
 
 with qw(
     DreamCatcher::Role::Feather
+    DreamCatcher::Role::Logger
 	DreamCatcher::Role::DBH
 );
 
@@ -19,21 +20,28 @@ sub process {
     # Conversations
 	my $dbError = undef;
 	my $sth = $self->dbh->run( fixup => sub {
-			my $sth = $_->prepare('select * from find_or_create_conversation( ?, ? )');
-			$sth->execute( $packet->details->{client}, $packet->details->{server} );
-			$sth;
-		}, catch {
-			$dbError = "find_or_create_conversation failed: $_";
-		}
-	);
+        my $lsh;
+        eval {
+			$lsh = $_->prepare('select * from find_or_create_conversation( ?, ? )');
+            $lsh->execute( $packet->details->{client}, $packet->details->{server} );
+        };
+        if( my $err = $@ ) {
+		    $dbError = "find_or_create_conversation failed: " . join(' - ', ref $err, $err->errstr);
+        }
+        return $lsh;
+    });
 
-	if( !defined $dbError && $sth->rows > 0 ) {
+	if( !defined $dbError && defined $sth && $sth->rows > 0 ) {
 		# Set conversation id
 		my $convo = $sth->fetchrow_hashref;
+        $self->log(debug => "conversation bits: " . join( ",", map { "$_ => $convo->{$_}" } keys %{ $convo }) );
 		$packet->details->{client_id} = $convo->{client_id};
 		$packet->details->{server_id} = $convo->{server_id};
-		$packet->details->{conversation_id} = $convo->{conversation_id};
+		$packet->details->{conversation_id} = $convo->{id};
 	}
+    else {
+        $self->log(error => "failed conversation lookup: '$dbError'");
+    }
 }
 
 # Return True;

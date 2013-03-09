@@ -12,7 +12,6 @@ use DateTime;
 use File::Basename;
 use File::Spec;
 use FindBin;
-use Log::Log4perl qw(:easy);
 use YAML;
 
 # DreamCatcher Libraries
@@ -22,6 +21,7 @@ sub POE::Kernel::ASSERT_DEFAULT () { 1 }
 
 use POE qw(
     Component::Pcap
+    Component::Log4perl
     Filter::Line
     Filter::Reference
     Wheel::Run
@@ -48,7 +48,10 @@ my $HELPERS = File::Spec->catdir( $BASEDIR, 'helpers' );
 my $DEFAULT_CONFIG = File::Spec->catfile($BASEDIR, 'dreamcatcher.yml');
 my $config_file = exists $OPT{c} && -f $OPT{c} ? $OPT{c} : $DEFAULT_CONFIG;
 my $CFG = YAML::LoadFile( $config_file );
-$CFG->{sniffer}{workers} ||= 8;
+$CFG->{sniffer}{workers} ||= 2;
+# Logging
+my $LOG_CONFIG = File::Spec->catfile($BASEDIR, 'logging.conf');
+$App::Daemon::l4p_conf = $LOG_CONFIG if -f $LOG_CONFIG;
 
 # Default PCAP Opts
 my %pcapOpts = ( dev => 'any', snaplen => 1518, filter => '(tcp or udp) and port 53', promisc => 1 );
@@ -66,6 +69,11 @@ daemonize();
 
 #------------------------------------------------------------------------#
 # Sessions
+my $log_id = POE::Component::Log4perl->spawn(
+    Alias      => 'log',
+    Category   => 'default',
+    ConfigFile => $LOG_CONFIG,
+);
 my $pcap_session_id = POE::Component::Pcap->spawn(
     Alias       => 'pcap',
     Device      => $CFG->{pcap}{dev},
@@ -111,7 +119,7 @@ sub sniffer_start {
     # Create Workers
     $heap->{_workers} = {};
     $heap->{workers} = 0;
-    for ( 1 .. 5 ) {
+    for ( 1 .. $CFG->{sniffer}{workers} ) {
         $kernel->yield('spawn_worker');
     }
 
@@ -126,12 +134,12 @@ sub sniffer_show_stats {
 
     my $stats = exists $heap->{stats} ? delete $heap->{stats} : undef;
     if( defined $stats && ref $stats eq 'HASH' ) {
-        INFO("Stats breakdown: " .  join(", ", map { "$_=$stats->{$_}" } keys %{ $stats }) );
+        $kernel->post(log => info => "Breakdown: " .  join(", ", map { "$_=$stats->{$_}" } keys %{ $stats }) );
     }
     else {
-        INFO("No packets sniffed.");
+        $kernel->post(log => info => "No data.");
     }
-    $kernel->delay( show_stats => 5);
+    $kernel->delay( show_stats => 10 );
 }
 sub sniffer_dispatch_packets {
     my ($kernel,$heap,$packets) = @_[KERNEL,HEAP,ARG0];
@@ -161,7 +169,7 @@ sub sniffer_spawn_worker {
         StderrFilter => POE::Filter::Line->new(),
     );
     if (! defined $worker) {
-        ERROR("proc_spawn_worker failed: $!, rescheduling");
+        $kernel->post(log => error => "failed: $!, rescheduling");
         $kernel->delay_add( spawn_worker => 5 );
         return;
     }
@@ -183,9 +191,9 @@ sub sniffer_spawn_worker {
         Sys::CpuAffinity::setAffinity($worker->PID, \@cpus);
     };
     if( my $err = $@ ) {
-        ERROR("proc_spawn_worker unable to assign CPU affinity for worker: " . $worker->ID);
+        $kernel->post(log => error => "unable to assign CPU affinity for worker: " . $worker->ID . " $err");
     }
-    INFO("proc_spawn_worker successfully spawned worker:" . $worker->ID . " (cpus:" . join(',', @cpus) . ")");
+    $kernel->post(log => info => "successfully spawned worker:" . $worker->ID . " (cpus:" . join(',', @cpus) . ")");
 }
 sub sniffer_kill_worker {
     my ($kernel,$heap,$wheel_id) = @_[KERNEL,HEAP,ARG0];
@@ -194,7 +202,7 @@ sub sniffer_kill_worker {
 
     $heap->{workers} = [ sort { $a <=> $b } keys %{ $heap->{_workers} } ];
     $heap->{worker} = 0;
-    INFO("reaped a worker:$wheel_id");
+    $kernel->post(log => warn => "reaped a worker:$wheel_id");
 }
 sub sniffer_handle_sigchld {
     my ($kernel,$heap,$child,$exit_code) = @_[KERNEL,HEAP,ARG1,ARG2];
@@ -202,14 +210,14 @@ sub sniffer_handle_sigchld {
     $exit_code ||= 0;
     my $exit_status = $exit_code >>8;
     return unless $exit_code != 0;
-    ERROR("Received SIGCHLD from $child_pid ($exit_status)");
+    $kernel->post(log => error => "Received SIGCHLD from $child_pid ($exit_status)");
 }
 #------------------------------------------------------------------------#
 # Worker Process Handlers
 sub worker_error {
     my ($kernel, $op, $code, $wheel_id, $handle) = @_[KERNEL, ARG0, ARG1, ARG3, ARG4];
     if ($op eq 'read' and $code == 0 and $handle eq 'STDOUT') {
-        WARN("worker_error: wheel_id = $wheel_id closed STDOUT, respawning another worker");
+        $kernel->post(log => error => "wheel_id = $wheel_id closed STDOUT, respawning another worker");
         $kernel->yield( kill_worker => $wheel_id );
         $kernel->yield( 'spawn_worker' );
     }
@@ -222,8 +230,8 @@ sub worker_stdout {
     $heap->{stats}{$details->{qa}}++;
 }
 sub worker_stderr {
-    my ($heap,$errmsg) = @_[HEAP,ARG0];
+    my ($kernel,$heap,$errmsg) = @_[KERNEL,HEAP,ARG0];
     no warnings;
-    DEBUG("Packet processing error: $errmsg");
+    $kernel->post(log => error => $errmsg);
     $heap->{stats}{error}++;
 }

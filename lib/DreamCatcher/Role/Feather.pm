@@ -31,7 +31,6 @@ has 'config' => (
     isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
     init_arg => 'Config',
 );
-
 # Default, can be overridden in children
 sub _build_priority { 10; }
 
@@ -70,12 +69,28 @@ around BUILDARGS => sub {
     my $name = substr($class, length $prefix);
 
     my %FeatherConfig = ();
-    if( exists $args{Config} && exists $args{Config}->{$name} ) {
-        %FeatherConfig = %{ $args{Config}->{$name} };
+    if( exists $args{Config} ) {
+        if( exists $args{Config}->{$name} ) {
+            %FeatherConfig = %{ $args{Config}->{$name} };
+        }
+        if( exists $args{Config}->{db} ) {
+            $FeatherConfig{db} = \%{ $args{Config}->{db} };
+        }
     }
-
-    $class->$orig( Config => \%FeatherConfig );
+    $class->$orig( Config => \%FeatherConfig, Log => $args{Log} );
 };
+
+# Wrap the process function
+around process => sub {
+    my $orig = shift;
+    my $class = shift;
+    my $packet = shift;
+
+    if( defined $packet && $packet->valid ) {
+        $class->$orig( $packet );
+    }
+};
+
 
 # Return True
 1;

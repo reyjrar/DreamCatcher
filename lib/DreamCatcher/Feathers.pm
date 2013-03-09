@@ -32,11 +32,17 @@ has 'config' => (
     isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
     init_arg => 'Config',
 );
+has 'log_callback' => (
+    is       => 'ro',
+    isa      => quote_sub(q{die "Not a CodeRef" if ref $_[0] ne 'CODE'; }),
+    default  => sub { my $l = sub { warn join(": ", @_), "\n" }; return $l; },
+    init_arg => 'Log',
+);
 
 # Collect all of the plugins, though not ordered
 sub _build_hash {
     my $self = shift;
-    return { map { $_->name => $_ } grep { $_->enabled } $self->plugins( Config => $self->config ) };
+    return { map { $_->name => $_ } grep { $_->enabled } $self->plugins( Config => $self->config, Log => $self->log_callback ) };
 }
 
 # DAG Tree for determining plguin ordering

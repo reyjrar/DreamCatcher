@@ -4,8 +4,9 @@ package DreamCatcher::Role::DBH;
 use Moo::Role;
 use Sub::Quote;
 use DBIx::Connector;
+use Exception::Class::DBI;
 
-requires qw(config);
+requires qw(config log);
 
 has 'dbh' => (
     is      => 'ro',
@@ -17,28 +18,29 @@ has 'sql' => (
     is      => 'rwp',
     isa     => quote_sub(q{die "Not a HashRef" unless ref $_[0] eq 'HASH'; }),
     builder => '_build_sql',
-    default => sub { {} },
 );
 
-has 'cached_sth' => (
-    is      => 'rw',
-    isa     => quote_sub(q{die "Not a HashRef" unless ref $_[0] eq 'HASH'; }),
-    default => sub { {} },
-);
+sub _build_sql { {} }
 
 sub sth {
     my ($self,$name) = @_;
 
-    return $self->cached_sth if exists $self->cached_sth->{$name};
-    return undef unless $self->sql->{$name};
+    if( !exists $self->sql->{$name} ) {
+        $self->log(error => "attempt to load unknown statement:$name");
+        return;
+    }
 
-    return $self->cached_sth->{$name} = $self->dbh->run( fixup => sub {
-            my $sth = $_->prepare( $self->sql->{$name} );
-            $sth;
-        }, catch {
-            my $err = shift;
+    return $self->dbh->run( fixup => sub {
+        my $sth;
+        eval {
+            $self->log(debug => "preparing $name");
+            $sth = $_->prepare( $self->sql->{$name} );
+        };
+        if( my $err = $@ ) {
+            $self->log( error => join(" - ", ref $err, $err->errstr ));
         }
-    );
+        return $sth;
+    });
 }
 
 sub _build_dbh {
@@ -47,7 +49,16 @@ sub _build_dbh {
 	die "No db section in config!" unless exists $self->config->{db} && ref $self->config->{db} eq 'HASH';
 
 	my %db = %{ $self->config->{db} };
-	return DBIx::Connector->new( @db{qw(dsn user pass)}, { RaiseError => 0 });
+	my $dbconn = DBIx::Connector->new( @db{qw(dsn user pass)}, {
+            RaiseError  => 1,
+            HandleError => Exception::Class::DBI->handler,
+    });
+    if( !defined $dbconn ) {
+        $self->log( fatal => "Database setup failed" );
+        die "DB setup failed";
+    }
+    $self->log( debug => "Database established" );
+    return $dbconn;
 }
 
 # Return TRUE

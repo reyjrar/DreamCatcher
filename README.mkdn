@@ -10,6 +10,17 @@ version 0.1
 
 This is a complete DNS Monitoring Suite.  It is currently in __alpha__ status.
 
+This is a rewrite of the
+[dns-monitor](https://github.com/reyjrar/dns-monitor).  It is currently able
+to sniffer and record all packets, but the analyzer from dns-monitor has not
+been ported yet.
+
+# PREREQUISITIES
+
+* Perl 5.10.1 or better
+* PostgreSQL 8.4+ though 9.x is recommended
+  * ltree extension
+
 # INSTALLATION
 
 Installation in the works, for now try:
@@ -17,21 +28,58 @@ Installation in the works, for now try:
     perl Makefile.PL
     make
 
+Install DB schema:
+
+    cd sql
+    ./deploy_database_schema.pl install
+
+Configure:
+
+    cp dreamcatcher.yml.default dreamcatcher.yml
+    $EDITOR dreamcatcher.yml
+
+Configure logging:
+
+    $EDITOR logging.conf
+
+Start the sniffer:
+
+    sudo ./bin/dreamcatcher.pl start
+
 # USAGE
 
-Currently the sniffer does not work.  It is possible to use this project in conjunction with
-the [DNS Monitor](https://github.com/reyjrar/dns-monitor) as the databases are compatible.
 
-Once you have the dns-monitor sniffer and analyzer running, you can startup the DreamCatcher front
-end using:
+Starting the front-end is easy as:
 
     morbo -v script/dream_catcher
 
 # SCREENSHOTS
 
-- [Overview Page](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/0-main.png)
+- [Ov:werview Page](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/0-main.png)
 - [Viewing a Server](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/1-server.png)
 - [Recently Asked Questions](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/3-questions.png)
+
+# TODO
+
+* Port dns-monitor functions
+  * statistics
+  * analyzers
+    * packet timing
+    * client acting as server
+    * server authorized
+    * zone discovery
+    * query/response linking
+    * list tracking
+
+* Front end improvements
+  * List tracking
+  * Search functions
+  * Statistics
+  * Most missed questions
+  * Client asking bad questions
+
+* CLI
+  * Need to provide CLI tools which implement similar functionality as Web
 
 # AUTHOR
 

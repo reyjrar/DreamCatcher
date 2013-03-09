@@ -3,6 +3,7 @@ package DreamCatcher::Role::Cache;
 
 use Moo::Role;
 use CHI;
+use Cache::FastMmap;
 
 has 'cache' => (
     is      => 'ro',

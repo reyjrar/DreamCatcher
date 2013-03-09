@@ -13,3 +13,4 @@ MYMETA.*
 .build
 *.yml
 *.log
+*.LCK
