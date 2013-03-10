@@ -53,6 +53,7 @@ sub startup {
     $r->get('/utilities')->to('utility#index');
     $r->post('/utility/reverse')->to(controller => 'Utility', action => 'reverse_lookup');
     $r->post('/utility/clients_asking')->to(controller => 'Utility', action => 'clients_asking');
+    $r->get('/utility/csmap')->to(controller => 'Utility', action => 'client_server_map');
 }
 
 1;

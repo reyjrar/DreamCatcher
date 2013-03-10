@@ -1,0 +1,4 @@
+<script type="text/javascript" src="<%= url_for '/js/sigma.js' %>"></script>
+%= javascript begin
+var sigInst = sigma.init($('#<%= $id %>').get(0));
+%end

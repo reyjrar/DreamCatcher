@@ -1,0 +1,21 @@
+%title "Client Server Map";
+<div class="span12 sigma-parent">
+    <div id="sigma-map"></div>
+</div>
+%= include '/graph/sigma', id => 'sigma-map';
+
+%= javascript begin
+
+% foreach my $n (keys %{ $nodes }) {
+sigInst.addNode('<%= $n %>', { 'label': '<%= $n %>', 'color': '#FF0000' });
+% }
+
+% foreach my $c (@{ $conversations }) {
+sigInst.addEdge('<%= $c->{id} %>', '<%= $c->{server} %>', '<%= $c->{client} %>' );
+% }
+
+// Draw the graph on load
+$(function() {
+    sigInst.draw();
+});
+%end

@@ -102,4 +102,40 @@ sub clients_asking {
     $self->render('utility/clients_asking');
 }
 
+sub client_server_map {
+    my ($self) = shift;
+
+    my %sql = (
+        conversations => q{
+            select
+                cv.id as id,
+                c.ip as client,
+                c.id as client_id,
+                s.ip as server,
+                s.id as server_id,
+                cv.reference_count as total
+            from conversation cv
+                inner join client c on c.id = cv.client_id
+                inner join server s on s.id = cv.server_id
+            where
+                cv.last_ts > NOW() - interval '1 month'
+        }
+    );
+    my $STH = $self->prepare_statements(\%sql);
+
+    $STH->{conversations}->execute();
+
+    my @conversations = ();
+    my %nodes = ();
+    while ( my $row = $STH->{conversations}->fetchrow_hashref )  {
+        push @conversations, $row;
+        $nodes{$row->{server}}++;
+        $nodes{$row->{client}}++;
+    }
+    $self->stash(
+        conversations => \@conversations,
+        nodes => \%nodes,
+    );
+}
+
 1;
