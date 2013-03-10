@@ -28,7 +28,7 @@ sub startup {
 
     # Router
     my $r = $self->routes;
-    $r->namespace("DreamCatcher::Controller");
+    $r->namespaces([qw(DreamCatcher::Controller)]);
 
     # Normal route to controller
     $r->get('/')->to('main#index');

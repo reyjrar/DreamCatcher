@@ -31,6 +31,8 @@ my $log_id = POE::Component::Log4perl->spawn(
 my $session_id = POE::Session->create(inline_states => {
     _start => \&start_session,
     _stop  => sub { },
+    schedule => \&set_schedule,
+    analyze => \&run_analyze,
     input  => \&handle_input,
     error  => \&handle_error,
 });
@@ -49,27 +51,12 @@ sub start_session {
         InputEvent   => 'input',
         ErrorEvent   => 'error',
     );
+    $kernel->yield( 'schedule' );
     $kernel->post(log => 'info' => "startup successful");
 }
 
 sub handle_input {
-    my ($kernel,$heap,$raw_packet) = @_[KERNEL,HEAP,ARG0];
-
-    my $packet = DreamCatcher::Packet->new( Raw => $raw_packet );
-
-    if( $packet->valid ) {
-        $FEATHERS->process( $packet );
-
-        my $dt = $packet->details;
-        my ($q) = $packet->dns->question;
-        my $ques = join(' ', $q->qclass, $q->qtype, $q->qname);
-        $kernel->post( log => info => "$dt->{qa} $dt->{client} ($dt->{client_id}) to $dt->{server} ($dt->{server_id}) : $ques");
-        $heap->{wheel}->put( $dt );
-    }
-    else {
-        $kernel->post( log => error => $packet->error );
-        print STDERR $packet->error . "\n";
-    }
+    my ($kernel,$heap,$msg) = @_[KERNEL,HEAP,ARG0];
 }
 
 sub handle_error {
@@ -81,4 +68,31 @@ sub handle_error {
     else {
         $poe_kernel->post(log => warn => "Wheel $id encountered $operation error $errnum: $errstr\n");
     }
+}
+
+sub set_schedule {
+    my ($kernel,$heap) = $_[KERNEL,HEAP];
+
+    # Retrieve the schedule
+    $heap->{schedule} = $FEATHERS->schedule();
+
+    while( my($name,$interval) = each %{ $heap->{schedule} } ) {
+        $kernel->delay_add( analyze => $interval, $name );
+    }
+}
+
+sub run_analyze {
+    my ($kernel,$heap,$name) = @_[KERNEL,HEAP,ARG0];
+
+    my $F = $FEATHERS->hash;
+
+    if( !exists $F->{$name} ) {
+        $kernel->post(log => error => "run_analyze($name): unknown analyzer");
+        return;
+    }
+
+    $kernel->post(log => info => "running analyzer $name");
+    $F->{$name}->analyze();
+    $kernel->delay_add( analyze => $F->{$name}->interval, $name);
+    $kernel->post(log => debug => "rescheduled analyzer $name");
 }

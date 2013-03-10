@@ -3,12 +3,15 @@ package DreamCatcher::Role::Feather;
 use Moo::Role;
 use Sub::Quote;
 
-requires qw(process);
-
 has 'name'  => (
     is      => 'ro',
     isa     => quote_sub(q{ die "Not a string" if ref $_[0] || $_[0] =~ /[^0-9a-z:_\-]/i; }),
     builder => '_build_name',
+);
+has 'function'  => (
+    is      => 'ro',
+    isa     => quote_sub(q{ die "Not a string" if ref $_[0] || $_[0] =~ /[^0-9a-z:_\-]/i; }),
+    builder => '_build_function',
 );
 has 'parent' => (
     is      => 'ro',
@@ -79,18 +82,6 @@ around BUILDARGS => sub {
     }
     $class->$orig( Config => \%FeatherConfig, Log => $args{Log} );
 };
-
-# Wrap the process function
-around process => sub {
-    my $orig = shift;
-    my $class = shift;
-    my $packet = shift;
-
-    if( defined $packet && $packet->valid ) {
-        $class->$orig( $packet );
-    }
-};
-
 
 # Return True
 1;

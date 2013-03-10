@@ -6,7 +6,7 @@ use warnings;
 use Moo;
 
 with qw(
-    DreamCatcher::Role::Feather
+    DreamCatcher::Role::Feather::Sniffer
 	DreamCatcher::Role::Logger
 	DreamCatcher::Role::DBH
 	DreamCatcher::Role::Cache

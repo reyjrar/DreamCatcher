@@ -15,12 +15,6 @@ has 'tree' => (
     lazy    => 1,
     builder => '_build_tree',
 );
-has 'chain' => (
-    is      => 'ro',
-    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'ARRAY'; }),
-    lazy    => 1,
-    builder => '_build_chain',
-);
 has 'hash' => (
     is      => 'ro',
     isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
@@ -90,10 +84,21 @@ sub _build_tree {
 }
 
 # Order the plugins using their "parent" attributes
-sub _build_chain {
-    my $self = shift;
+sub chain {
+    my ($self,$function) = @_;
     my $F = $self->hash;
-    return [ map { $F->{$_} } map { $_->name } $self->tree->descendants ];
+    return [ map { $F->{$_} } map { $_->name } grep { defined $function ? $F->{$_->name}->function eq $function : 1; } $self->tree->descendants ];
+}
+
+# Run the processing
+sub process {
+    my $self = shift;
+    my $packet = shift;
+
+    foreach my $feather (@{ $self->chain('sniffer') }) {
+        $feather->process($packet);
+    }
+    return 1;
 }
 
 # Return True
