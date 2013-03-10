@@ -61,8 +61,11 @@ sub handle_input {
         foreach my $feather ( @{ $FEATHERS->chain }) {
             $feather->process( $packet );
         }
-        $kernel->post( log => info => Dump($packet->details));
-        $heap->{wheel}->put( $packet->details );
+        my $dt = $packet->details;
+        my ($q) = $packet->dns->question;
+        my $ques = join(' ', $q->qclass, $q->qtype, $q->qname);
+        $kernel->post( log => info => "$dt->{qa} $dt->{client} ($dt->{client_id}) to $dt->{server} ($dt->{server_id}) : $ques");
+        $heap->{wheel}->put( $dt );
     }
     else {
         $kernel->post( log => error => $packet->error );

@@ -125,7 +125,7 @@ sub _build_raw_data {
     # Parse DNS Packet
     my $dnsp = undef;
     eval {
-        $dnsp = Net::DNS::Packet->new( \$layer4->{data}, 1 );
+        $dnsp = Net::DNS::Packet->new( \$layer4->{data} );
     };
     return { %data, error => "Net::DNS unable to parse DNS Packet" } unless defined $dnsp;
 
