@@ -30,7 +30,7 @@ has 'raw_data' => (
 # Is the packet valid
 has 'valid' => (
     is       => 'ro',
-#    isa      => quote_sub(q{ die "Not a bool" if ref $_[0]; }),
+    isa      => quote_sub(q{ die "Not a bool" if ref $_[0]; }),
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_valid',
@@ -38,7 +38,7 @@ has 'valid' => (
 # Details Extracted by BUILD
 has 'details' => (
     is       => 'rw',
-#    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
+    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_details',
@@ -46,7 +46,7 @@ has 'details' => (
 # Net::DNS::Packet Object
 has 'dns' => (
     is       => 'ro',
-#    isa      => quote_sub(q{ die "Not a Net::DNS::Packet" if ref $_[0] ne 'Net::DNS::Packet'; }),
+    isa      => quote_sub(q{ die "Not a Net::DNS::Packet" if ref $_[0] ne 'Net::DNS::Packet'; }),
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_dns',
