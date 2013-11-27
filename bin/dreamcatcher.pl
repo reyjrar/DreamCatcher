@@ -10,7 +10,7 @@ use warnings;
 BEGIN {
     eval {
         require EV;
-        EV->import;
+        EV::import;
     };
     if ($@) {
         warn "NOTE: Install EV.pm for better performance.\n";
@@ -144,7 +144,7 @@ sub sniffer_show_stats {
 
     my $stats = exists $heap->{stats} ? delete $heap->{stats} : undef;
     if( defined $stats && ref $stats eq 'HASH' ) {
-        $kernel->post(log => info => "Breakdown: " .  join(", ", map { "$_=$stats->{$_}" } keys %{ $stats }) );
+          $kernel->post(log => info => "Breakdown: " .  join(", ", map { "$_=$stats->{$_}" } keys %{ $stats }) );
     }
     else {
         $kernel->post(log => info => "No data.");
