@@ -3,6 +3,7 @@ package DreamCatcher;
 
 our $VERSION = 0.1;
 
+use DreamCatcher::Helpers;
 use Mojo::Base 'Mojolicious';
 
 # This method will run once at server start
@@ -20,6 +21,9 @@ sub startup {
         stash_key => 'config',
         class     => 'YAML::XS',
     } );
+
+    # Helpers
+    $self->plugin('DreamCatcher::Helpers');
 
     # Configure Defaults
     $self->defaults(
@@ -39,6 +43,10 @@ sub startup {
     # Server Module
     $r->get('/server')->to('server#index');
     $r->get('/server/:id')->to('server#view');
+
+    # Conversation Module
+    $r->get('/conversation')->to('conversation#index');
+    $r->get('/conversation/:id')->to('conversation#view');
 
     # Utilities Module
     $r->get('/utility')->to('utility#index');

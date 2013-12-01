@@ -5,12 +5,14 @@
     <th>First</th>
     <th>Last</th>
     <th>Clients</th>
-    <th>Conversations</th>
+    <th>Sessions</th>
 </thead>
 <tbody>
 % while( my $row = $STH->{top_servers}->fetchrow_hashref ) {
     <tr>
-        <td><a href="<%= url_for "/server/" . $row->{id} %>"><%= $row->{ip} %></a></td>
+        <td><i class="icon-<%= $row->{is_authorized} ? "ok" : "warning" %>-sign"></i>
+            <a href="<%= url_for "/server/" . $row->{id} %>"><%= $row->{ip} %></a>
+        </td>
         <td><span class="textDate"><%= $row->{first_ts} %></span></td>
         <td><span class="textDate"><%= $row->{last_ts} %></span></td>
         <td><%= $row->{clients} %></td>

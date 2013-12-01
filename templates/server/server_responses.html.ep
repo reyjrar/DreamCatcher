@@ -1,8 +1,3 @@
-% my %badge = (
-%   NOERROR => 'badge-success',
-%   NXDOMAIN => 'badge-warning',
-%   SERVFAIL => 'badge-important',
-% );
 <h2>Server Responses</h2>
 <table id="serverResponses" class="table table-striped table-condensed">
 <thead>
@@ -17,7 +12,7 @@
     <tr>
         <td><a href="<%= url_for "/server/" . $row->{id} %>"><%= $row->{ip} %></a></td>
         <td><%= $row->{opcode} %></td>
-        <td><span class="badge <%= exists $badge{$row->{status}} ? $badge{$row->{status}} : '' %>"><%= $row->{status} %></span></td>
+        <td><%== make_badge query_status => $row->{status} %></td>
         <td><%= $row->{queries} %></td>
         <td><%= $row->{total} %></td>
     </tr>

@@ -42,6 +42,7 @@ has common_queries => sub {
     return {
         top_servers => qq{
             select server.id, server.ip as ip, count(1) as clients,
+                bool_and(is_authorized) as is_authorized,
                 min(conversation.first_ts) as first_ts,
                 max(conversation.last_ts) as last_ts,
                 sum(conversation.reference_count) as conversations
