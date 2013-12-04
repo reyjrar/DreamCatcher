@@ -28,6 +28,7 @@ table.table thead .sorting_desc_disabled { background: url(../'img/sort_desc_dis
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     background: #222;
+    height: 800px;
 }
 
 .sigma-expand {

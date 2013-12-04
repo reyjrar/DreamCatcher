@@ -120,8 +120,6 @@ sub client_server_map {
             from conversation cv
                 inner join client c on c.id = cv.client_id
                 inner join server s on s.id = cv.server_id
-            where
-                cv.last_ts > NOW() - interval '1 month'
         }
     );
     my $STH = $self->prepare_statements(\%sql);
