@@ -20,3 +20,20 @@ table.table thead .sorting_desc { background: url('../img/sort_desc.png') no-rep
 
 table.table thead .sorting_asc_disabled { background: url('../img/sort_asc_disabled.png') no-repeat center right; }
 table.table thead .sorting_desc_disabled { background: url(../'img/sort_desc_disabled.png') no-repeat center right; }
+
+/* sigma.js context : */
+.sigma-parent {
+    position: relative;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #222;
+}
+
+.sigma-expand {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}

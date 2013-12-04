@@ -1,6 +1,9 @@
 package DreamCatcher::Controller::Utility;
+
 # ABSTRACT: DreamCatcher Utility Pages
 use Mojo::Base 'DreamCatcher::Controller';
+
+use Net::IP;
 
 sub index {
     my $self = shift;
@@ -103,7 +106,7 @@ sub clients_asking {
 }
 
 sub client_server_map {
-    my ($self) = shift;
+    my ($self,$app) = @_;
 
     my %sql = (
         conversations => q{
@@ -127,15 +130,61 @@ sub client_server_map {
 
     my @conversations = ();
     my %nodes = ();
+    my $total = 0;
     while ( my $row = $STH->{conversations}->fetchrow_hashref )  {
         push @conversations, $row;
-        $nodes{$row->{server}}++;
-        $nodes{$row->{client}}++;
+        foreach my $n (qw(client server)) {
+            $nodes{$row->{$n}} ||= {};
+            my $hash = $nodes{$row->{$n}};
+            if( !exists $hash->{x} ) {
+                my %c = _coords($row->{$n});
+                $hash->{x} = $c{x};
+                $hash->{y} = $c{y};
+            }
+            $hash->{total} += $row->{total};
+            $total += $row->{total};
+            if( exists $hash->{color} && $hash->{color} eq '#FF0000' ){
+                $hash->{color} = '#FF0000';
+            }
+            else {
+                $hash->{color} = $n eq 'server' ? '#FF0000' : '#0174DF';
+            }
+        }
     }
+
+    foreach my $node (values %nodes) {
+        my $ratio = $node->{total} / $total;
+        $node->{size} = int($ratio * 10) + 1;
+    }
+    foreach my $cv (@conversations) {
+        my $ratio = $cv->{total} / $total;
+        $cv->{size} = int($ratio * 10) + 1;
+    }
+
     $self->stash(
         conversations => \@conversations,
         nodes => \%nodes,
     );
+}
+
+my %_moves = (
+    '00' => sub { $_[0]->{y} -= $_[1]; },
+    '01' => sub { $_[0]->{x} += $_[1]; },
+    '10' => sub { $_[0]->{x} -= $_[1]; },
+    '11' => sub { $_[0]->{y} += $_[1]; },
+);
+sub _coords {
+    my ($ip_str) = @_;
+    my %coords = ( x => 0, y => 0 );
+    my $ip = Net::IP->new( $ip_str );
+    my $bits = $ip->binip;
+
+    foreach my $os ( 0 .. 15 ) {
+        my $mod = 16 - $os;
+        my $m = substr($bits,$os * 2,2);
+        $_moves{$m}->(\%coords,$mod) if exists $_moves{$m};
+    }
+    return wantarray ? %coords : \%coords;
 }
 
 1;

@@ -1,21 +1,42 @@
 %title "Client Server Map";
-<div class="span12 sigma-parent">
-    <div id="sigma-map"></div>
+<div class="span12">
+    <div class="sigma-expand sigma-parent">
+        <div class="sigma-expand" id="sigma-map"></div>
+    </div>
+    <div class="sigma-expand" id="sigma-mouse"></div>
 </div>
-%= include '/graph/sigma', id => 'sigma-map';
+%= include '/graph/sigma';
 
 %= javascript begin
 
+$(function() {
+    /* Set Active Nav Item */
+    $('#nav_map').addClass('active');
+});
+// Draw the graph on load
+$(function() {
+    var sigInst = sigma.init(document.getElementById('sigma-map')).configProperties({
+      drawHoverNodes: false
+    }).drawingProperties({
+      labelThreshold: 10000,
+      defaultEdgeType: 'curve'
+    }).mouseProperties({
+      mouseEnabled: false
+    }).graphProperties({
+      minNodeSize: 1,
+      maxNodeSize: 10,
+      scalingMode: 'outside'
+    });
 % foreach my $n (keys %{ $nodes }) {
-sigInst.addNode('<%= $n %>', { 'label': '<%= $n %>', 'color': '#FF0000' });
+sigInst.addNode('<%= $n %>', { 'label': '<%= $n %>', 'color': '<%= $nodes->{$n}{color} %>', 'x': <%= $nodes->{$n}{x} %>, 'y': <%= $nodes->{$n}{y} %>, 'size': <%= $nodes->{$n}{size} %> });
 % }
 
 % foreach my $c (@{ $conversations }) {
-sigInst.addEdge('<%= $c->{id} %>', '<%= $c->{server} %>', '<%= $c->{client} %>' );
+%   next unless exists $nodes->{$c->{server}} && exists $nodes->{$c->{client}};
+sigInst.addEdge('<%= $c->{id} %>', '<%= $c->{server} %>', '<%= $c->{client} %>', { 'color': '#BDBDBD', 'size': <%= $c->{size} %> } );
 % }
 
-// Draw the graph on load
-$(function() {
+    // Finally, draw.
     sigInst.draw();
 });
 %end
