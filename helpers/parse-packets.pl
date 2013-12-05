@@ -63,7 +63,7 @@ sub handle_input {
         my $dt = $packet->details;
         my ($q) = $packet->dns->question;
         my $ques = join(' ', $q->qclass, $q->qtype, $q->qname);
-        $kernel->post( log => info => "$dt->{qa} $dt->{client} ($dt->{client_id}) to $dt->{server} ($dt->{server_id}) : $ques");
+        $kernel->post( log => debug => "$dt->{qa} $dt->{client} ($dt->{client_id}) to $dt->{server} ($dt->{server_id}) : $ques");
         $heap->{wheel}->put( $dt );
     }
     else {

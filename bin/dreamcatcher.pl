@@ -64,6 +64,7 @@ else {
     $CFG->{pcap} = \%pcapOpts;
 }
 
+my $ORIG = $$;
 # Daemonize?
 daemonize();
 
@@ -99,7 +100,7 @@ my $sniffer_session_id = POE::Session->create(inline_states => {
     worker_stderr => \&worker_stderr,
 });
 
-if( $App::Daemon::background ) {
+if( $$ != $ORIG ) {
     $poe_kernel->has_forked();
 }
 
@@ -127,19 +128,19 @@ sub sniffer_start {
     $kernel->post( pcap => 'run' );
 
     # Statistics Event
-    $kernel->delay( show_stats => 5 );
+    $kernel->delay( show_stats => 60 );
 }
 sub sniffer_show_stats {
     my ($kernel,$heap) = @_[KERNEL,HEAP];
 
     my $stats = exists $heap->{stats} ? delete $heap->{stats} : undef;
     if( defined $stats && ref $stats eq 'HASH' ) {
-          $kernel->post(log => info => "Breakdown: " .  join(", ", map { "$_=$stats->{$_}" } keys %{ $stats }) );
+          $kernel->post(log => info => "Stats: " .  join(", ", map { "$_=$stats->{$_}" } keys %{ $stats }) );
     }
     else {
-        $kernel->post(log => info => "No data.");
+        $kernel->post(log => info => "Stats: No data.");
     }
-    $kernel->delay( show_stats => 10 );
+    $kernel->delay( show_stats => 60 );
 }
 sub sniffer_dispatch_packets {
     my ($kernel,$heap,$packets) = @_[KERNEL,HEAP,ARG0];

@@ -5,7 +5,7 @@ server, <%= $meta->{server} %>.
 </p>
 
 <div>
-<h2>Clients</h2>
+<h2>Queries</h2>
 <table id="queries" class="table table-condensed table-striped">
 <thead>
  <tr>
@@ -13,19 +13,17 @@ server, <%= $meta->{server} %>.
     <th>Op</th>
     <th>Query</th>
     <th>Client Port</th>
-    <th>Server Port</th>
     <th>Flags</th>
     <th>Status</th>
   </tr>
 </thead>
 <tbody>
-% while ( my $row = $conversation_sth->fetchrow_hashref) {
+% while ( my $row = $query_sth->fetchrow_hashref) {
   <tr>
     <td><span class="textDate"><%= $row->{query_ts} %></span></td>
     <td><%= $row->{opcode} %></td>
     <td><%= join( " ", @{$row}{qw(qclass qtype qname)} ) %></td>
     <td><%= $row->{client_port} %></td>
-    <td><%= $row->{server_port} %></td>
     <td><i class="icon-flag"></i>
 % foreach my $f (qw(recursive truncated checking)) {
 <%= $row->{"flag_$f"} ? uc substr($f,0,1) : '' %>
@@ -38,10 +36,46 @@ server, <%= $meta->{server} %>.
 </table>
 
 </div>
+<div>
+<h2>Responses</h2>
+<table id="responses" class="table table-condensed table-striped">
+<thead>
+ <tr>
+    <th>Time</th>
+    <th>Took</th>
+    <th>Client Port</th>
+    <th>Query</th>
+    <th>Value</th>
+    <th>Flags</th>
+    <th>Status</th>
+  </tr>
+</thead>
+<tbody>
+% while ( my $row = $response_sth->fetchrow_hashref) {
+  <tr>
+    <td><span class="textDate"><%= $row->{response_ts} %></span></td>
+    <td><%= defined $row->{took} ? $row->{took} : '' %></td>
+    <td><%= $row->{client_port} %></td>
+    <td><%= join( " ", grep { defined } @{$row}{qw(aclass atype aname)} ) %></td>
+    <td><%= defined $row->{opts} ? "($row->{opts}) " : '' %><%= defined $row->{value} ? $row->{value} : '' %></td>
+    <td><i class="icon-flag"></i>
+% foreach my $f (qw(authoritative recursion_available)) {
+<%= $row->{"flag_$f"} ? uc substr($f,0,1) : '' %>
+% }
+    </td>
+    <td><%== make_badge query_status => $row->{status} %></td>
+  </tr>
+% }
+</tbody>
+</table>
 
+    </div>
 %= javascript begin
 $( function() {
     $('#queries').dataTable({
+        "aaSorting": [[ 0, "desc" ]],
+    });
+    $('#responses').dataTable({
         "aaSorting": [[ 0, "desc" ]],
     });
 });
