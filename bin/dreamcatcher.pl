@@ -7,16 +7,6 @@
 use strict;
 use warnings;
 
-BEGIN {
-    eval {
-        require EV;
-        EV::import;
-    };
-    if ($@) {
-        warn "NOTE: Install EV.pm for better performance.\n";
-    }
-}
-
 use App::Daemon qw(daemonize);
 use DateTime;
 use File::Basename;
