@@ -165,23 +165,16 @@ sub client_server_map {
     );
 }
 
-my %_moves = (
-    '00' => sub { $_[0]->{y} -= $_[1]; },
-    '01' => sub { $_[0]->{x} += $_[1]; },
-    '10' => sub { $_[0]->{x} -= $_[1]; },
-    '11' => sub { $_[0]->{y} += $_[1]; },
-);
+my $HALF_IP = 2 ** 16;
 sub _coords {
     my ($ip_str) = @_;
-    my %coords = ( x => 0, y => 0 );
     my $ip = Net::IP->new( $ip_str );
-    my $bits = $ip->binip;
+    my $as_int = $ip->intip;
 
-    foreach my $os ( 0 .. 15 ) {
-        my $mod = 16 - $os;
-        my $m = substr($bits,$os * 2,2);
-        $_moves{$m}->(\%coords,$mod) if exists $_moves{$m};
-    }
+    my %coords = (
+        x => $as_int % $HALF_IP,
+        y => int( $as_int / $HALF_IP ),
+    );
     return wantarray ? %coords : \%coords;
 }
 
