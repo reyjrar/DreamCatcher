@@ -6,7 +6,7 @@ sub index {
     my $self = shift;
 
     # Load some common queries
-    $self->common_query( $_ ) for qw{top_questions recent_questions};
+    $self->common_query( $_ ) for qw{top_questions recent_questions missed_questions};
 
     $self->render();
 }

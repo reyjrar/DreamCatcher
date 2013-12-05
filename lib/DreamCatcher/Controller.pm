@@ -69,6 +69,23 @@ has common_queries => sub {
             select * from packet_record_question
                 order by first_ts DESC limit 200
         },
+        missed_questions => qq{
+            select
+                prq.class,
+                prq.type,
+                prq.name,
+                min(prq.first_ts) as first_ts,
+                max(prq.last_ts) as last_ts,
+                count(1) as misses
+            from packet_response pr
+                inner join packet_meta_query_response pmqr on pr.id = pmqr.response_id
+                inner join packet_meta_question pmq on pmqr.query_id = pmq.query_id
+                inner join packet_record_question prq on pmq.question_id = prq.id
+            where pr.status = 'NXDOMAIN'
+            group by prq.class, prq.type, prq.name
+            order by misses DESC
+            limit 200
+        },
     };
 };
 

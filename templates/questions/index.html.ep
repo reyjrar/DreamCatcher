@@ -5,6 +5,7 @@
 <ul class="nav nav-tabs">
     <li class="active"><a href="#top" data-toggle="tab">Top Questions</a></li>
     <li><a href="#newest" data-toggle="tab">Recently Asked</a></li>
+    <li><a href="#missed" data-toggle="tab">Most Missed</a></li>
 </ul>
 
 <div class="tab-content">
@@ -57,6 +58,31 @@
 </table>
 </div><!-- End of newest tab-pane -->
 
+<div id="missed" class="tab-pane">
+<h2>Missed Questions</h2>
+<table class="data table table-striped table-condensed">
+<thead>
+<tr>
+    <th>Query</th>
+    <th>First</th>
+    <th>Last</th>
+    <th>Count</th>
+</tr>
+</thead>
+<tbody>
+% while( my $row = $STH->{missed_questions}->fetchrow_hashref ) {
+    <tr>
+        <td><%= $row->{class} %> <%= $row->{type} %> <%= $row->{name} %></td>
+        <td><span class="textDate"><%= $row->{first_ts} %></span></td>
+        <td><span class="textDate"><%= $row->{last_ts} %></span></td>
+        <td><%= $row->{misses} %></td>
+    </tr>
+% }
+</tbody>
+</table>
+</div><!-- End of newest tab-pane -->
+
+
 
 </div>
 
@@ -70,6 +96,9 @@ $(function() {
     });
     $("#newest table.data").dataTable({
         "aaSorting": [[ 1, "desc" ]],
+    });
+    $("#missed table.data").dataTable({
+        "aaSorting": [[ 3, "desc" ]],
     });
 });
 </script>
