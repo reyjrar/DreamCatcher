@@ -10,13 +10,12 @@ $Net::Whois::Raw::CHECK_FAIL = 0;
 $Net::Whois::Raw::CACHE_DIR  = "$ENV{HOME}/tmp";
 $Net::Whois::Raw::TIMEOUT    = 10;
 
-my $i = 0;
-my %REFERENCE = map { $i++; $_=>$i, $i=>$_ } 'a' .. 'z';
-
 my $domain = shift @ARGV;
 $domain ||= 'google.com';
 
 my @parts = split /\./, lc $domain;
+
+my %VALID = map { $_ => 1 } split '', q{ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-};
 
 my $word = shift @parts;
 my @variations = ( $domain );
@@ -24,15 +23,17 @@ my @variations = ( $domain );
 for my $place ( 0 .. length($word)-1 ) {
     my $letter = substr($word,$place,1);
 
-    my $index = $REFERENCE{$letter};
+    my %valid = %VALID;
+    delete $valid{'-'} if $place == 0 || $place == length($word)-1;
 
-    foreach my $move (1,-1) {
-        my $new = $move + $index;
-        if( exists $REFERENCE{$new} ) {
-            my $copy = $word;
-            substr($copy,$place,1,$REFERENCE{$new});
-            push @variations, join('.', $copy, @parts);
-        }
+    my $base = ord($letter);
+    for my $os ( 0..7 ) {
+        my $xor = 2 ** $os;
+        my $new = chr($base ^ $xor);
+        next unless exists $valid{$new};
+        my $copy = $word;
+        substr($copy,$place,1,$new);
+        push @variations, join('.', $copy, @parts);
     }
 }
 
@@ -88,6 +89,6 @@ foreach my $variation (@variations) {
     }
 }
 if( @available ) {
-    print "\n # Available Variations on $domain\n\n";
+    printf "\n # [%s] Available Variations %d of %d, %0.2f%%\n\n", $domain, scalar(@available), scalar(@variations), 100*(scalar(@available) / scalar(@variations));
     print "$_\n" for @available;
 }
