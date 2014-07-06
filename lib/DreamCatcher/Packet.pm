@@ -110,7 +110,7 @@ sub _build_raw_data {
         $data{details}->{proto} = 'tcp';
     }
     else {
-        # Bail before referncing this data
+        # Bail before referencing this data
         return { %data, error => "Decode failed, not TCP or UDP" };
     }
 
