@@ -122,9 +122,9 @@ foreach my $variation (keys %variations) {
     push @available, $variation if !defined $info;
 }
 if( @available ) {
-    verbose("# Available variations");
+    verbose({clear=>1},"# Available variations","");
     output({indent=>1},$_) for sort @available;
-    verbose(sprintf "\n # Available Variations %d of %d, %0.2f%%\n\n", scalar(@available), $num_variants, 100*(scalar(@available) / $num_variants));
+    output({clear=>1},sprintf "# Variations %d of %d available (%0.2f%%)", scalar(@available), $num_variants, 100*(scalar(@available) / $num_variants));
 }
 __END__
 =pod
