@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+# PODNAME: serve-nx-log.pl
 #
 # Simple DNS Server simply replies with an NXDOMAIN but logs the
 # client IP address and question asked via syslog.

@@ -1,9 +1,9 @@
 -- Create the new function
-CREATE OR REPLACE FUNCTION get_zone_id(in_zone_name character varying, in_zone_path character varying, in_first_ts TIMESTAMP WITHOUT TIME ZONE, in_last_ts TIMESTAMP WITHOUT TIME ZONE)
+CREATE OR REPLACE FUNCTION get_zone_id(in_zone_name TEXT, in_zone_path TEXT, in_first_ts TIMESTAMP WITHOUT TIME ZONE, in_last_ts TIMESTAMP WITHOUT TIME ZONE)
   RETURNS integer AS $$
 DECLARE
 	out_zone_id INTEGER;
-	var_zone_name character varying;
+	var_zone_name TEXT;
 	var_zone_path ltree;
 BEGIN
 	var_zone_name := lower( in_zone_name );

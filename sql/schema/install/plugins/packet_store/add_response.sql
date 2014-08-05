@@ -1,5 +1,5 @@
 -- Create the New Function
-CREATE OR REPLACE FUNCTION add_response(in_convo_id bigint, in_client_id bigint, in_client_port integer, in_server_id bigint, in_server_port integer, in_query_serial integer, in_opcode character varying, in_status character varying, in_size_answer integer, in_cnt_answer integer, in_cnt_additional integer, in_cnt_authority integer, in_cnt_question integer, in_authoritative boolean, in_authenticated boolean, in_truncated boolean, in_checking_desired boolean, in_recursion_desired boolean, in_recursion_available boolean, in_capture_time numeric(16,6))
+CREATE OR REPLACE FUNCTION add_response(in_convo_id bigint, in_client_id bigint, in_client_port integer, in_server_id bigint, in_server_port integer, in_query_serial integer, in_opcode TEXT, in_status TEXT, in_size_answer integer, in_cnt_answer integer, in_cnt_additional integer, in_cnt_authority integer, in_cnt_question integer, in_authoritative boolean, in_authenticated boolean, in_truncated boolean, in_checking_desired boolean, in_recursion_desired boolean, in_recursion_available boolean, in_capture_time numeric(16,6))
   RETURNS bigint AS
 $BODY$DECLARE
 	out_response_id BIGINT := 0;

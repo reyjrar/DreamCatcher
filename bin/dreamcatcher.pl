@@ -52,6 +52,8 @@ $CFG->{sniffer}{workers} ||= 2;
 # Logging
 my $LOG_CONFIG = File::Spec->catfile($BASEDIR, 'logging.conf');
 $App::Daemon::l4p_conf = $LOG_CONFIG if -f $LOG_CONFIG;
+$App::Daemon::as_user  = 'root';
+$App::Daemon::as_group = 'root';
 
 # Default PCAP Opts
 my %pcapOpts = ( dev => 'any', snaplen => 1518, filter => '(tcp or udp) and port 53', promisc => 1 );

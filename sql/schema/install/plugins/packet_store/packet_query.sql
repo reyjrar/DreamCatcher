@@ -8,7 +8,7 @@ CREATE TABLE packet_query
   query_ts timestamp(6) without time zone NOT NULL DEFAULT now(),
   query_serial bigint NOT NULL,
   conversation_id bigint NOT NULL,
-  opcode character varying(12) NOT NULL,
+  opcode TEXT NOT NULL,
   count_questions bigint NOT NULL,
   flag_recursive boolean NOT NULL DEFAULT false,
   flag_truncated boolean NOT NULL DEFAULT false,

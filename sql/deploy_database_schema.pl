@@ -11,8 +11,7 @@ use File::Spec;
 use File::Basename;
 use File::Slurp qw( slurp );
 use YAML;
-use DBIx::Connector;
-use Try::Tiny;
+use DBI;
 
 #------------------------------------------------------------------------#
 # Grab Mode
@@ -53,8 +52,8 @@ my $deployFile = File::Spec->catfile( @BasePath, 'sql', 'schema', 'deploy.yml' )
 my $SCHEMA = YAML::LoadFile( $deployFile ) or die "unable to load $deployFile: $!\n";
 
 # Connect to the Database:
-my $dbConn = DBIx::Connector->new( $CFG->{db}{dsn}, $CFG->{db}{user}, $CFG->{db}{pass},
-    {PrintError => 0, RaiseError => 1 } );
+my $dbConn = DBI->connect( $CFG->{db}{dsn}, $CFG->{db}{user}, $CFG->{db}{pass},
+    {PrintError => 0, RaiseError => 1} );
 
 if( $MODE eq 'install' ) {
     install( $SCHEMA->{install} );
@@ -83,14 +82,23 @@ sub install {
     foreach my $entity (@{ $schema->{base} } ) {
         my $srcFile = File::Spec->catfile( @BasePath, qw(sql schema install base), "$entity.sql" );
         die "$srcFile does not exist!\n" unless -f $srcFile;
-        my $error = undef;
 
         my $sql = slurp( $srcFile );
-        $dbConn->run( fixup => sub {
-            $_->do( $sql );
-        }, catch { $error = $_ } );
-        die " - applying base $entity failed with error: $error\n" if $error;
-        print " - applied base $entity!\n";
+        my $rc = eval {
+            $dbConn->do($sql);
+            1;
+        };
+        my $error = defined $rc && $rc == 1 ? undef : $@;
+
+        if (!defined($error) ) {
+            print " - applied base $entity!\n";
+        }
+        elsif ( $error  =~ /relation \"$entity\" already exists/ ) {
+            print " - base $entity already exists!\n";
+        }
+        else {
+            die " - applying base $entity failed with error: $error\n";
+        }
     }
 
     # Install Plugins
@@ -102,16 +110,23 @@ sub install {
         foreach my $entity ( @{ $schema->{plugins}{$plugin}{entities} } ) {
             my $srcFile = File::Spec->catfile( @path, "$entity.sql" );
             die "$srcFile does not exist!\n" unless -f $srcFile;
-            my $error = undef;
 
             my $sql = slurp( $srcFile );
-            $dbConn->run( fixup => sub {
-                $_->do( $sql );
-            }, catch { $error = $_ } );
+            my $rc = eval {
+                $dbConn->do($sql);
+                1;
+            };
+            my $error = defined $rc && $rc == 1 ? undef : $@;
 
-            die " - applying plugin($plugin) $entity failed with error: $error\n" if $error;
-            print " - applied plugin($plugin) $entity!\n";
-
+            if (!defined $error ) {
+                print " - applied plugin($plugin) $entity!\n";
+            }
+            elsif ( $error  =~ /relation \"$entity\" already exists/ ) {
+                print " - plugin($plugin) $entity already exists!\n";
+            }
+            else {
+                die " - applying plugin($plugin) $entity failed with error: $error\n";
+            }
         }
     }
 }
@@ -127,12 +142,13 @@ sub upgrade {
         foreach my $entity (@{ $schema->{base} } ) {
             my $srcFile = File::Spec->catfile( @BasePath, qw(sql schema upgrade), $ver, 'base', "$entity.sql" );
             die " !! $srcFile does not exist!\n" unless -f $srcFile;
-            my $error = undef;
 
             my $sql = slurp( $srcFile );
-            $dbConn->run( fixup => sub {
-                $_->do( $sql );
-            }, catch { $error = $_ } );
+            my $rc = eval {
+                $dbConn->do($sql);
+                1;
+            };
+            my $error = defined $rc && $rc == 1 ? undef : $@;
             die "  - applying base $entity failed with error: $error\n" if $error;
             print "  - applied base $entity!\n";
         }
@@ -148,13 +164,13 @@ sub upgrade {
             foreach my $entity ( @{ $schema->{plugins}{$plugin}{entities} } ) {
                 my $srcFile = File::Spec->catfile( @path, "$entity.sql" );
                 die "  !! $srcFile does not exist!\n" unless -f $srcFile;
-                my $error = undef;
 
                 my $sql = slurp( $srcFile );
-                $dbConn->run( fixup => sub {
-                    $_->do( $sql );
-                }, catch { $error = $_ } );
-
+                my $rc = eval {
+                    $dbConn->do($sql);
+                    1;
+                };
+                my $error = defined $rc && $rc == 1 ? undef : $@;
                 die "  - applying plugin($plugin) $entity failed with error: $error\n" if $error;
                 print "  - applied plugin($plugin) $entity!\n";
 

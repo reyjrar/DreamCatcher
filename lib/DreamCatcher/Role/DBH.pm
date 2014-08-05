@@ -50,7 +50,8 @@ sub _build_dbh {
 
 	my %db = %{ $self->config->{db} };
 	my $dbconn = DBIx::Connector->new( @db{qw(dsn user pass)}, {
-            RaiseError  => 1,
+            PrintError  => 0,
+            RaiseError  => 0,
             HandleError => Exception::Class::DBI->handler,
     });
     if( !defined $dbconn ) {

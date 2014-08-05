@@ -1,5 +1,5 @@
 -- Link zones to answers
-CREATE FUNCTION link_zone_answer(IN in_zone_id integer, IN in_answer_id integer)
+CREATE OR REPLACE FUNCTION link_zone_answer(IN in_zone_id integer, IN in_answer_id integer)
 	RETURNS boolean AS $$
 DECLARE
 	var_record_ts TIMESTAMP WITHOUT TIME ZONE;

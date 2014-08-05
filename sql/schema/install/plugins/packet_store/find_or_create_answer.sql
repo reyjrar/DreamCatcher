@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION find_or_create_answer(in_response_id bigint, in_section character varying, in_ttl integer, in_class character varying, in_type character varying, in_name character varying, in_value character varying, in_opts character varying)
+CREATE OR REPLACE FUNCTION find_or_create_answer(in_response_id bigint, in_section TEXT, in_ttl integer, in_class TEXT, in_type TEXT, in_name TEXT, in_value TEXT, in_opts TEXT)
   RETURNS integer AS
 $BODY$DECLARE
 	out_answer_id INTEGER := 0;

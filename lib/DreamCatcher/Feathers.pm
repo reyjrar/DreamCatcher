@@ -92,13 +92,16 @@ sub chain {
 
 # Run the processing
 sub process {
-    my $self = shift;
-    my $packet = shift;
+    my ($self,$packet) = @_;
 
     foreach my $feather (@{ $self->chain('sniffer') }) {
         $feather->process($packet);
     }
     return 1;
+}
+
+sub schedule {
+    my $self = @_;
 }
 
 # Return True

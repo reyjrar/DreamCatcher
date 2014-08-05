@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION find_or_create_question(bigint, character varying, character varying, character varying)
+CREATE OR REPLACE FUNCTION find_or_create_question(bigint, TEXT, TEXT, TEXT)
   RETURNS integer AS
 $BODY$DECLARE
 	in_query_id ALIAS FOR $1;

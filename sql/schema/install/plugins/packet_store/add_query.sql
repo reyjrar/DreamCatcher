@@ -1,5 +1,5 @@
 -- Create the new function
-CREATE OR REPLACE FUNCTION add_query(bigint, bigint, integer, bigint, integer, integer, character varying, integer, boolean, boolean, boolean, numeric(16,6))
+CREATE OR REPLACE FUNCTION add_query(bigint, bigint, integer, bigint, integer, integer, TEXT, integer, boolean, boolean, boolean, numeric(16,6))
   RETURNS bigint AS
 $BODY$DECLARE
 	in_convo_id ALIAS FOR $1;

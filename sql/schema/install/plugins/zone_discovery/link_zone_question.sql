@@ -1,5 +1,5 @@
 -- Link Zone and Questions
-CREATE FUNCTION link_zone_question(IN in_zone_id integer, IN in_question_id integer) RETURNS boolean AS $$
+CREATE OR REPLACE FUNCTION link_zone_question(IN in_zone_id integer, IN in_question_id integer) RETURNS boolean AS $$
 DECLARE
 	var_record_ts TIMESTAMP WITHOUT TIME ZONE;
 	var_zone_ts TIMESTAMP WITHOUT TIME ZONE;

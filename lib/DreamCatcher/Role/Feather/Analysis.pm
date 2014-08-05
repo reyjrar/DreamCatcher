@@ -3,7 +3,10 @@ package DreamCatcher::Role::Feather::Analysis;
 use Moo::Role;
 use Sub::Quote;
 
-with 'DreamCatcher::Role::Feather';
+with qw(
+    DreamCatcher::Role::Feather
+    DreamCatcher::Role::DBH
+);
 
 requires qw(analyze);
 

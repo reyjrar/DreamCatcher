@@ -42,28 +42,34 @@ sub process {
 		my $query_id = $self->cache->get( $packet_id );
 		# Answer
         my $sth = $self->sth('response');
-		$sth->execute(
-			$info->{conversation_id},
-			$info->{client_id},
-			$info->{client_port},
-			$info->{server_id},
-			$info->{server_port},
-			$dnsp->header->id,
-			$dnsp->header->opcode,
-			$dnsp->header->rcode,
-			$dnsp->answersize,
-			$dnsp->header->ancount,
-			$dnsp->header->arcount,
-			$dnsp->header->nscount,
-			$dnsp->header->qdcount,
-			$dnsp->header->aa,
-			$dnsp->header->ad,
-			$dnsp->header->tc,
-			$dnsp->header->cd,
-			$dnsp->header->rd,
-			$dnsp->header->ra,
-			$info->{time},
-		);
+        eval {
+            $sth->execute(
+                $info->{conversation_id},
+                $info->{client_id},
+                $info->{client_port},
+                $info->{server_id},
+                $info->{server_port},
+                $dnsp->header->id,
+                $dnsp->header->opcode,
+                $dnsp->header->rcode,
+                $dnsp->answersize,
+                $dnsp->header->ancount,
+                $dnsp->header->arcount,
+                $dnsp->header->nscount,
+                $dnsp->header->qdcount,
+                $dnsp->header->aa,
+                $dnsp->header->ad,
+                $dnsp->header->tc,
+                $dnsp->header->cd,
+                $dnsp->header->rd,
+                $dnsp->header->ra,
+                $info->{time},
+            );
+        };
+        if( my $ex = $@ ) {
+            $self->log(error => "store failed: $ex->errstr");
+            return;
+        }
 
 		my ($response_id) = $sth->fetchrow_array;
 		return unless defined $response_id && $response_id > 0;
@@ -71,7 +77,9 @@ sub process {
 		# Link Query / Response
 		if( defined $query_id ) {
             my $sth_qr = $self->sth('query_response');
-			$sth_qr->execute($query_id, $response_id);
+			eval {
+                $sth_qr->execute($query_id, $response_id);
+            };
 		}
 
 		my @sets = ();
@@ -93,36 +101,48 @@ sub process {
 				next unless defined $data{value} && length $data{value};
 
                 my $lsh = $self->sth('answer');
-				$lsh->execute(
-					$response_id,
-					$set->{name},
-					$pa->ttl,
-					$pa->class,
-					$pa->type,
-					$pa->name,
-					$data{value},
-					$data{opts},
-				);
+                eval {
+                    $lsh->execute(
+                        $response_id,
+                        $set->{name},
+                        $pa->ttl,
+                        $pa->class,
+                        $pa->type,
+                        $pa->name,
+                        $data{value},
+                        $data{opts},
+                    );
+                };
+                if( my $ex = $@ ) {
+                    $self->log(error => "Attempt to create answer failed: $ex->errstr");
+                    next;
+                }
 			}
 		}
 	}
 	else {
 		# Query
         my $sth = $self->sth('query');
-		$sth->execute(
-			$info->{conversation_id},
-			$info->{client_id},
-			$info->{client_port},
-			$info->{server_id},
-			$info->{server_port},
-			$dnsp->header->id,
-			$dnsp->header->opcode,
-			$dnsp->header->qdcount,
-			$dnsp->header->rd,
-			$dnsp->header->tc,
-			$dnsp->header->cd,
-			$info->{time},
-		);
+        eval {
+            $sth->execute(
+                $info->{conversation_id},
+                $info->{client_id},
+                $info->{client_port},
+                $info->{server_id},
+                $info->{server_port},
+                $dnsp->header->id,
+                $dnsp->header->opcode,
+                $dnsp->header->qdcount,
+                $dnsp->header->rd,
+                $dnsp->header->tc,
+                $dnsp->header->cd,
+                $info->{time},
+            );
+        };
+        if (my $ex = $@) {
+            $self->log(error => "Failed to create query object: $ex->errstr");
+            return;
+        }
 
 		my ($query_id) = $sth->fetchrow_array;
 		return unless defined $query_id && $query_id > 0;
@@ -131,12 +151,14 @@ sub process {
 		$self->cache->set( $packet_id, $query_id );
 		foreach my $pq ( $dnsp->question ) {
             my $lsh = $self->sth('question');
-			$lsh->execute(
-				$query_id,
-				$pq->qclass,
-				$pq->qtype,
-				$pq->qname
-			);
+            eval {
+                $lsh->execute(
+                    $query_id,
+                    $pq->qclass,
+                    $pq->qtype,
+                    $pq->qname
+                );
+            };
 		}
 	}
 }

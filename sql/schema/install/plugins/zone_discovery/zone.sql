@@ -1,7 +1,7 @@
 CREATE TABLE "zone"
 (
   id bigserial NOT NULL,
-  "name" character varying(255) NOT NULL,
+  "name" TEXT NOT NULL,
   path ltree NOT NULL,
   reference_count BIGINT DEFAULT 0,
   first_ts TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),

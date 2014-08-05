@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION find_or_create_conversation(character varying, character varying)
+CREATE OR REPLACE FUNCTION find_or_create_conversation(text, text)
   RETURNS conversation AS
 $BODY$DECLARE
 	in_client_ip inet := CAST($1 as inet);

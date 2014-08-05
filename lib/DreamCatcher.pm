@@ -11,7 +11,7 @@ sub startup {
     my $self = shift;
 
     # Setup
-    $self->secret('look at my horse, my horse is amazing');
+    $self->secrets(['look at my horse, my horse is amazing']);
     $self->mode('development');
     $self->sessions->default_expiration(3600*24*7);
 

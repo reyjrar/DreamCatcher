@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
-#
+# PODNAME: word-exploder.pl
+# ABSTRACT: Utility for combining words and checking the availability of domains.
 use strict;
 use warnings;
 

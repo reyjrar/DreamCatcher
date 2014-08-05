@@ -3,7 +3,7 @@ CREATE TABLE packet_meta_answer
   response_id bigint NOT NULL,
   answer_id bigint NOT NULL,
   ttl bigint NOT NULL,
-  section character(10) NOT NULL DEFAULT 'answer'::bpchar,
+  section TEXT NOT NULL DEFAULT 'answer'::text,
   CONSTRAINT packet_meta_answer_pkey PRIMARY KEY (response_id, answer_id),
   CONSTRAINT packet_meta_answer_answer_id_fkey FOREIGN KEY (answer_id)
       REFERENCES packet_record_answer (id) MATCH SIMPLE

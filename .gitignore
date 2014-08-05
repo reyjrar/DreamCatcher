@@ -13,4 +13,6 @@ MYMETA.*
 .build
 *.yml
 *.log
+*.log.*
+*.pid
 *.LCK

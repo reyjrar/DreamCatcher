@@ -76,8 +76,8 @@ sub set_schedule {
     # Retrieve the schedule
     $heap->{schedule} = $FEATHERS->schedule();
 
-    while( my($name,$interval) = each %{ $heap->{schedule} } ) {
-        $kernel->delay_add( analyze => $interval, $name );
+    foreach my $name (keys %{ $heap->{schedule} }) {
+        $kernel->delay_add( analyze => $heap->{schedule}{$name}, $name );
     }
 }
 

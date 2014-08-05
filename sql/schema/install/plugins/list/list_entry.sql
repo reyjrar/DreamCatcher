@@ -2,7 +2,7 @@ CREATE TABLE list_entry
 (
   id serial NOT NULL,
   list_id integer NOT NULL,
-  "zone" character varying(255) NOT NULL,
+  "zone" TEXT NOT NULL,
   path ltree NOT NULL,
   refreshed boolean NOT NULL DEFAULT false,
   first_ts timestamp without time zone NOT NULL DEFAULT now(),
