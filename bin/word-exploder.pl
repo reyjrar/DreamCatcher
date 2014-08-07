@@ -36,6 +36,7 @@ output($usage->text) if $opt->help;
 
 my $domain;
 my $max_words = $opt->maxwords;
+$max_words = 2 if $max_words < 2;
 my @TLDS = split /\,/, $opt->tlds;
 my %Required = defined $opt->required ? map { $_ => 1 } split(',', $opt->required) : ();
 my %words = map { lc($_) => 1 } map { split ','; } @ARGV, keys %Required;
@@ -60,17 +61,21 @@ sub build_list {
     my @words = @_;
     my %collected = ();
     for(my $i=0; $i < @words; $i++ ) {
-        my @subset = $words[$i];
+        my $key = $words[$i];
+        my @subset = ();
         foreach my $other (@words) {
             next if $other eq $words[$i];
             push @subset, $other;
-            last if @subset > $max_words;
 
-            if( keys %Required ) {
+            shift @subset if @subset == $max_words;
+
+            if( keys %Required && !exists $Required{$key}) {
                 next unless any { exists $Required{$_} } @subset;
             }
 
+            push @subset, $key;
             permute { my $name=join($opt->separator, @subset); $collected{"$name.$_"}=1 for @TLDS; } @subset;
+            pop @subset;
         }
     }
     return keys %collected;
