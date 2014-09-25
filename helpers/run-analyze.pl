@@ -3,13 +3,16 @@
 use strict;
 use warnings;
 
-use FindBin;
+sub POE::Kernel::ASSERT_DEFAULT () { 1 }
 use POE qw(
-    Filter::Reference
+    Filter::Line
     Wheel::ReadWrite
     Component::Log4perl
 );
+
+use FindBin;
 use YAML;
+
 
 use lib "$FindBin::Bin/../lib";
 use DreamCatcher::Packet;
@@ -47,7 +50,7 @@ sub start_session {
     $heap->{wheel} = POE::Wheel::ReadWrite->new(
         InputHandle  => \*STDIN,
         OutputHandle => \*STDOUT,
-        Filter       => POE::Filter::Reference->new(),
+        Filter       => POE::Filter::Line->new(),
         InputEvent   => 'input',
         ErrorEvent   => 'error',
     );
@@ -57,13 +60,13 @@ sub start_session {
 
 sub handle_input {
     my ($kernel,$heap,$msg) = @_[KERNEL,HEAP,ARG0];
+    $kernel->post(log => info => "Received input from parent: $msg");
 }
 
 sub handle_error {
     my ($operation, $errnum, $errstr, $id) = @_[ARG0..ARG3];
     if ($operation eq "read" and $errnum == 0) {
-        $poe_kernel->post(log => fatal => "Received EOF, shutting down $id");
-        $poe_kernel->shutdown();
+        $poe_kernel->post(log => fatal => "Received EOF on FH $id, ignoring");
     }
     else {
         $poe_kernel->post(log => warn => "Wheel $id encountered $operation error $errnum: $errstr\n");
@@ -71,12 +74,13 @@ sub handle_error {
 }
 
 sub set_schedule {
-    my ($kernel,$heap) = $_[KERNEL,HEAP];
+    my ($kernel,$heap) = @_[KERNEL,HEAP];
 
     # Retrieve the schedule
     $heap->{schedule} = $FEATHERS->schedule();
 
     foreach my $name (keys %{ $heap->{schedule} }) {
+        $kernel->post(log => info => "Schedule set for $name is every $heap->{schedule}{$name}");
         $kernel->delay_add( analyze => $heap->{schedule}{$name}, $name );
     }
 }

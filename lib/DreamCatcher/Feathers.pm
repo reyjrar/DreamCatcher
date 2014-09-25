@@ -32,6 +32,12 @@ has 'log_callback' => (
     default  => sub { my $l = sub { warn join(": ", @_), "\n" }; return $l; },
     init_arg => 'Log',
 );
+has 'schedule' => (
+    is      => 'ro',
+    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
+    lazy    => 1,
+    builder => '_build_schedule'
+);
 
 # Collect all of the plugins, though not ordered
 sub _build_hash {
@@ -94,14 +100,20 @@ sub chain {
 sub process {
     my ($self,$packet) = @_;
 
+    # Skip junk data
+    if( !defined $packet || !$packet->valid ) {
+        return;
+    }
     foreach my $feather (@{ $self->chain('sniffer') }) {
         $feather->process($packet);
     }
     return 1;
 }
 
-sub schedule {
-    my $self = @_;
+sub _build_schedule {
+    my ($self) = @_;
+    my %sched = map { $_->name => $_->interval } @{ $self->chain('analysis') };
+    return \%sched;
 }
 
 # Return True

@@ -24,7 +24,6 @@ sub _build_interval { 600; }
 
 sub interval {
     my $self = shift;
-
     return exists $self->config->{interval} && $self->config->{interval} > 0 ? $self->config->{interval} : $self->default_interval;
 }
 

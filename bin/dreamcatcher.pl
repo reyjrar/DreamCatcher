@@ -84,23 +84,37 @@ my $pcap_session_id = POE::Component::Pcap->spawn(
     Session     => 'sniffer',
 );
 
-my $sniffer_session_id = POE::Session->create(inline_states => {
-    _start => \&sniffer_start,
-    _stop  => sub { warn "sniffer is stopping ..\n"; },
-    _child => \&sniffer_handle_sigchld,
+my $sniffer_session_id = POE::Session->create(
+    inline_states => {
+        _start => \&sniffer_start,
+        _stop  => sub { warn "sniffer is stopping ..\n"; },
 
-    dispatch_packets => \&sniffer_dispatch_packets,
-    show_stats       => \&sniffer_show_stats,
+        # Main functions
+        dispatch_packets => \&sniffer_dispatch_packets,
+        show_stats       => \&sniffer_show_stats,
 
-    # Worker Management
-    spawn_worker  => \&sniffer_spawn_worker,
-    kill_worker   => \&sniffer_kill_worker,
+        # Analyzer Management
+        analyzer_start  => \&analyzer_start,
+        analyzer_error  => \&analyzer_error,
+        analyzer_stdout => \&analyzer_stdout,
+        analyzer_stderr => \&analyzer_stderr,
+        analyzer_chld   => \&analyzer_chld,
 
-    # Worker Handling
-    worker_error  => \&worker_error,
-    worker_stdout => \&worker_stdout,
-    worker_stderr => \&worker_stderr,
-});
+        # Worker Management
+        spawn_worker => \&sniffer_spawn_worker,
+        # Worker Handling
+        worker_error  => \&worker_error,
+        worker_stdout => \&worker_stdout,
+        worker_stderr => \&worker_stderr,
+        worker_chld   => \&worker_chld,
+    },
+    heap => {
+        respawn => {},
+        workers => [],
+        _workers => {},
+        worker => undef,
+    },
+);
 
 if( $$ != $ORIG ) {
     $poe_kernel->has_forked();
@@ -120,11 +134,11 @@ sub sniffer_start {
     $kernel->post( pcap => set_filter => $CFG->{pcap}{filter} );
 
     # Create Workers
-    $heap->{_workers} = {};
-    $heap->{workers} = 0;
     for ( 1 .. $CFG->{sniffer}{workers} ) {
         $kernel->yield('spawn_worker');
     }
+    # Analyzer
+    $kernel->yield('analyzer_start');
 
     # Start the Packet Capture
     $kernel->post( pcap => 'run' );
@@ -176,6 +190,11 @@ sub sniffer_spawn_worker {
         $kernel->delay_add( spawn_worker => 5 );
         return;
     }
+    $kernel->sig_child($worker->PID => 'worker_chld');
+
+    # Respawn
+    $heap->{respawn}->{$worker->PID} = 'spawn_worker';
+
     # Track Processors
     $heap->{_workers}{$worker->ID} = $worker;
     $heap->{workers} = [ sort { $a <=> $b } keys %{ $heap->{_workers} } ];
@@ -198,22 +217,52 @@ sub sniffer_spawn_worker {
     }
     $kernel->post(log => info => "successfully spawned worker:" . $worker->ID . " (cpus:" . join(',', @cpus) . ")");
 }
-sub sniffer_kill_worker {
-    my ($kernel,$heap,$wheel_id) = @_[KERNEL,HEAP,ARG0];
-    $heap->{_workers}{$wheel_id}->kill();
-    delete $heap->{_workers}{$wheel_id};
+#------------------------------------------------------------------------#
+# Analyzer Process Handlers
+sub analyzer_start {
+    my ($kernel,$heap) = @_[KERNEL,HEAP];
 
-    $heap->{workers} = [ sort { $a <=> $b } keys %{ $heap->{_workers} } ];
-    $heap->{worker} = 0;
-    $kernel->post(log => warn => "reaped a worker:$wheel_id");
+    my $program = File::Spec->catfile( $HELPERS, "run-analyze.pl" );
+    my $worker = POE::Wheel::Run->new(
+        Program      => $^X, # Special variable, current running Perl Version
+        ProgramArgs  => [ $program, $config_file ],
+        ErrorEvent   => 'analyzer_error',
+        StdoutEvent  => 'analyzer_stdout',
+        StderrEvent  => 'analyzer_stderr',
+        StdioFilter  => POE::Filter::Line->new(),
+        StderrFilter => POE::Filter::Line->new(),
+    );
+    if (! defined $worker) {
+        $kernel->post(log => error => "failed: $!, rescheduling");
+        $kernel->delay_add( analyzer_start => 5 );
+        return;
+    }
+    $kernel->sig_child($worker->PID => 'analyzer_chld');
+    $heap->{respawn}->{$worker->PID} = 'analyzer_start';
+    $kernel->post(log => info => sprintf 'Successfully started the analysis child[%d], id:%d.', $worker->PID, $worker->ID);
 }
-sub sniffer_handle_sigchld {
-    my ($kernel,$heap,$child,$exit_code) = @_[KERNEL,HEAP,ARG1,ARG2];
-    my $child_pid = $child->ID;
-    $exit_code ||= 0;
-    my $exit_status = $exit_code >>8;
-    return unless $exit_code != 0;
-    $kernel->post(log => error => "Received SIGCHLD from $child_pid ($exit_status)");
+sub analyzer_chld {
+    my ($kernel,$heap,$pid,$status) = @_[KERNEL,HEAP,ARG1,ARG2];
+    $kernel->post(log => error => "Received a SIG_CHLD from analyzer $pid");
+
+    my $respawn = exists $heap->{respawn}{$pid} ? delete $heap->{respawn}{$pid} : undef;
+    if(defined $respawn) {
+        $kernel->post(log => info => "Calling respawn: $respawn");
+    }
+}
+sub analyzer_error {
+    my ($kernel, $op, $code, $wheel_id, $handle) = @_[KERNEL, ARG0, ARG1, ARG3, ARG4];
+    if ($op eq 'read' and $code == 0 and $handle eq 'STDOUT') {
+        $kernel->post(log => error => "analyzer error = $wheel_id closed STDOUT");
+    }
+}
+sub analyzer_stdout {
+    my ($kernel,$heap,$details) = @_[KERNEL,HEAP,ARG0];
+    $kernel->post(log => info => "ANALYZER: $details");
+}
+sub analyzer_stderr {
+    my ($kernel,$heap,$errmsg) = @_[KERNEL,HEAP,ARG0];
+    $kernel->post(log => error => "ANALYZER: $errmsg");
 }
 #------------------------------------------------------------------------#
 # Worker Process Handlers
@@ -221,8 +270,25 @@ sub worker_error {
     my ($kernel, $op, $code, $wheel_id, $handle) = @_[KERNEL, ARG0, ARG1, ARG3, ARG4];
     if ($op eq 'read' and $code == 0 and $handle eq 'STDOUT') {
         $kernel->post(log => error => "wheel_id = $wheel_id closed STDOUT, respawning another worker");
-        $kernel->yield( kill_worker => $wheel_id );
-        $kernel->yield( 'spawn_worker' );
+    }
+    else {
+        $kernel->post(log => info => "wheel_id = $wheel_id threw an error: $op code:$code on $handle");
+    }
+}
+sub worker_chld {
+    my ($kernel,$heap,$pid,$status) = @_[KERNEL,HEAP,ARG1,ARG2];
+    $kernel->post(log => error => "Received a SIG_CHLD from a worker $pid");
+
+    my $wheel_id = exists $heap->{pid_to_wheel} ? delete $heap->{pid_to_wheel}{$pid} : undef;
+    if(defined $wheel_id && exists $heap->{_workers}{$wheel_id}) {
+        delete $heap->{_workers}{$wheel_id};
+        $heap->{workers} = [ sort { $a <=> $b } keys %{ $heap->{_workers} } ];
+        $heap->{worker} = 0;
+    }
+
+    my $respawn = exists $heap->{respawn}{$pid} ? delete $heap->{respawn}{$pid} : undef;
+    if(defined $respawn) {
+        $kernel->post(log => info => "Calling respawn: $respawn");
     }
 }
 sub worker_stdout {

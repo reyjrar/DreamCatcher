@@ -3,6 +3,8 @@ package DreamCatcher::Feather::query::response;
 
 use strict;
 use warnings;
+use feature 'state';
+
 use Moo;
 use DateTime;
 use DateTime::Format::Pg;
@@ -36,6 +38,7 @@ sub _build_sql {
 
 sub analyze {
     my ($self) = @_;
+    state $last_id = 0;
 
 	$self->log(debug => "query::response starting analysis");
 
@@ -43,7 +46,7 @@ sub analyze {
 
     my %STH = map { $_ => $self->sth($_) } qw(null_response find_response set_response);
 
-	$STH{null_response}->execute( $check_ts->datetime, $self->last_id );
+	$STH{null_response}->execute( $check_ts->datetime, $last_id );
 
 	my $updates = 0;
 	my $id = 0;
@@ -71,7 +74,7 @@ sub analyze {
 		}
 		$id = $q->{id};
 	}
-	$self->last_id($id);
+	$last_id = $id;
 
 	$self->log(info => "query::response posted $updates updates");
 }
