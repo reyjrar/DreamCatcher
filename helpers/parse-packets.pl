@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 
+use File::Basename;
 use FindBin;
 use POE qw(
     Filter::Reference
@@ -49,7 +50,8 @@ sub start_session {
         InputEvent   => 'input',
         ErrorEvent   => 'error',
     );
-    $kernel->post(log => 'info' => "startup successful");
+    my $id = basename($0);
+    $kernel->post(log => 'info' => "$id startup successful");
 }
 
 sub handle_input {
@@ -73,12 +75,11 @@ sub handle_input {
 }
 
 sub handle_error {
-    my ($operation, $errnum, $errstr, $id) = @_[ARG0..ARG3];
+    my ($operation, $errnum, $errstr, $id, $handle) = @_[ARG0..ARG4];
+    $poe_kernel->post(log => warn => "Sniffer Wheel $id ($handle) encountered $operation error $errnum: $errstr\n");
+
     if ($operation eq "read" and $errnum == 0) {
-        $poe_kernel->post(log => fatal => "Received EOF, shutting down $id");
+        $poe_kernel->post(log => fatal => "Sniffer received EOF, shutting down.");
         $poe_kernel->shutdown();
-    }
-    else {
-        $poe_kernel->post(log => warn => "Wheel $id encountered $operation error $errnum: $errstr\n");
     }
 }

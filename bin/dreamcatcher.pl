@@ -49,6 +49,7 @@ my $DEFAULT_CONFIG = File::Spec->catfile($BASEDIR, 'dreamcatcher.yml');
 my $config_file = exists $OPT{c} && -f $OPT{c} ? $OPT{c} : $DEFAULT_CONFIG;
 my $CFG = YAML::LoadFile( $config_file );
 $CFG->{sniffer}{workers} ||= 2;
+$CFG->{analysis}{disabled} ||= 0;
 # Logging
 my $LOG_CONFIG = File::Spec->catfile($BASEDIR, 'logging.conf');
 $App::Daemon::l4p_conf = $LOG_CONFIG if -f $LOG_CONFIG;
@@ -138,7 +139,7 @@ sub sniffer_start {
         $kernel->yield('spawn_worker');
     }
     # Analyzer
-    $kernel->yield('analyzer_start');
+    $kernel->yield('analyzer_start') unless $CFG->{analysis}{disabled};
 
     # Start the Packet Capture
     $kernel->post( pcap => 'run' );
@@ -237,6 +238,7 @@ sub analyzer_start {
         $kernel->delay_add( analyzer_start => 5 );
         return;
     }
+    $heap->{analyzer} = $worker;
     $kernel->sig_child($worker->PID => 'analyzer_chld');
     $heap->{respawn}->{$worker->PID} = 'analyzer_start';
     $kernel->post(log => info => sprintf 'Successfully started the analysis child[%d], id:%d.', $worker->PID, $worker->ID);
@@ -248,10 +250,12 @@ sub analyzer_chld {
     my $respawn = exists $heap->{respawn}{$pid} ? delete $heap->{respawn}{$pid} : undef;
     if(defined $respawn) {
         $kernel->post(log => info => "Calling respawn: $respawn");
+        $kernel->yield( $respawn );
     }
 }
 sub analyzer_error {
     my ($kernel, $op, $code, $wheel_id, $handle) = @_[KERNEL, ARG0, ARG1, ARG3, ARG4];
+    $kernel->post(log => warn => "analyzer wheel_id = $wheel_id threw an error: $op code:$code on $handle");
     if ($op eq 'read' and $code == 0 and $handle eq 'STDOUT') {
         $kernel->post(log => error => "analyzer error = $wheel_id closed STDOUT");
     }
@@ -268,11 +272,9 @@ sub analyzer_stderr {
 # Worker Process Handlers
 sub worker_error {
     my ($kernel, $op, $code, $wheel_id, $handle) = @_[KERNEL, ARG0, ARG1, ARG3, ARG4];
+    $kernel->post(log => warn => "sniffer wheel_id = $wheel_id threw an error: $op code:$code on $handle");
     if ($op eq 'read' and $code == 0 and $handle eq 'STDOUT') {
         $kernel->post(log => error => "wheel_id = $wheel_id closed STDOUT, respawning another worker");
-    }
-    else {
-        $kernel->post(log => info => "wheel_id = $wheel_id threw an error: $op code:$code on $handle");
     }
 }
 sub worker_chld {
@@ -289,6 +291,7 @@ sub worker_chld {
     my $respawn = exists $heap->{respawn}{$pid} ? delete $heap->{respawn}{$pid} : undef;
     if(defined $respawn) {
         $kernel->post(log => info => "Calling respawn: $respawn");
+        $kernel->yield($respawn);
     }
 }
 sub worker_stdout {

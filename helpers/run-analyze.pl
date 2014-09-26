@@ -11,6 +11,7 @@ use POE qw(
 );
 
 use FindBin;
+use File::Basename;
 use YAML;
 
 
@@ -32,12 +33,12 @@ my $log_id = POE::Component::Log4perl->spawn(
     ConfigFile => "$FindBin::Bin/../logging.conf",
 );
 my $session_id = POE::Session->create(inline_states => {
-    _start => \&start_session,
-    _stop  => sub { },
+    _start   => \&start_session,
+    _stop    => sub { $poe_kernel->shutdown; },
+    input    => \&handle_input,
+    error    => \&handle_error,
     schedule => \&set_schedule,
-    analyze => \&run_analyze,
-    input  => \&handle_input,
-    error  => \&handle_error,
+    analyze  => \&run_analyze,
 });
 
 POE::Kernel->run();
@@ -46,7 +47,7 @@ exit(0);
 sub start_session {
     my ($kernel,$heap) = @_[KERNEL,HEAP];
 
-    # IO :)
+    # So we know when the parent dies
     $heap->{wheel} = POE::Wheel::ReadWrite->new(
         InputHandle  => \*STDIN,
         OutputHandle => \*STDOUT,
@@ -54,8 +55,9 @@ sub start_session {
         InputEvent   => 'input',
         ErrorEvent   => 'error',
     );
-    $kernel->yield( 'schedule' );
-    $kernel->post(log => 'info' => "startup successful");
+    $kernel->yield('schedule');
+    my $id = basename($0);
+    $kernel->post(log => 'info' => "$id startup successful");
 }
 
 sub handle_input {
@@ -64,15 +66,13 @@ sub handle_input {
 }
 
 sub handle_error {
-    my ($operation, $errnum, $errstr, $id) = @_[ARG0..ARG3];
-    if ($operation eq "read" and $errnum == 0) {
-        $poe_kernel->post(log => fatal => "Received EOF on FH $id, ignoring");
-    }
-    else {
-        $poe_kernel->post(log => warn => "Wheel $id encountered $operation error $errnum: $errstr\n");
+    my ($operation, $errnum, $errstr, $id, $handle) = @_[ARG0..ARG4];
+    $poe_kernel->post(log => warn => "Wheel $id $handle encountered $operation error $errnum: $errstr\n");
+    if ($operation eq "read" && $errnum == 0) {
+        $poe_kernel->post(log => fatal => "Analysis Wheel $id received EOF, shutting down.");
+        $poe_kernel->shutdown();
     }
 }
-
 sub set_schedule {
     my ($kernel,$heap) = @_[KERNEL,HEAP];
 
@@ -96,7 +96,7 @@ sub run_analyze {
     }
 
     $kernel->post(log => info => "running analyzer $name");
-    $F->{$name}->analyze();
+    eval { $F->{$name}->analyze() };
     $kernel->delay_add( analyze => $F->{$name}->interval, $name);
     $kernel->post(log => debug => "rescheduled analyzer $name");
 }
