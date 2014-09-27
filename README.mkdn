@@ -10,10 +10,8 @@ version 0.1
 
 This is a complete DNS Monitoring Suite.  It is currently in __alpha__ status.
 
-This is a rewrite of the
-[dns-monitor](https://github.com/reyjrar/dns-monitor).  It is currently able
-to sniffer and record all packets, but the analyzer from dns-monitor has not
-been ported yet.
+A libpcap based sniffer daemon listens to DNS traffic on your network.  The
+conversations are recorded and analyzed to provide insight. 
 
 # PREREQUISITIES
 
@@ -64,19 +62,14 @@ Starting the front-end is easy as:
 * Port dns-monitor functions
   * statistics
   * analyzers
-    * packet timing
     * client acting as server
     * server authorized
-    * zone discovery
-    * query/response linking
     * list tracking
 
 * Front end improvements
   * List tracking
   * Search functions
   * Statistics
-  * Most missed questions
-  * Client asking bad questions
 
 * CLI
   * Need to provide CLI tools which implement similar functionality as Web
