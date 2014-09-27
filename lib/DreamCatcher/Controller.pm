@@ -50,9 +50,11 @@ has common_queries => sub {
                 inner join server on conversation.server_id = server.id
             where conversation.last_ts > NOW() - interval '30 days'
                 group by server.id, server.ip
+            order by conversations DESC , clients DESC, first_ts DESC
+            limit 200
         },
         top_zones => qq{
-            select id, name, reference_count from zone order by reference_count DESC limit 100
+            select id, name, reference_count from zone order by reference_count DESC limit 200
         },
         server_responses => q{
             select
@@ -60,6 +62,8 @@ has common_queries => sub {
             from packet_response r
                 inner join server srv on r.server_id = srv.id
             group by srv.id, r.server_id, r.opcode, r.status
+            order by total DESC, queries DESC
+            limit 200
         },
         top_questions => qq{
             select * from packet_record_question
