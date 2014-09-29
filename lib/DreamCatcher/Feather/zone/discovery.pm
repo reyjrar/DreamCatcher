@@ -57,7 +57,7 @@ sub analyze {
         my $path = join('.', reverse @path);
         $path =~ s/\-/_/g;
 
-        next if $path =~ /[^a-zA-Z0-9.\-]/; # TODO: utf8 handling
+        next if $path =~ /[^a-zA-Z0-9.\_]/; # TODO: utf8 handling
 
         $STH{zone_id}->execute( $zone, $path, $q->{first_ts}, $q->{last_ts} );
         my ($zone_id) = $STH{zone_id}->fetchrow_array;
@@ -75,7 +75,7 @@ sub analyze {
             $stats{questions}++;
         }
     }
-    $self->log("zone::discovery: questions linked $stats{questions}");
+    $self->log(info => "zone::discovery: questions linked $stats{questions}");
 
     # Get answers
     $STH{answer}->execute();
@@ -113,6 +113,6 @@ sub analyze {
             }
         }
     }
-    $self->log("zone::discovery: answers linked $stats{answers}");
+    $self->log(info => "zone::discovery: answers linked $stats{answers}");
 }
 1;

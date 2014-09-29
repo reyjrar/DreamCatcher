@@ -80,8 +80,10 @@ sub set_schedule {
     $heap->{schedule} = $FEATHERS->schedule();
 
     foreach my $name (keys %{ $heap->{schedule} }) {
-        $kernel->post(log => info => "Schedule set for $name is every $heap->{schedule}{$name}");
-        $kernel->delay_add( analyze => $heap->{schedule}{$name}, $name );
+        # First run will be in the first minute
+        my $start = int rand(60);
+        $kernel->post(log => info => "Schedule set for $name is every $heap->{schedule}{$name} : First run in $start seconds.");
+        $kernel->delay_add( analyze => $start, $name );
     }
 }
 
