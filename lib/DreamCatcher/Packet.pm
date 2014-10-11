@@ -11,6 +11,7 @@ use NetPacket::UDP;
 use NetPacket::TCP;
 
 # DNS Decoding
+use Net::DNS::SEC;
 use Net::DNS::Packet;
 
 # The Raw Packet off the wire
