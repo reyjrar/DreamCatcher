@@ -4,7 +4,7 @@ $BODY$DECLARE
 	in_query_id ALIAS FOR $1;
 	in_class ALIAS FOR $2;
 	in_type ALIAS FOR $3;
-	in_name ALIAS FOR $4;
+	in_name TEXT := LOWER($4);
 	out_question_id INTEGER := 0;
 BEGIN
 	-- Find this Question

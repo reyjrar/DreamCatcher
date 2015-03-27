@@ -2,16 +2,18 @@ CREATE OR REPLACE FUNCTION find_or_create_answer(in_response_id bigint, in_secti
   RETURNS integer AS
 $BODY$DECLARE
 	out_answer_id INTEGER := 0;
+    norm_name  TEXT := LOWER(in_name);
+    norm_value TEXT := LOWER(in_value);
 BEGIN
 	-- Find this Answer
 	select into out_answer_id id from packet_record_answer
-		where class=in_class and type=in_type and name=in_name and value=in_value
+		where class=in_class and type=in_type and name=norm_name and value=norm_value
 	limit 1;
 
 	IF NOT FOUND THEN
 		-- Create it
 		insert into packet_record_answer ( class, type, name, value, opts )
-			values ( in_class, in_type, in_name, in_value, in_opts );
+			values ( in_class, in_type, norm_name, norm_value, in_opts );
 		select into out_answer_id currval('packet_record_answer_id_seq');
 	END IF;
 
