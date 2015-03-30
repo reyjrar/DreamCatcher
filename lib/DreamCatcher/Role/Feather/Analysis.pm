@@ -27,5 +27,25 @@ sub interval {
     return exists $self->config->{interval} && $self->config->{interval} > 0 ? $self->config->{interval} : $self->default_interval;
 }
 
+
+my %_sld_needs_more = map { $_ => 1 } qw(co com net org);
+sub strip_sld {
+    my $self = shift;
+    my ($domain) = @_;
+
+    my $without_sld = undef;
+    chomp($domain);
+    my @parts = map { lc } split /\./, $domain;
+
+    return unless @parts > 2;
+
+    return if $parts[-1] eq 'arpa' && $parts[-2] eq 'in-addr';
+    pop @parts;
+    pop @parts;
+    pop @parts if exists $_sld_needs_more{$parts[-1]};
+
+    return join('.', @parts);
+}
+
 # Return True
 1;
