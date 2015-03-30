@@ -99,6 +99,9 @@ sub run_analyze {
 
     $kernel->post(log => info => "running analyzer $name");
     eval { $F->{$name}->analyze() };
+    if(my $ex = $@) {
+        $kernel->post(log => error => "$name encountered a fatal error: $ex");
+    }
     $kernel->delay_add( analyze => $F->{$name}->interval, $name);
     $kernel->post(log => debug => "rescheduled analyzer $name");
 }
