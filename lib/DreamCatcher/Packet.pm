@@ -152,5 +152,4 @@ sub _build_raw_data {
     return \%data;
 }
 
-# Return True
-1;
+__PACKAGE__->meta->make_immutable;

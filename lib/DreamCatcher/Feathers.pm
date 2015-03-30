@@ -116,5 +116,4 @@ sub _build_schedule {
     return \%sched;
 }
 
-# Return True
-1;
+__PACKAGE__->meta->make_immutable;

@@ -14,6 +14,8 @@ with qw(
     DreamCatcher::Role::Logger
 );
 
+sub _build_interval { 60; }
+
 sub _build_sql {
     return {
 		null_response => q{
@@ -79,5 +81,4 @@ sub analyze {
 	$self->log(info => "query::response posted $updates updates");
 }
 
-# Return True;
-1;
+__PACKAGE__->meta->make_immutable;

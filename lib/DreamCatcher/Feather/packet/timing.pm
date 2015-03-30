@@ -8,6 +8,8 @@ with qw(
 );
 use POSIX qw(strftime);
 
+sub _build_interval { 90 };
+
 sub _build_sql {
     return {
 		check => q{select
@@ -50,4 +52,4 @@ sub analyze {
 	$self->log(info => "packet::timing posted $updates updates, $errors errors");
 }
 
-1;
+__PACKAGE__->meta->make_immutable;

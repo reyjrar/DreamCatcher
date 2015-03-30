@@ -15,8 +15,8 @@ conversations are recorded and analyzed to provide insight.
 
 # PREREQUISITIES
 
-* Perl 5.10.1 or better
-* PostgreSQL 8.4+ though 9.x is recommended
+* Perl 5.14.2 or better
+* PostgreSQL 9.4
   * ltree extension
 
 # INSTALLATION

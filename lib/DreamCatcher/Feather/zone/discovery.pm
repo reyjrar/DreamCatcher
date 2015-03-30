@@ -6,7 +6,6 @@ with qw(
     DreamCatcher::Role::Feather::Analysis
     DreamCatcher::Role::Logger
 );
-use POSIX qw(strftime);
 
 sub _build_sql {
     return {
@@ -37,7 +36,6 @@ sub _build_sql {
 sub analyze {
     my ($self) = @_;
 
-    my $check_ts = strftime('%FT%T%z',localtime(time - 86400));
     my %stats = map { $_ => 0 } qw(questions answers);
 
     # DB Connections

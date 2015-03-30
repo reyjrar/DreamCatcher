@@ -78,4 +78,4 @@ sub analyze {
     $self->log(info => sprintf "list::refresh updated %d entries.", $total);
 }
 
-1;
+__PACKAGE__->meta->make_immutable;

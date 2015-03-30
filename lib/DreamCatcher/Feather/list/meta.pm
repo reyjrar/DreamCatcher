@@ -40,7 +40,7 @@ sub analyze {
             }
         }
     }
-    $self->log( debug => "list::meta posted $updates updates");
+    $self->log( info => "list::meta posted $updates updates");
 }
 
-1;
+__PACKAGE__->meta->make_immutable;
