@@ -65,17 +65,17 @@ sub _build_sql {
     return {
         check => q{
             select
-                q.id as question_id,
+                q.id,
                 q.class,
                 q.type,
                 q.name
-            from packet_record_question q
-                left join anomaly_question aq on q.id = aq.question_id
+            from question q
+                left join anomaly_question aq on q.id = aq.id
             where
-                aq.question_id is null
+                aq.id is null
         },
         insert => q{
-            insert into anomaly_question ( question_id, score, analysis ) values ( ?, ?, ? )
+            insert into anomaly_question ( source, id, score, checks, results ) values ( 'question', ?, ?, ?, ? )
         },
     };
 }
@@ -148,9 +148,9 @@ sub analyze {
         }
 
         # Mark this as done
-        eval { $STH{insert}->execute($ent->{question_id},$score,encode_json(\%analysis)) };
+        eval { $STH{insert}->execute($ent->{id},$score,[qw(classes types length soundex)],encode_json(\%analysis)) };
         if(my $ex = $@) {
-            $self->log(error => "anomaly::question - failed to score $ent->{question_id}: $ex");
+            $self->log(error => "anomaly::question - failed to score $ent->{id}: $ex");
             $errors++;
         }
         else {

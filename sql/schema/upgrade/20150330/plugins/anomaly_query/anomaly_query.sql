@@ -5,7 +5,7 @@ CREATE TABLE anomaly_query
   analysis jsonb,
   CONSTRAINT pki_anomaly_query PRIMARY KEY (query_id),
   CONSTRAINT fki_anomaly_query FOREIGN KEY (query_id)
-      REFERENCES packet_query (id) MATCH SIMPLE
+      REFERENCES query (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (

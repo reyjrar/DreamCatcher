@@ -1,4 +1,4 @@
-CREATE TABLE packet_record_question
+CREATE TABLE question
 (
   id bigserial NOT NULL,
   first_ts timestamp(6) without time zone NOT NULL DEFAULT now(),
@@ -7,8 +7,8 @@ CREATE TABLE packet_record_question
   "type" TEXT NOT NULL,
   "class" TEXT NOT NULL DEFAULT 'IN',
   reference_count bigint NOT NULL DEFAULT 0,
-  CONSTRAINT packet_record_question_pkey PRIMARY KEY (id),
-  CONSTRAINT packet_record_question_uniq UNIQUE (class, type, name)
+  CONSTRAINT question_pkey PRIMARY KEY (id),
+  CONSTRAINT question_uniq UNIQUE ("class", "type", "name")
 )
 WITH (
   OIDS=FALSE

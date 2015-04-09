@@ -5,7 +5,7 @@ DECLARE
 	var_zone_ts TIMESTAMP WITHOUT TIME ZONE;
 BEGIN
 	-- Grab the time stamps;
-	select last_ts into var_record_ts from packet_record_question where id=in_question_id;
+	select last_ts into var_record_ts from question where id=in_question_id;
 	select last_ts into var_zone_ts from zone where id=in_zone_id;
 
 	-- Link Tables

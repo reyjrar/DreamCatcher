@@ -19,15 +19,27 @@
     <th>First</th>
     <th>Last</th>
     <th>Count</th>
+    <th>More</th>
 </tr>
 </thead>
 <tbody>
 % while( my $row = $STH->{top_questions}->fetchrow_hashref ) {
+%   my %icons = qw(danger exclamation-sign warning warning-sign info info-sign);
+%   my $class = $row->{score} > 100 ? 'danger'
+%             : $row->{score} >  30 ? 'warning'
+%             : $row->{score} >   0 ? 'info'
+%             : undef;
     <tr>
         <td><%= $row->{class} %> <%= $row->{type} %> <%= $row->{name} %></td>
         <td><span class="textDate"><%= $row->{first_ts} %></span></td>
         <td><span class="textDate"><%= $row->{last_ts} %></span></td>
         <td><%= $row->{reference_count} %></td>
+        <td>
+%           if( defined $class ) {
+<span class="label label-<%= $class %>"><span class="icon icon-white icon-<%= $icons{$class} %>"></span></span>
+%           }
+        </td>
+
     </tr>
 % }
 </tbody>

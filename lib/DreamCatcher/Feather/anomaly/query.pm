@@ -33,22 +33,23 @@ sub _build_sql {
             select
                 s.ip as server,
                 c.ip as client,
-                q.id as query_id,
+                q.id,
                 q.opcode,
                 q.count_questions,
                 q.flag_recursive,
                 q.flag_checking,
-                q.flag_truncated
-            from packet_query q
+                q.flag_truncated,
+                (select count(1) from meta_question where query_id = q.id) as actual_questions
+            from query q
                 inner join client c on q.client_id = c.id
                 inner join server s on q.server_id = s.id
-                left join anomaly_query aq on q.id = aq.query_id
+                left join anomaly_query aq on q.id = aq.id
             where
                 query_ts > ?
-                and aq.query_id is null
+                and aq.id is null
         },
         insert => q{
-            insert into anomaly_query ( query_id, score, analysis) values ( ?, ?, ? )
+            insert into anomaly_query ( source, id, score, checks, results ) values ( 'query', ?, ?, ?, ? )
         },
     };
 }
@@ -65,7 +66,7 @@ sub analyze {
     my $errors  = 0;
 	$STH{check}->execute($time);
 	while( my $ent = $STH{check}->fetchrow_hashref ) {
-        my $score = 0;
+        my $score   = 0;
         my %analysis = ();
 
         # Check opcodes
@@ -83,6 +84,10 @@ sub analyze {
             $score += $self->score($type);
             $analysis{$key} = $ent->{count_questions};
         }
+        if( $ent->{count_questions} != $ent->{actual_questions} ) {
+            $score += $self->score('mismatch');
+            $analysis{query_mismatch_questions} = $ent->{actual_questions};
+        }
 
         # Rare to have all flags true
         if( $ent->{flag_recursive} && $ent->{flag_checking} && $ent->{flag_truncated} ) {
@@ -91,7 +96,8 @@ sub analyze {
         }
 
         # Mark this as done
-        eval { $STH{insert}->execute($ent->{query_id},$score,encode_json(\%analysis)) };
+        my @checks = qw(questions opcodes flags);
+        eval { $STH{insert}->execute($ent->{id},$score,\@checks,encode_json(\%analysis)) };
         if(my $ex = $@) {
             $self->log(error => "anomaly::query - failed to score $ent->{query_id}: $ex");
             $errors++;

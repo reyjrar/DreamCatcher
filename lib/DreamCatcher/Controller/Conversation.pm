@@ -42,11 +42,11 @@ sub view {
                 pr.status as status
 
             from conversation cv
-                inner join packet_query pq on pq.conversation_id = cv.id
-                inner join packet_meta_question pmq on pq.id = pmq.query_id
-                inner join packet_record_question prq on pmq.question_id = prq.id
-                left  join packet_meta_query_response pmqr on pq.id = pmqr.query_id
-                left  join packet_response pr on pmqr.response_id = pr.id
+                inner join query pq on pq.conversation_id = cv.id
+                inner join meta_question pmq on pq.id = pmq.query_id
+                inner join question prq on pmq.question_id = prq.id
+                left  join meta_query_response pmqr on pq.id = pmqr.query_id
+                left  join response pr on pmqr.response_id = pr.id
             where cv.id = ?
                 order by pq.query_ts DESC
                 limit 1000
@@ -67,9 +67,9 @@ sub view {
                 pt.difference as took
 
             from conversation cv
-                inner join packet_response pr on pr.conversation_id = cv.id
-                left join packet_meta_answer pma on pr.id = pma.response_id
-                left join packet_record_answer pra on pma.answer_id = pra.id
+                inner join response pr on pr.conversation_id = cv.id
+                left join meta_answer pma on pr.id = pma.response_id
+                left join answer pra on pma.answer_id = pra.id
                 left join packet_timing pt on pr.id = pt.response_id
             where cv.id = ?
                 order by pr.response_ts DESC

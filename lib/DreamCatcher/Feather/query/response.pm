@@ -19,15 +19,15 @@ sub _build_interval { 60; }
 sub _build_sql {
     return {
 		null_response => q{
-				select q.* from packet_query q
-					left join packet_meta_query_response m on q.id = m.query_id
+				select q.* from query q
+					left join meta_query_response m on q.id = m.query_id
 						where m.response_id is null
 						and q.query_ts > ?
 						and q.id > ?
 						order by q.query_ts limit 2000
 		},
 		find_response => q{
-			select id from packet_response
+			select id from response
 				where conversation_id = ?
 					and query_serial = ?
 					and response_ts between ? and ?
