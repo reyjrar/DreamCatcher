@@ -34,7 +34,7 @@ sub reverse_lookup {
                 class,
                 value,
                 reference_count
-            from packet_record_answer
+            from answer
                 where value = ?
         },
     );
@@ -70,14 +70,14 @@ sub clients_asking {
     # SQL Queries
     my %sql = (
         query => q{
-            select id from packet_record_question where class = ? and type = ? and name = ?
+            select id from question where class = ? and type = ? and name = ?
         },
         clients_asking => q{
 			select
 				ip as client, min(q.query_ts) as first_ts, max(q.query_ts) as last_ts, count(1) as reference_count
 			from
-				packet_meta_question mq
-				inner join packet_query q on mq.query_id = q.id
+				meta_question mq
+				inner join query q on mq.query_id = q.id
 				inner join client c on q.client_id = c.id
 			where
 				mq.question_id = ?

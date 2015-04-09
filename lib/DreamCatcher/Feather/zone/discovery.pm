@@ -10,20 +10,20 @@ with qw(
 sub _build_sql {
     return {
         answer => q{
-                select a.* from packet_record_answer a
+                select a.* from answer a
                     left join zone_answer z on a.id = z.answer_id
                 where
-                    a.class = 'IN'
-                    and a.type in ( 'A', 'AAAA', 'PTR', 'MX', 'SOA', 'NS' )
+                    a.class NOT LIKE 'CLASS%'
+                    and a.type NOT LIKE 'TYPE%'
                     and z.answer_id is null
                 order by first_ts asc
         },
         question => q{
-                select q.* from packet_record_question q
+                select q.* from question q
                     left join zone_question z on q.id = z.question_id
                 where
-                    q.class = 'IN'
-                    and q.type in ( 'A', 'AAAA', 'PTR', 'MX', 'SOA', 'NS' )
+                    q.class NOT LIKE 'CLASS%'
+                    and q.type NOT LIKE 'TYPE%'
                     and z.question_id is null
                 order by first_ts asc
         },

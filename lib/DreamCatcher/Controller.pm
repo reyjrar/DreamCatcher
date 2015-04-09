@@ -59,18 +59,20 @@ has common_queries => sub {
         server_responses => q{
             select
                 srv.id, srv.ip, r.opcode, r.status, count(1) as queries, sum(count(1)) OVER (PARTITION BY r.server_id) as total
-            from packet_response r
+            from response r
                 inner join server srv on r.server_id = srv.id
             group by srv.id, r.server_id, r.opcode, r.status
             order by total DESC, queries DESC
             limit 200
         },
         top_questions => qq{
-            select * from packet_record_question
+            select r.*, aq.*
+                from question r
+                left join anomaly_question aq on r.id = aq.id
                 order by reference_count DESC limit 200
         },
         recent_questions => qq{
-            select * from packet_record_question
+            select * from question
                 order by first_ts DESC limit 200
         },
         missed_questions => qq{
@@ -81,10 +83,10 @@ has common_queries => sub {
                 min(prq.first_ts) as first_ts,
                 max(prq.last_ts) as last_ts,
                 count(1) as misses
-            from packet_response pr
-                inner join packet_meta_query_response pmqr on pr.id = pmqr.response_id
-                inner join packet_meta_question pmq on pmqr.query_id = pmq.query_id
-                inner join packet_record_question prq on pmq.question_id = prq.id
+            from response pr
+                inner join meta_query_response pmqr on pr.id = pmqr.response_id
+                inner join meta_question pmq on pmqr.query_id = pmq.query_id
+                inner join question prq on pmq.question_id = prq.id
             where pr.status = 'NXDOMAIN'
             group by prq.class, prq.type, prq.name
             order by misses DESC

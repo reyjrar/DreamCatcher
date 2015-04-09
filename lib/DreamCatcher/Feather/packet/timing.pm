@@ -14,10 +14,10 @@ sub _build_sql {
     return {
 		check => q{select
 					 q.id as query_id, q.conversation_id, qr.response_id, r.capture_time - q.capture_time as difference
-						from packet_query q
-							inner join packet_meta_query_response qr on q.id = qr.query_id
-							left join packet_timing t on q.id = t.query_id and t.query_id is null
-							inner join packet_response r on qr.response_id = r.id and r.capture_time is not null
+						from query q
+							inner join meta_query_response qr on q.id = qr.query_id
+							left  join packet_timing t on q.id = t.query_id and t.query_id is null
+							inner join response r on qr.response_id = r.id and r.capture_time is not null
 						where q.capture_time is not null
 							and q.query_ts > NOW() - interval '2 hours'
 		},

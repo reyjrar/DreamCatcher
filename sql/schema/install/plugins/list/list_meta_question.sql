@@ -11,7 +11,7 @@ CREATE TABLE list_meta_question
       REFERENCES list_entry (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT list_meta_question_fki_question FOREIGN KEY (question_id)
-      REFERENCES packet_record_question (id) MATCH SIMPLE
+      REFERENCES question (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (

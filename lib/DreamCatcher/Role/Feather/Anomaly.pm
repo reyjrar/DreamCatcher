@@ -14,6 +14,7 @@ sub _build_scores {
     return {
         abnormal     => 10,
         obsolete     => 10,
+        mismatch     => 15,
         unassigned   => 15,
         private      => 20,
         experimental => 30,

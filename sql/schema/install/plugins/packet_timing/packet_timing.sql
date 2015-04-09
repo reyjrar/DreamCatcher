@@ -2,7 +2,7 @@
 CREATE TABLE packet_timing
 (
   id bigserial NOT NULL,
-  conversation_id bigint,
+  conversation_id integer,
   query_id bigint,
   response_id bigint,
   difference numeric(11,6) NOT NULL,
@@ -11,10 +11,10 @@ CREATE TABLE packet_timing
       REFERENCES conversation (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE SET NULL,
   CONSTRAINT packet_timing_fk_query FOREIGN KEY (query_id)
-      REFERENCES packet_query (id) MATCH SIMPLE
+      REFERENCES query (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT packet_timing_fk_response FOREIGN KEY (response_id)
-      REFERENCES packet_response (id) MATCH SIMPLE
+      REFERENCES response (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (

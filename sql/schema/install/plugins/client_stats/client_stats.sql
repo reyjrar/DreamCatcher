@@ -1,6 +1,6 @@
 CREATE TABLE client_stats
 (
-  client_id bigint NOT NULL,
+  client_id integer NOT NULL,
   "day" date NOT NULL,
   first_ts timestamp(6) without time zone NOT NULL DEFAULT now(),
   last_ts timestamp(6) without time zone NOT NULL DEFAULT now(),
@@ -11,7 +11,7 @@ CREATE TABLE client_stats
   CONSTRAINT client_stats_pkey PRIMARY KEY (client_id, day),
   CONSTRAINT client_stats_client_id_fkey FOREIGN KEY (client_id)
       REFERENCES client (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE
+      ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE
 )
 WITH (
   OIDS=FALSE

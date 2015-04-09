@@ -6,22 +6,22 @@ $BODY$DECLARE
     norm_value TEXT := LOWER(in_value);
 BEGIN
 	-- Find this Answer
-	select into out_answer_id id from packet_record_answer
+	select into out_answer_id id from answer
 		where class=in_class and type=in_type and name=norm_name and value=norm_value
 	limit 1;
 
 	IF NOT FOUND THEN
 		-- Create it
-		insert into packet_record_answer ( class, type, name, value, opts )
+		insert into answer ( class, type, name, value, opts )
 			values ( in_class, in_type, norm_name, norm_value, in_opts );
-		select into out_answer_id currval('packet_record_answer_id_seq');
+		select into out_answer_id currval('answer_id_seq');
 	END IF;
 
 	-- Link the Answer / Response
-	insert into packet_meta_answer ( response_id, answer_id, ttl, section )
+	insert into meta_answer ( response_id, answer_id, ttl, section )
 		values ( in_response_id, out_answer_id, in_ttl, in_section );
 	-- Update the answer tracking data
-	update packet_record_answer set last_ts=NOW(), reference_count=reference_count+1 where id=out_answer_id;
+	update answer set last_ts=NOW(), reference_count=reference_count+1 where id=out_answer_id;
 
 	return out_answer_id;
 END;$BODY$

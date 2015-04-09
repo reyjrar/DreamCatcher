@@ -97,7 +97,8 @@ sub install {
             print " - base $entity already exists!\n";
         }
         else {
-            die " - applying base $entity failed with error: $error\n";
+            warn " - applying base $entity failed with error: $error\n";
+            exit 1 unless exists $ENV{SQL_NO_FATAL} && $ENV{SQL_NO_FATAL};
         }
     }
 

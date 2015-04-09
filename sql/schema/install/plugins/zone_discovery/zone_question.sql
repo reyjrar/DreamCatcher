@@ -4,11 +4,11 @@ CREATE TABLE zone_question
   question_id bigint NOT NULL,
   CONSTRAINT zone_question_pki_ids PRIMARY KEY (zone_id, question_id),
   CONSTRAINT zone_question_fki_question FOREIGN KEY (question_id)
-      REFERENCES packet_record_question (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE CASCADE,
+      REFERENCES question (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT zone_question_fki_zone FOREIGN KEY (zone_id)
       REFERENCES "zone" (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE CASCADE
+      ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
