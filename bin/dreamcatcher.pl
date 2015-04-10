@@ -6,19 +6,17 @@
 #
 use strict;
 use warnings;
+use feature 'say';
 
-use App::Daemon qw(daemonize);
-use DateTime;
-use File::Basename;
-use File::Spec;
+use Daemon::Daemonize qw(check_pidfile write_pidfile daemonize);
 use FindBin;
+use Getopt::Long::Descriptive;
+use Path::Tiny;
+use Pod::Usage;
 use YAML;
 
-# DreamCatcher Libraries
-use lib "$FindBin::Bin/../lib";
-
+# POE Setup
 sub POE::Kernel::ASSERT_DEFAULT () { 1 }
-
 use POE qw(
     Component::Pcap
     Component::Log4perl
@@ -28,33 +26,41 @@ use POE qw(
 );
 
 #------------------------------------------------------------------------#
-# Argument Parsing
-my %OPT;
-foreach my $opt (qw(-c)) {
-    my $v = App::Daemon::find_option( $opt, 1 );
-    my $k = substr( $opt, 1 );
-    $OPT{$k} = $v if defined $v;
-}
+# Path Setup
+my $path_base    = path("$FindBin::Bin")->parent;
+my $path_helpers = $path_base->child('helpers');
 
 #------------------------------------------------------------------------#
-# Path Setup
-my @BasePath = File::Spec->splitdir("$FindBin::Bin");
-pop @BasePath;  # Strip Binary Directory
-my $BASEDIR = File::Spec->rel2abs( File::Spec->catdir(@BasePath) );
-my $HELPERS = File::Spec->catdir( $BASEDIR, 'helpers' );
+# Argument Parsing
+my ($opt,$usage) = describe_options(
+    "%c %o ",
+    [],
+    [ 'config|c:s', "DreamCatcher Config File", {
+        default => $path_base->child('dreamcatcher.yml')->realpath->canonpath,
+        callbacks => { exists => sub { -f shift } }
+    }],
+    [ 'logging-config|l:s', "Log4Perl Config File", {
+        default => $path_base->child('logging.conf')->realpath->canonpath,
+        callbacks => { exists => sub { -f shift } }
+    }],
+    [ 'pid-file|p:s', "PID file location", { default => '/var/run/dreamcatcher.pid', }],
+    [ 'debug|d', "Run in debugging mode, stay in foreground." ],
+
+    [],
+    [ 'help|h',    'print this menu and exit'],
+    [ 'manual|m',  'print the manual'],
+);
+
+#------------------------------------------------------------------------#
+# Display Documentation
+pod2usage(-exit=>0,-verbose=>2) if $opt->manual;
+say($usage->text) if $opt->help;
 
 #--------------------------------------------------------------------------#
 # App Config
-my $DEFAULT_CONFIG = File::Spec->catfile($BASEDIR, 'dreamcatcher.yml');
-my $config_file = exists $OPT{c} && -f $OPT{c} ? $OPT{c} : $DEFAULT_CONFIG;
-my $CFG = YAML::LoadFile( $config_file );
+my $CFG = YAML::LoadFile( $opt->config );
 $CFG->{sniffer}{workers} ||= 2;
 $CFG->{analysis}{disabled} ||= 0;
-# Logging
-my $LOG_CONFIG = File::Spec->catfile($BASEDIR, 'logging.conf');
-$App::Daemon::l4p_conf = $LOG_CONFIG if -f $LOG_CONFIG;
-$App::Daemon::as_user  = 'root';
-$App::Daemon::as_group = 'root';
 
 # Default PCAP Opts
 my %pcapOpts = ( dev => 'any', snaplen => 1518, filter => '(tcp or udp) and port 53', promisc => 1 );
@@ -67,16 +73,22 @@ else {
     $CFG->{pcap} = \%pcapOpts;
 }
 
-my $ORIG = $$;
 # Daemonize?
-daemonize();
+unless( $opt->debug ) {
+    my $pid = check_pidfile( $opt->pid_file );
+    die "another process is currently running ($pid)\n" if $pid > 0;
+
+    daemonize( chdir => $path_base->realpath->canonpath, close => 'std' );
+    write_pidfile( $opt->pid_file );
+    $poe_kernel->has_forked();
+}
 
 #------------------------------------------------------------------------#
 # Sessions
 my $log_id = POE::Component::Log4perl->spawn(
     Alias      => 'log',
     Category   => 'default',
-    ConfigFile => $LOG_CONFIG,
+    ConfigFile => $opt->logging_config,
 );
 my $pcap_session_id = POE::Component::Pcap->spawn(
     Alias       => 'pcap',
@@ -116,10 +128,6 @@ my $sniffer_session_id = POE::Session->create(
         worker => undef,
     },
 );
-
-if( $$ != $ORIG ) {
-    $poe_kernel->has_forked();
-}
 
 POE::Kernel->run();
 exit 0;
@@ -176,10 +184,10 @@ sub sniffer_dispatch_packets {
 sub sniffer_spawn_worker {
     my ($kernel,$heap) = @_[KERNEL,HEAP];
 
-    my $program = File::Spec->catfile( $HELPERS, "parse-packets.pl" );
+    my $program = $path_helpers->child("parse-packets.pl")->realpath->canonpath;
     my $worker = POE::Wheel::Run->new(
         Program      => $^X, # Special variable, current running Perl Version
-        ProgramArgs  => [ $program, $config_file ],
+        ProgramArgs  => [ $program, $opt->config ],
         ErrorEvent   => 'worker_error',
         StdoutEvent  => 'worker_stdout',
         StderrEvent  => 'worker_stderr',
@@ -223,10 +231,10 @@ sub sniffer_spawn_worker {
 sub analyzer_start {
     my ($kernel,$heap) = @_[KERNEL,HEAP];
 
-    my $program = File::Spec->catfile( $HELPERS, "run-analyze.pl" );
+    my $program = $path_helpers->child("run-analyze.pl")->realpath->canonpath;
     my $worker = POE::Wheel::Run->new(
         Program      => $^X, # Special variable, current running Perl Version
-        ProgramArgs  => [ $program, $config_file ],
+        ProgramArgs  => [ $program, $opt->config ],
         ErrorEvent   => 'analyzer_error',
         StdoutEvent  => 'analyzer_stdout',
         StderrEvent  => 'analyzer_stderr',
@@ -307,3 +315,5 @@ sub worker_stderr {
     $kernel->post(log => error => $errmsg);
     $heap->{stats}{error}++;
 }
+
+__END__

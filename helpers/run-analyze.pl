@@ -3,6 +3,14 @@
 use strict;
 use warnings;
 
+use FindBin;
+use Path::Tiny;
+use YAML;
+
+use lib "$FindBin::Bin/../lib";
+use DreamCatcher::Packet;
+use DreamCatcher::Feathers;
+
 sub POE::Kernel::ASSERT_DEFAULT () { 1 }
 use POE qw(
     Filter::Line
@@ -10,17 +18,10 @@ use POE qw(
     Component::Log4perl
 );
 
-use FindBin;
-use File::Basename;
-use YAML;
-
-
-use lib "$FindBin::Bin/../lib";
-use DreamCatcher::Packet;
-use DreamCatcher::Feathers;
-
 # Global Object Instances
-my $CFG      = YAML::LoadFile( $ARGV[0] );
+my $config_file = $ARGV[0];
+my $path_base = path($config_file)->parent;
+my $CFG      = YAML::LoadFile( $config_file );
 my $FEATHERS = DreamCatcher::Feathers->new(
     Config => $CFG,
     Log    => sub { $poe_kernel->post( log => @_ ); },
@@ -30,7 +31,7 @@ my $FEATHERS = DreamCatcher::Feathers->new(
 my $log_id = POE::Component::Log4perl->spawn(
     Alias      => 'log',
     Category   => 'Parser',
-    ConfigFile => "$FindBin::Bin/../logging.conf",
+    ConfigFile => $path_base->child('logging.conf')->realpath->canonpath,
 );
 my $session_id = POE::Session->create(inline_states => {
     _start   => \&start_session,
@@ -56,7 +57,7 @@ sub start_session {
         ErrorEvent   => 'error',
     );
     $kernel->yield('schedule');
-    my $id = basename($0);
+    my $id = path($0)->basename;
     $kernel->post(log => 'info' => "$id startup successful");
 }
 

@@ -3,8 +3,8 @@
 use strict;
 use warnings;
 
-use File::Basename;
 use FindBin;
+use Path::Tiny;
 use POE qw(
     Filter::Reference
     Wheel::ReadWrite
@@ -17,7 +17,9 @@ use DreamCatcher::Packet;
 use DreamCatcher::Feathers;
 
 # Global Object Instances
-my $CFG      = YAML::LoadFile( $ARGV[0] );
+my $config_file = $ARGV[0];
+my $path_base = path($config_file)->parent;
+my $CFG      = YAML::LoadFile( $config_file );
 my $FEATHERS = DreamCatcher::Feathers->new(
     Config => $CFG,
     Log    => sub { $poe_kernel->post( log => @_ ); },
@@ -27,7 +29,7 @@ my $FEATHERS = DreamCatcher::Feathers->new(
 my $log_id = POE::Component::Log4perl->spawn(
     Alias      => 'log',
     Category   => 'Parser',
-    ConfigFile => "$FindBin::Bin/../logging.conf",
+    ConfigFile => $path_base->child('logging.conf')->realpath->canonpath,
 );
 my $session_id = POE::Session->create(inline_states => {
     _start => \&start_session,
@@ -50,7 +52,7 @@ sub start_session {
         InputEvent   => 'input',
         ErrorEvent   => 'error',
     );
-    my $id = basename($0);
+    my $id = path($0)->basename;
     $kernel->post(log => 'info' => "$id startup successful");
 }
 
