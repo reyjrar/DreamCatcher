@@ -19,6 +19,12 @@ pcap:
   filter: (tcp or udp) and port 53
   promisc: 0
 
+sniffer:
+  workers: 4
+
+analysis:
+  disabled: 0
+
 feather:
   conversation:
     disabled: 0
