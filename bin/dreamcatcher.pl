@@ -1,8 +1,6 @@
 #!/usr/bin/env perl
 # PODNAME: dreamcatcher.pl
-#
-# Sniffer based on the Feathers
-# Also Includes the Analysis pieces
+# ABSTRACT: Umbrella daemon to run the sniffer and analysis engines
 #
 use strict;
 use warnings;
@@ -44,7 +42,7 @@ my ($opt,$usage) = describe_options(
         callbacks => { exists => sub { -f shift } }
     }],
     [ 'pid-file|p:s', "PID file location", { default => '/var/run/dreamcatcher.pid', }],
-    [ 'debug|d', "Run in debugging mode, stay in foreground." ],
+    [ 'foreground|F', "Run in foreground." ],
 
     [],
     [ 'help|h',    'print this menu and exit'],
@@ -59,7 +57,7 @@ say($usage->text) if $opt->help;
 #--------------------------------------------------------------------------#
 # App Config
 my $CFG = YAML::LoadFile( $opt->config );
-$CFG->{sniffer}{workers} ||= 2;
+$CFG->{sniffer}{workers} ||= 4;
 $CFG->{analysis}{disabled} ||= 0;
 
 # Default PCAP Opts
@@ -74,7 +72,7 @@ else {
 }
 
 # Daemonize?
-unless( $opt->debug ) {
+unless( $opt->foreground ) {
     my $pid = check_pidfile( $opt->pid_file );
     die "another process is currently running ($pid)\n" if $pid > 0;
 
@@ -213,7 +211,10 @@ sub sniffer_spawn_worker {
     eval {
         require Sys::CpuAffinity;
         $heap->{_cpus} ||= Sys::CpuAffinity::getNumCpus();
-        die "not enough cpu's to tune affinity" if $heap->{_cpus} < 8;
+        die "not enough cpu's to tune affinity" if $heap->{_cpus} < 2;
+        # Set Primary CPU using Modulus on the PID
+        push @cpus, int( $worker->PID % $heap->{_cpus} ) + 1;
+        # Configure other CPUs
         my $cpus = $heap->{_cpus} > $CFG->{sniffer}{workers} ? 2 : 1;
         for (1 .. $cpus ) {
             my $cpu = int(rand($heap->{_cpus})) + 1;
@@ -317,3 +318,82 @@ sub worker_stderr {
 }
 
 __END__
+
+=head1 SYNOPSIS
+
+dreamcatch.pl
+
+Options:
+
+    --help              print help
+    --manual            print full manual
+    --config            Location of the Config file, see: L</CONFIGURATION>
+    --logging-config    Location of Log::Log4perl config file
+    --pid-file          Location of the PID file
+    --foreground        Don't daemonize, stay in the foreground.
+
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<close>
+
+Run the close hook
+
+=item B<close-days>
+
+Integer, close indexes older than this number of days
+
+=item B<delete>
+
+Run the delete hook
+
+=back
+
+=head1 DESCRIPTION
+
+This script is used to capture packets off the wire and run them through the processing
+and analysis engines.  It's usually started using sudo:
+
+    $ sudo $(which perl) dreamcatcher.pl
+
+It will perform some sanity checks to ensure it's the only process running and then fires
+up the sniffer, sniffer workers, and the analysis engine.
+
+=head1 CONFIGURATION
+
+The DreamCatcher config is stored in L<YAML|http://yam.org> format.  The defaults look like this:
+
+    ---
+    time_zone: America/New_York
+    db:
+      dsn: dbi:Pg:host=localhost;database=dreamcatcher
+      user: admin
+      pass:
+
+    network:
+    nameservers: &GLOBALnameservers
+      - 8.8.8.8
+      - 8.8.4.4
+    clients: &GLOBALclients
+      - 192.168.1.0/24
+
+    pcap:
+      dev: any
+      snaplen: 1518
+      timeout: 100
+      filter: (tcp or udp) and port 53
+      promisc: 0
+
+    sniffer:
+      workers: 4
+
+    analysis:
+      disabled: 0
+
+    feather:
+      conversation:
+        disabled: 0
+
+=cut

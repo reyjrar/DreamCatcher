@@ -1,40 +1,40 @@
 package DreamCatcher::Feathers;
 
-use Moo;
-use Sub::Quote;
 use Tree::DAG_Node;
 use Module::Pluggable (
     instantiate => 'new',
     search_path => 'DreamCatcher::Feather',
 );
+use Moose;
+#use namespace::autoclean;
 
 # Attributes
 has 'tree' => (
     is      => 'ro',
-    isa      => quote_sub(q{ die "Not an Object" unless ref $_[0]; }),
+    isa      => 'Tree::DAG_Node',
     lazy    => 1,
     builder => '_build_tree',
 );
 has 'hash' => (
     is      => 'ro',
-    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
+    isa      => 'HashRef',
     lazy    => 1,
     builder => '_build_hash'
 );
 has 'config' => (
     is       => 'ro',
-    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
+    isa      => 'HashRef',
     init_arg => 'Config',
 );
 has 'log_callback' => (
     is       => 'ro',
-    isa      => quote_sub(q{die "Not a CodeRef" if ref $_[0] ne 'CODE'; }),
+    isa      => 'CodeRef',
     default  => sub { my $l = sub { warn join(": ", @_), "\n" }; return $l; },
     init_arg => 'Log',
 );
 has 'schedule' => (
     is      => 'ro',
-    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
+    isa     => 'HashRef',
     lazy    => 1,
     builder => '_build_schedule'
 );
@@ -117,3 +117,5 @@ sub _build_schedule {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+1;

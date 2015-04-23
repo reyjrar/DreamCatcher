@@ -1,8 +1,8 @@
 package DreamCatcher::Packet;
 
 # ABSTRACT: DreamCatcher Packet Parsing object
-use Moo;
-use Sub::Quote;
+use Moose;
+use namespace::autoclean;
 
 # Packet Parsing
 use NetPacket::Ethernet qw(:strip);
@@ -17,7 +17,7 @@ use Net::DNS::Packet;
 # The Raw Packet off the wire
 has 'raw_packet' => (
     is       => 'ro',
-    isa      => quote_sub(q{ die "Not a ArrayRef" if ref $_[0] ne 'ARRAY'; }),
+    isa      => 'ArrayRef',
     required => 1,
     init_arg => 'Raw',
 );
@@ -31,7 +31,7 @@ has 'raw_data' => (
 # Is the packet valid
 has 'valid' => (
     is       => 'ro',
-    isa      => quote_sub(q{ die "Not a bool" if ref $_[0]; }),
+    isa      => 'Bool',
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_valid',
@@ -39,7 +39,7 @@ has 'valid' => (
 # Details Extracted by BUILD
 has 'details' => (
     is       => 'rw',
-    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
+    isa      => 'HashRef',
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_details',
@@ -47,7 +47,7 @@ has 'details' => (
 # Net::DNS::Packet Object
 has 'dns' => (
     is       => 'ro',
-    isa      => quote_sub(q{ die "Not a Net::DNS::Packet" if ref $_[0] ne 'Net::DNS::Packet'; }),
+    isa      => 'Net::DNS::Packet',
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_dns',
@@ -55,7 +55,7 @@ has 'dns' => (
 # Errors with this packet
 has 'error' => (
     is       => 'ro',
-#    isa      => quote_sub(q{ die "Not defined" unless defined $_[0]; }),
+    isa      => 'String',
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_error',
@@ -153,3 +153,5 @@ sub _build_raw_data {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+1;
