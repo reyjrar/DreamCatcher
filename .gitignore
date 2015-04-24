@@ -3,6 +3,7 @@
 inc
 blib
 log
+dreamcatcher.yml
 DreamCatcher-*
 MANIFEST
 Makefile
@@ -11,7 +12,6 @@ Makefile.old
 pm_to_blib
 MYMETA.*
 .build
-*.yml
 *.log
 *.log.*
 *.pid

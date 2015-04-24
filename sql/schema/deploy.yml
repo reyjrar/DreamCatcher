@@ -1,0 +1,64 @@
+---
+install:
+  base:
+    - server
+    - client
+    - conversation
+    - find_or_create_conversation
+  plugins:
+    client_stats:
+      level: 1
+      entities:
+        - client_stats
+        - client_stats_update
+        - client_stats_cleanup
+    server_stats:
+      level: 1
+      entities:
+        - server_stats
+        - server_stats_update
+        - server_stats_cleanup
+    packet_store:
+      level: 2
+      entities:
+        - query
+        - response
+        - question
+        - answer
+        - meta_query_response
+        - meta_question
+        - meta_answer
+        - link_query_response
+        - find_or_create_question
+        - find_or_create_answer
+        - add_query
+        - add_response
+        - store_cleanup
+    packet_timing:
+      level: 2
+      entities:
+        - packet_timing
+    zone_discovery:
+      level: 3
+      entities:
+        - zone
+        - get_zone_id
+        - zone_answer
+        - zone_question
+        - link_zone_answer
+        - link_zone_question
+    list:
+      level: 4
+      entities:
+        - list_type
+        - list
+        - list_entry
+        - list_tracking_client
+        - list_meta_question
+        - list_meta_answer
+        - refresh_list_entry
+    anomaly:
+      level: 5
+      entities:
+        - anomaly
+        - create_anomaly_table
