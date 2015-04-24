@@ -76,7 +76,7 @@ sub _build_tree {
             # Retry, may be out of order
             $feather->{tries}++;
             if($feather->{tries} > 3) {
-                # Possible throw exception?
+                warn sprintf "DreamCatcher::Feathers::_build_tree failed to load %s, tries exceeded.", $obj->name;
             }
             else {
                 push @feathers, $feather;
