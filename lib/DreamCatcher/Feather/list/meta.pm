@@ -1,10 +1,9 @@
 package DreamCatcher::Feather::list::meta;
 # ABSTRACT: Link questions and answers to the list collection
 
-use Moo;
+use Moose;
 with qw(
     DreamCatcher::Role::Feather::Analysis
-    DreamCatcher::Role::Logger
 );
 use POSIX qw(strftime);
 

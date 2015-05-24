@@ -3,13 +3,10 @@ package DreamCatcher::Feather::store;
 
 use strict;
 use warnings;
-use Moo;
+use Moose;
 
 with qw(
     DreamCatcher::Role::Feather::Sniffer
-	DreamCatcher::Role::Logger
-	DreamCatcher::Role::DBH
-	DreamCatcher::Role::Cache
 	DreamCatcher::Role::RRData
 );
 

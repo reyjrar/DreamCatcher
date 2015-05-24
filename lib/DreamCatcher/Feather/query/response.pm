@@ -5,13 +5,12 @@ use strict;
 use warnings;
 use feature 'state';
 
-use Moo;
+use Moose;
 use DateTime;
 use DateTime::Format::Pg;
 
 with qw(
     DreamCatcher::Role::Feather::Analysis
-    DreamCatcher::Role::Logger
 );
 
 sub _build_interval { 60; }

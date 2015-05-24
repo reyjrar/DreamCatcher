@@ -1,8 +1,8 @@
 package DreamCatcher::Role::RRData;
 # ABSTRACT: Provides functions for normalizing RR Data
 
-use Moo::Role;
-use CHI;
+use Moose::Role;
+use namespace::autoclean;
 
 sub rr_data {
 	my ($self,$pa) = @_;
@@ -40,5 +40,7 @@ sub rr_data {
 
 	return wantarray ? %data : \%data;
 }
+
+no Moose::Role;
 # Return TRUE
 1;

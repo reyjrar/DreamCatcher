@@ -1,10 +1,9 @@
 package DreamCatcher::Feather::zone::discovery;
 # ABSTRACT: Populates zone tables
 
-use Moo;
+use Moose;
 with qw(
     DreamCatcher::Role::Feather::Analysis
-    DreamCatcher::Role::Logger
 );
 
 sub _build_sql {

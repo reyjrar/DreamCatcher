@@ -1,37 +1,40 @@
 package DreamCatcher::Role::Feather;
 
-use Moo::Role;
-use Sub::Quote;
+use Moose::Role;
+use namespace::autoclean;
 
 has 'name'  => (
     is      => 'ro',
-    isa     => quote_sub(q{ die "Not a string" if ref $_[0] || $_[0] =~ /[^0-9a-z:_\-]/i; }),
+    isa     => 'Str',
     builder => '_build_name',
 );
 has 'function'  => (
-    is      => 'ro',
-    isa     => quote_sub(q{ die "Not a string" if ref $_[0] || $_[0] =~ /[^0-9a-z:_\-]/i; }),
-    builder => '_build_function',
+    is       => 'ro',
+    isa      => 'Str',
+    builder  => '_build_function',
+    init_arg => undef,
 );
 has 'parent' => (
-    is      => 'ro',
-    isa     => quote_sub(q{ die "Not a string" if ref $_[0] || $_[0] =~ /[^0-9a-z:_\-]/i; }),
-    builder => '_build_parent',
+    is       => 'ro',
+    isa      => 'Str',
+    builder  => '_build_parent',
+    init_arg => undef,
 );
 has 'priority' => (
-    is      => 'ro',
-    isa     => quote_sub(q{ die "Not an integer" if ref $_[0] || $_[0] =~ /[^0-9]/i; }),
-    builder => '_build_priority',
+    is       => 'ro',
+    isa      => 'Str',
+    builder  => '_build_priority',
+    init_arg => undef,
 );
 has 'enabled' => (
     is      => 'ro',
-    isa     => quote_sub(q{ die "Not a bool" if ref $_[0]; }),
+    isa     => 'Bool',
     lazy    => 1,
     builder => '_build_enabled',
 );
 has 'config' => (
     is       => 'ro',
-    isa      => quote_sub(q{ die "Not a HashRef" if ref $_[0] ne 'HASH'; }),
+    isa      => 'HashRef',
     init_arg => 'Config',
 );
 # Default, can be overridden in children
@@ -83,5 +86,6 @@ around BUILDARGS => sub {
     $class->$orig( Config => \%FeatherConfig, Log => $args{Log} );
 };
 
+no Moose::Role;
 # Return True
 1;

@@ -2,7 +2,7 @@ package DreamCatcher::Feather::list::refresh;
 # ABSTRACT: Perform list based refreshes
 
 use LWP::Simple;
-use Moo;
+use Moose;
 with qw(
     DreamCatcher::Role::Feather::Analysis
     DreamCatcher::Role::Logger

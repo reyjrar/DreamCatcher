@@ -1,12 +1,13 @@
 package DreamCatcher::Feathers;
 
+use Moose;
+use namespace::autoclean -except => 'plugins';
+
 use Tree::DAG_Node;
 use Module::Pluggable (
     instantiate => 'new',
     search_path => 'DreamCatcher::Feather',
 );
-use Moose;
-#use namespace::autoclean;
 
 # Attributes
 has 'tree' => (
@@ -117,5 +118,4 @@ sub _build_schedule {
 }
 
 __PACKAGE__->meta->make_immutable;
-
 1;

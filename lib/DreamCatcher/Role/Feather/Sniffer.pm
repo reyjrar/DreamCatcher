@@ -1,13 +1,19 @@
 package DreamCatcher::Role::Feather::Sniffer;
 
-use Moo::Role;
-use Sub::Quote;
+use Moose::Role;
+use namespace::autoclean;
 
-with 'DreamCatcher::Role::Feather';
+with qw(
+    DreamCatcher::Role::Feather
+    DreamCatcher::Role::DBH
+    DreamCatcher::Role::Cache
+    DreamCatcher::Role::Logger
+);
 
 requires qw(process);
 
 sub _build_function { 'sniffer'; }
 
+no Moose::Role;
 # Return True
 1;

@@ -1,12 +1,13 @@
 package DreamCatcher::Role::Feather::Anomaly;
 # ABSTRACT: Role container to handle anomaly scores
 
-use Moo::Role;
-use Sub::Quote;
+use Moose::Role;
+use namespace::autoclean;
+with 'DreamCatcher::Role::Feather';
 
 has 'scores' => (
     is => 'ro',
-    isa => quote_sub(q{die "Not a hash reference" unless ref $_[0] eq 'HASH'}),
+    isa => 'HashRef',
     builder => '_build_scores',
 );
 
@@ -29,5 +30,6 @@ sub score {
     return exists $self->scores->{$type} ? $self->scores->{$type} : 5;
 }
 
+no Moose::Role;
 # Return True
 1;

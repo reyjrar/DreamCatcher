@@ -3,12 +3,10 @@ package DreamCatcher::Feather::conversation;
 
 use strict;
 use warnings;
-use Moo;
+use Moose;
 
 with qw(
     DreamCatcher::Role::Feather::Sniffer
-    DreamCatcher::Role::Logger
-	DreamCatcher::Role::DBH
 );
 
 # Override default priority

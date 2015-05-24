@@ -1,22 +1,27 @@
 package DreamCatcher::Role::DBH;
 # ABSTRACT: Provides the database connection for the feathers
 
-use Moo::Role;
-use Sub::Quote;
+use Moose::Role;
+use namespace::autoclean;
+
 use DBIx::Connector;
 use Exception::Class::DBI;
 
-requires qw(config log);
+with qw(
+    DreamCatcher::Role::Logger
+    DreamCatcher::Role::Cache
+);
 
 has 'dbh' => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => '_build_dbh',
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_dbh',
+    init_arg => undef,
 );
 
 has 'sql' => (
-    is      => 'rwp',
-    isa     => quote_sub(q{die "Not a HashRef" unless ref $_[0] eq 'HASH'; }),
+    is      => 'rw',
+    isa     => 'HashRef',
     builder => '_build_sql',
 );
 
@@ -62,5 +67,6 @@ sub _build_dbh {
     return $dbconn;
 }
 
+no Moose::Role;
 # Return TRUE
 1;

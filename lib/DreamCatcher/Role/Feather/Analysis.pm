@@ -1,18 +1,19 @@
 package DreamCatcher::Role::Feather::Analysis;
 
-use Moo::Role;
-use Sub::Quote;
-
+use Moose::Role;
+use namespace::autoclean;
 with qw(
     DreamCatcher::Role::Feather
     DreamCatcher::Role::DBH
+    DreamCatcher::Role::Logger
 );
+use DreamCatcher::Types qw(PositiveInt);
 
 requires qw(analyze);
 
 has 'default_interval' => (
     is      => 'ro',
-    isa     => quote_sub(q{ die "Not a positive integer" if ref $_[0] || $_[0] =~ /[^0-9]/; }),
+    isa     => PositiveInt,
     builder => '_build_interval',
 );
 
@@ -47,5 +48,6 @@ sub strip_sld {
     return join('.', @parts);
 }
 
+no Moose::Role;
 # Return True
 1;

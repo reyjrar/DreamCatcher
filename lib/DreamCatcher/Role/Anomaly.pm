@@ -15,5 +15,6 @@ sub create_table {
     my $self = shift;
 }
 
+no Moose::Role;
 # Return True
 1;

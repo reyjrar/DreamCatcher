@@ -3,11 +3,10 @@ package DreamCatcher::Feather::anomaly::question;
 
 use Const::Fast;
 use JSON::XS;
-use Moo;
+use Moose;
 with qw(
     DreamCatcher::Role::Feather::Analysis
     DreamCatcher::Role::Feather::Anomaly
-    DreamCatcher::Role::Logger
 );
 use POSIX qw(strftime);
 use Text::Soundex;
@@ -163,3 +162,4 @@ sub analyze {
 
 
 __PACKAGE__->meta->make_immutable;
+1;

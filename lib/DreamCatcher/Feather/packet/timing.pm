@@ -1,10 +1,9 @@
 package DreamCatcher::Feather::packet::timing;
 # ABSTRACT: Calculate timing data between questions and answers
 
-use Moo;
+use Moose;
 with qw(
     DreamCatcher::Role::Feather::Analysis
-    DreamCatcher::Role::Logger
 );
 use POSIX qw(strftime);
 

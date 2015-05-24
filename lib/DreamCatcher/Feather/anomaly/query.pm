@@ -3,11 +3,10 @@ package DreamCatcher::Feather::anomaly::query;
 
 use Const::Fast;
 use JSON::XS;
-use Moo;
+use Moose;
 with qw(
     DreamCatcher::Role::Feather::Analysis
     DreamCatcher::Role::Feather::Anomaly
-    DreamCatcher::Role::Logger
 );
 use POSIX qw(strftime);
 
