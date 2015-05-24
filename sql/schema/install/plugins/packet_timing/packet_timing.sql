@@ -15,7 +15,9 @@ CREATE TABLE packet_timing
       ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT packet_timing_fk_response FOREIGN KEY (response_id)
       REFERENCES response (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT packet_timing_uniq_query_response UNIQUE (query_id, response_id)
+
 )
 WITH (
   OIDS=FALSE
