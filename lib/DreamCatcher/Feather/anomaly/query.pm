@@ -10,22 +10,6 @@ with qw(
 );
 use POSIX qw(strftime);
 
-const my %OPCODES => (
-    # Raw                   # Name
-    1      => 'obsolete',   IQUERY => 'obsolete',
-    3      => 'unassigned',
-    6      => 'unassigned',
-    7      => 'unassigned',
-    8      => 'unassigned',
-    9      => 'unassigned',
-    10     => 'unassigned',
-    11     => 'unassigned',
-    12     => 'unassigned',
-    13     => 'unassigned',
-    14     => 'unassigned',
-    15     => 'unassigned',
-);
-
 sub _build_sql {
     return {
         check => q{
@@ -69,10 +53,10 @@ sub analyze {
         my %analysis = ();
 
         # Check opcodes
-        if(exists $OPCODES{$ent->{opcode}}) {
-            my $type = $OPCODES{$ent->{opcode}};
-            $score += $self->score($type);
-            my $key = sprintf "query_%s_opcode", $type;
+        my $opcode_level = $self->anomaly_opcode($ent->{opcode});
+        if(defined $opcode_level && $opcode_level ne 'common') {
+            $score += $self->score($opcode_level);
+            my $key = sprintf "query_%s_opcode", $opcode_level;
             $analysis{$key} = $ent->{opcode};
         }
 

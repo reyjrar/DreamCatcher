@@ -8,6 +8,25 @@ with 'DreamCatcher::Role::Feather';
 
 use Const::Fast;
 
+const my %OPCODES => (
+    # Raw                   # Name
+    0      => 'common',     QUERY  => 'common',
+    1      => 'obsolete',   IQUERY => 'obsolete',
+    2      => 'common',     STATUS => 'common',
+    3      => 'unassigned',
+    4      => 'common',     NOTIFY => 'common',
+    5      => 'common',     UPDATE => 'common',
+    6      => 'unassigned',
+    7      => 'unassigned',
+    8      => 'unassigned',
+    9      => 'unassigned',
+    10     => 'unassigned',
+    11     => 'unassigned',
+    12     => 'unassigned',
+    13     => 'unassigned',
+    14     => 'unassigned',
+    15     => 'unassigned',
+);
 const my %RR_TYPES => (
     # Common
     A              => 'common',
@@ -49,7 +68,6 @@ const my %RR_TYPES => (
     MR             => 'experimental',
     NULL           => 'experimental',
 );
-
 const my %CLASSES => (
     IN => 'common',
     # Obsolete
@@ -95,11 +113,16 @@ sub anomaly_class {
     return $CLASSES{$class} if exists $CLASSES{$class};
     return;
 }
-
 sub anomaly_type {
     my $self = shift;
     my $type = shift;
     return $RR_TYPES{$type} if exists $RR_TYPES{$type};
+    return;
+}
+sub anomaly_opcode {
+    my $self = shift;
+    my $code = shift;
+    return $OPCODES{$code} if exists $OPCODES{$code};
     return;
 }
 
