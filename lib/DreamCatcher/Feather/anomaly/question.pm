@@ -1,64 +1,17 @@
 package DreamCatcher::Feather::anomaly::question;
 # ABSTRACT: Calculate anomaly score for a question based on weirdness
 
-use Const::Fast;
-use JSON::XS;
 use Moose;
+use namespace::autoclean;
 with qw(
     DreamCatcher::Role::Feather::Analysis
     DreamCatcher::Role::Feather::Anomaly
 );
+
+use JSON::XS;
 use POSIX qw(strftime);
 use Text::Soundex;
 use Text::Unidecode;
-
-const my %RR_TYPES => (
-    # Common
-    A              => 'common',
-    AAAA           => 'common',
-    CAA            => 'common',
-    CNAME          => 'common',
-    DLV            => 'common',
-    DNSKEY         => 'common',
-    DNAME          => 'common',
-    DS             => 'common',
-    KEY            => 'common',
-    MX             => 'common',
-    NS             => 'common',
-    PTR            => 'common',
-    RRSIG          => 'common',
-    SOA            => 'common',
-    SIG            => 'common',
-    SPF            => 'common',
-    SRV            => 'common',
-    SSHFP          => 'common',
-    TA             => 'common',
-    TKEY           => 'common',
-    TSIG           => 'common',
-    # Obsolete
-    A6             => 'obsolete',
-    MAILA          => 'obsolete',
-    MAILB          => 'obsolete',
-    MD             => 'obsolete',
-    MF             => 'obsolete',
-    MINFO          => 'obsolete',
-    # Suspicious
-    ANY            => 'suspicious',
-    AXFR           => 'suspicious',
-    IXFR           => 'suspicious',
-    HINFO          => 'suspicious',
-    # Experimental
-    MB             => 'experimental',
-    MG             => 'experimental',
-    MR             => 'experimental',
-    NULL           => 'experimental',
-);
-
-const my %CLASSES => (
-    # Obsolete
-    CH => 'obsolete',
-    HS => 'obsolete',
-);
 
 sub _build_sql {
     return {
@@ -93,9 +46,10 @@ sub analyze {
         my %analysis = ();
 
         # Check classes
-        if(exists $CLASSES{$ent->{class}} || $ent->{class} =~ /^(?:CLASS)?([0-9]+)/ ) {
+        my $class_level = $self->anomaly_class($ent->{class});
+        if((defined $class_level && $class_level ne 'common') || $ent->{class} =~ /^(?:CLASS)?([0-9]+)/ ) {
             my $id = $1;
-            my $type = exists $CLASSES{$ent->{class}} ? $CLASSES{$ent->{class}}
+            my $type = defined $class_level ? $class_level
                      : defined($id) && $id >= 65280 && $id < 65535  ? 'private'
                      : 'unassigned';
             $score += $self->score($type);
@@ -104,9 +58,10 @@ sub analyze {
         }
 
         # Check Types
-        if((exists $RR_TYPES{$ent->{type}} && $RR_TYPES{$ent->{type}} ne 'common') || $ent->{type} =~ /^(?:TYPE)?([0-9]+)/ ) {
+        my $type_level = $self->anomaly_type($ent->{type});
+        if((defined $type_level && $type_level ne 'common') || $ent->{type} =~ /^(?:TYPE)?([0-9]+)/ ) {
             my $id = $1;
-            my $type = exists $RR_TYPES{$ent->{type}} ? $RR_TYPES{$ent->{type}}
+            my $type = defined($type_level) ? $type_level
                      : defined($id) && $id >= 65280 && $id < 65535  ? 'private'
                      : defined($id) ? 'unassigned'
                      : 'abnormal';
