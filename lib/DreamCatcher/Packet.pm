@@ -55,7 +55,7 @@ has 'dns' => (
 # Errors with this packet
 has 'error' => (
     is       => 'ro',
-    isa      => 'String',
+    isa      => 'Any',
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_error',

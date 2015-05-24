@@ -1,7 +1,6 @@
 package DreamCatcher::Feathers;
 
 use Moose;
-use namespace::autoclean -except => 'plugins';
 
 use Tree::DAG_Node;
 use Module::Pluggable (
