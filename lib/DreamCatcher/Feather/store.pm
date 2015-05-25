@@ -21,7 +21,6 @@ sub _build_sql {
                                                 ?, ?, ?, ?, ?, ?, ?,
                                                 ?, ?, ?, ?, ?, ? )},
    		answer         => q{select find_or_create_answer( ?, ?, ?, ?, ?, ?, ?, ? )},
-   		query_response => q{select link_query_response( ?, ? )},
     };
 }
 
@@ -31,12 +30,9 @@ sub process {
 	# Packet ID
     my $dnsp = $packet->dns;
     my $info = $packet->details;
-	my $packet_id = join(';', $info->{conversation_id}, $dnsp->header->id );
 
 	# Check for query/response
 	if( $dnsp->header->qr ) {
-		# Grab Queriy id from cache:
-		my $query_id = $self->cache->get( $packet_id );
 		# Answer
         my $sth = $self->sth('response');
         eval {
@@ -71,24 +67,16 @@ sub process {
 		my ($response_id) = $sth->fetchrow_array;
 		return unless defined $response_id && $response_id > 0;
 
-		# Link Query / Response
-		if( defined $query_id ) {
-            my $sth_qr = $self->sth('query_response');
-			eval {
-                $sth_qr->execute($query_id, $response_id);
-            };
-		}
 
 		my @sets = ();
-
-		foreach my $section (qw(answer additional authority)) {
+		foreach my $section (qw(answer additional authority pre prerequisite update zone)) {
 			my @records = ();
 			eval {
 				no strict;
 				@records = $dnsp->$section();
 			};
 			if( @records ) {
-				push @sets, { name => $section, rr => \@records };
+				push @sets, { name => $section eq 'pre' ? 'prerequisite' : $section, rr => \@records };
 			}
 		}
 		foreach my $set ( @sets ) {
@@ -144,8 +132,7 @@ sub process {
 		my ($query_id) = $sth->fetchrow_array;
 		return unless defined $query_id && $query_id > 0;
 
-		# Set Cache:
-		$self->cache->set( $packet_id, $query_id );
+        # Tag questions
 		foreach my $pq ( $dnsp->question ) {
             my $lsh = $self->sth('question');
             eval {

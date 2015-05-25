@@ -17,11 +17,30 @@ has 'default_interval' => (
     builder => '_build_interval',
 );
 
+has 'check_period' => (
+    is      => 'rw',
+    isa     => PositiveInt,
+    builder => '_build_check_period',
+    lazy    => 1,
+);
+
+has 'batch_max' => (
+    is      => 'rw',
+    isa     => PositiveInt,
+    builder => '_build_batch_max',
+);
+
 # Set the function
 sub _build_function { 'analysis'; }
 
 # Default is process every 10 minutes
 sub _build_interval { 600; }
+
+# Default is check back two hours
+sub _build_check_period { 3600*2; }
+
+# Default is 2,000 records
+sub _build_batch_max { 2_000; }
 
 sub interval {
     my $self = shift;

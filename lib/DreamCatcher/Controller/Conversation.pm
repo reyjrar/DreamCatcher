@@ -64,13 +64,13 @@ sub view {
                 pra.opts as opts,
                 pr.status as status,
                 pr.flag_authoritative, pr.flag_recursion_available,
-                pt.difference as took
+                mqr.timing as took
 
             from conversation cv
                 inner join response pr on pr.conversation_id = cv.id
+                left join meta_query_response mqr on pr.id = mqr.response_id
                 left join meta_answer pma on pr.id = pma.response_id
                 left join answer pra on pma.answer_id = pra.id
-                left join packet_timing pt on pr.id = pt.response_id
             where cv.id = ?
                 order by pr.response_ts DESC
                 limit 1000

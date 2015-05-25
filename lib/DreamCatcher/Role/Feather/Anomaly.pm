@@ -50,6 +50,8 @@ const my %RR_TYPES => (
     TA             => 'common',
     TKEY           => 'common',
     TSIG           => 'common',
+    # Abnormal
+    URI            => 'abnormal',
     # Obsolete
     A6             => 'obsolete',
     MAILA          => 'obsolete',

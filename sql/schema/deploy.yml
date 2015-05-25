@@ -28,16 +28,14 @@ install:
         - meta_query_response
         - meta_question
         - meta_answer
+        - meta_question_answer
         - link_query_response
+        - link_question_answer
         - find_or_create_question
         - find_or_create_answer
         - add_query
         - add_response
         - store_cleanup
-    packet_timing:
-      level: 2
-      entities:
-        - packet_timing
     zone_discovery:
       level: 3
       entities:
