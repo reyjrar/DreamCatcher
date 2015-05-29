@@ -90,7 +90,7 @@ sub process {
                     $lsh->execute(
                         $response_id,
                         $set->{name},
-                        $pa->ttl,
+                        $data{ttl},
                         $pa->class,
                         $pa->type,
                         $pa->name,

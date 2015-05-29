@@ -10,9 +10,11 @@ server, <%= $meta->{server} %>.
 <thead>
  <tr>
     <th>Time</th>
+    <th>Took</th>
     <th>Op</th>
     <th>Query</th>
     <th>Client Port</th>
+    <th>Serial</th>
     <th>Flags</th>
     <th>Status</th>
   </tr>
@@ -21,9 +23,11 @@ server, <%= $meta->{server} %>.
 % while ( my $row = $query_sth->fetchrow_hashref) {
   <tr>
     <td><span class="textDate"><%= $row->{query_ts} %></span></td>
+    <td><%= defined $row->{took} ? sprintf "%0.3f", $row->{took} : '' %></td>
     <td><%= $row->{opcode} %></td>
     <td><%= join( " ", @{$row}{qw(qclass qtype qname)} ) %></td>
     <td><%= $row->{client_port} %></td>
+    <td><%= $row->{serial} %></td>
     <td><i class="icon-flag"></i>
 % foreach my $f (qw(recursive truncated checking)) {
 <%= $row->{"flag_$f"} ? uc substr($f,0,1) : '' %>
@@ -44,6 +48,8 @@ server, <%= $meta->{server} %>.
     <th>Time</th>
     <th>Took</th>
     <th>Client Port</th>
+    <th>Serial</th>
+    <th>Section</th>
     <th>Query</th>
     <th>Value</th>
     <th>Flags</th>
@@ -54,8 +60,10 @@ server, <%= $meta->{server} %>.
 % while ( my $row = $response_sth->fetchrow_hashref) {
   <tr>
     <td><span class="textDate"><%= $row->{response_ts} %></span></td>
-    <td><%= defined $row->{took} ? $row->{took} : '' %></td>
+    <td><%= defined $row->{took} ? sprintf "%0.3f", $row->{took} : '' %></td>
     <td><%= $row->{client_port} %></td>
+    <td><%= $row->{serial} %></td>
+    <td><%= defined $row->{section} ? $row->{section} : '' %></td>
     <td><%= join( " ", grep { defined } @{$row}{qw(aclass atype aname)} ) %></td>
     <td><%= defined $row->{opts} ? "($row->{opts}) " : '' %><%= defined $row->{value} ? $row->{value} : '' %></td>
     <td><i class="icon-flag"></i>

@@ -30,49 +30,53 @@ sub view {
         },
         queries => q{
             select
-                pq.query_ts as query_ts,
-                pq.client_port as client_port,
-                pq.server_port as server_port,
-                pq.opcode as opcode,
-                pq.flag_recursive, pq.flag_truncated, pq.flag_checking,
-                prq.class as qclass,
-                prq.type as qtype,
-                prq.name as qname,
-                pmqr.response_id,
-                pr.status as status
+                q.query_ts as query_ts,
+                q.query_serial as serial,
+                q.client_port as client_port,
+                q.server_port as server_port,
+                q.opcode as opcode,
+                q.flag_recursive, q.flag_truncated, q.flag_checking,
+                qs.class as qclass,
+                qs.type as qtype,
+                qs.name as qname,
+                mqr.response_id,
+                r.status as status,
+                mqr.timing as took
 
             from conversation cv
-                inner join query pq on pq.conversation_id = cv.id
-                inner join meta_question pmq on pq.id = pmq.query_id
-                inner join question prq on pmq.question_id = prq.id
-                left  join meta_query_response pmqr on pq.id = pmqr.query_id
-                left  join response pr on pmqr.response_id = pr.id
+                inner join query q on q.conversation_id = cv.id
+                inner join meta_question mq on q.id = mq.query_id
+                inner join question qs on mq.question_id = qs.id
+                left  join meta_query_response mqr on q.id = mqr.query_id
+                left  join response r on mqr.response_id = r.id
             where cv.id = ?
-                order by pq.query_ts DESC
+                order by q.query_ts DESC
                 limit 1000
         },
         responses => q{
             select
-                pr.response_ts,
-                pr.client_port,
-                pr.server_port,
-                pr.opcode as opcode,
-                pra.class as aclass,
-                pra.type as atype,
-                pra.name as aname,
-                pra.value as value,
-                pra.opts as opts,
-                pr.status as status,
-                pr.flag_authoritative, pr.flag_recursion_available,
+                r.response_ts,
+                r.client_port,
+                r.server_port,
+                r.query_serial as serial,
+                r.opcode as opcode,
+                a.class as aclass,
+                a.type as atype,
+                a.name as aname,
+                a.value as value,
+                a.opts as opts,
+                r.status as status,
+                r.flag_authoritative, r.flag_recursion_available,
+                ma.section as section,
                 mqr.timing as took
 
             from conversation cv
-                inner join response pr on pr.conversation_id = cv.id
-                left join meta_query_response mqr on pr.id = mqr.response_id
-                left join meta_answer pma on pr.id = pma.response_id
-                left join answer pra on pma.answer_id = pra.id
+                inner join response r on r.conversation_id = cv.id
+                left join meta_query_response mqr on r.id = mqr.response_id
+                left join meta_answer ma on r.id = ma.response_id
+                left join answer a on ma.answer_id = a.id
             where cv.id = ?
-                order by pr.response_ts DESC
+                order by r.response_ts DESC
                 limit 1000
         },
     );

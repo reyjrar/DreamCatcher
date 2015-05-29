@@ -2,7 +2,7 @@ CREATE TABLE meta_answer
 (
   response_id bigint NOT NULL,
   answer_id bigint NOT NULL,
-  ttl bigint NOT NULL,
+  ttl bigint,
   section TEXT NOT NULL DEFAULT 'answer'::text,
   CONSTRAINT meta_answer_pkey PRIMARY KEY (response_id, answer_id),
   CONSTRAINT meta_answer_answer_id_fkey FOREIGN KEY (answer_id)

@@ -5,8 +5,9 @@ use Moose;
 use namespace::autoclean;
 
 # Packet Parsing
-use NetPacket::Ethernet qw(:strip);
+use NetPacket::Ethernet qw(:types);
 use NetPacket::IP qw(:strip :protos);
+use NetPacket::IPv6;
 use NetPacket::UDP;
 use NetPacket::TCP;
 
@@ -95,10 +96,18 @@ sub _build_raw_data {
 
     # Begin Decoding
     my ($hdr,$packet) = @{ $self->raw_packet };
-    my $ip_pkt  = NetPacket::IP->decode( eth_strip($packet) );
+    my $eth_pkt = NetPacket::Ethernet->decode($packet);
+    my $ip_pkt  = $eth_pkt->{type} == ETH_TYPE_IP ? NetPacket::IP->decode($eth_pkt->{data})
+                : $eth_pkt->{type} == ETH_TYPE_IPv6 ? NetPacket::IPv6->decode($eth_pkt->{data})
+                : undef;
 
     return { %data, error => "NetPacket decode failed!" } unless defined $ip_pkt;
     return { %data, error => "NetPacket decode failed, no protocol!" } unless $ip_pkt->{proto};
+
+    # NetPacket::IPv6 header for L4 proto is called "nxt"
+    if( $eth_pkt->{type} == ETH_TYPE_IPv6 ) {
+        $ip_pkt->{proto} = $ip_pkt->{nxt};
+    }
 
     # Transport Layer Processing
     my $layer4 = undef;
