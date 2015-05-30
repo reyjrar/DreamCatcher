@@ -122,7 +122,7 @@ sub analyze {
 			$updates++;
 		}
         elsif( $STH{find_response}->rows > 0 ) {
-            $self->log(notice => sprintf "Attempting to find responses for query_id:%d yielded %d results.",
+            $self->log(info => sprintf "Attempting to find responses for query_id:%d yielded %d results.",
                     $q->{id},
                     $STH{find_response}->rows
             );

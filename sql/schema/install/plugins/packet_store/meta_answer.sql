@@ -4,7 +4,7 @@ CREATE TABLE meta_answer
   answer_id bigint NOT NULL,
   ttl bigint,
   section TEXT NOT NULL DEFAULT 'answer'::text,
-  CONSTRAINT meta_answer_pkey PRIMARY KEY (response_id, answer_id),
+  CONSTRAINT meta_answer_pkey PRIMARY KEY (response_id, answer_id, section),
   CONSTRAINT meta_answer_answer_id_fkey FOREIGN KEY (answer_id)
       REFERENCES answer (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE,

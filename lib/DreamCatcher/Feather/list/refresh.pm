@@ -1,16 +1,15 @@
 package DreamCatcher::Feather::list::refresh;
 # ABSTRACT: Perform list based refreshes
 
+use strict;
+use warnings;
+
 use LWP::Simple;
 use Moose;
 with qw(
     DreamCatcher::Role::Feather::Analysis
-    DreamCatcher::Role::Logger
 );
-use POSIX qw(strftime);
 
-use strict;
-use warnings;
 
 # Run check once an hour
 sub _build_interval { 3600; }
