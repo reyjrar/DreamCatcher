@@ -116,7 +116,7 @@ sub analyze {
                         $STH{link_question_answer}->execute(@fields);
                         1;
                     };
-                    if($rc != 1) {
+                    if(!defined $rc || $rc != 1) {
                         $self->log(debug => "ERROR: $@")
                     } else {
                         $subdates++;
