@@ -8,6 +8,7 @@ DreamCatcher-*
 MANIFEST
 Makefile
 Makefile.old
+.DS_Store
 .cvsignore
 pm_to_blib
 MYMETA.*
