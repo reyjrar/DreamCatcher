@@ -112,11 +112,15 @@ sub analyze {
                 $self->log(debug => sprintf "- query_id:%d found %d questions with answers.", $q->{id}, $STH{find_questions}->rows);
 
                 while( my @fields = $STH{find_questions}->fetchrow_array ) {
-                    next and $self->log(debug => "ERROR: $@") unless eval {
+                    my $rc = eval {
                         $STH{link_question_answer}->execute(@fields);
                         1;
                     };
-                    $subdates++;
+                    if($rc != 1) {
+                        $self->log(debug => "ERROR: $@")
+                    } else {
+                        $subdates++;
+                    }
                 }
             }
 			$updates++;
