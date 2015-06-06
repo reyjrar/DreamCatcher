@@ -48,6 +48,9 @@ sub startup {
     $r->get('/conversation')->to('conversation#index');
     $r->get('/conversation/:id')->to('conversation#view');
 
+    # List Module
+    $r->get('/list')->to('list#index');
+
     # Utilities Module
     $r->get('/utility')->to('utility#index');
     $r->get('/utilities')->to('utility#index');

@@ -1,0 +1,26 @@
+%title 'Lists Overview';
+
+<h2>Lists</h2>
+<table id="lists" class="table table-striped table-condensed">
+<thead>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Entries</th>
+</thead>
+<tbody>
+% foreach my $id (keys %$lists) {
+%   my $list = $lists->{$id};
+    <tr>
+        <td><a href="<%= url_for "/list/" . $id %>"><%= $list->{name} %></a></td>
+        <td><a href="<%= url_for "/list/type/" . $list->{type_id} %>"><%= $list->{type} %></a></td>
+        <td><%= $list->{entries} %></td>
+    </tr>
+% }
+</tbody>
+</table>
+
+%= javascript begin
+$(function() {
+    $('#nav_lists').addClass('active');
+});
+%= end

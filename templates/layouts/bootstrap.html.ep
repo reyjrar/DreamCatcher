@@ -23,6 +23,7 @@
                     <li class="divider-vertical"></li>
                     <li id="nav_servers"><a href="<%= url_for '/server' %>">Servers</a></li>
                     <li id="nav_questions"><a href="<%= url_for '/questions' %>">Questions</a></li>
+                    <li id="nav_lists"><a href="<%= url_for '/list' %>">Lists</a></li>
                     <li id="nav_utility"><a href="<%= url_for '/utility' %>">Utilities</a></li>
                     <li id="nav_map"><a href="<%= url_for '/utility/csmap' %>">Eye Candy</a></li>
                 </ul>
