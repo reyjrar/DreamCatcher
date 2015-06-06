@@ -4,9 +4,9 @@
 
 %= include 'utility/form_clients_asking';
 
-% if ( defined $question && $STH->{clients_asking}->rows > 0 ) {
+% if ($found && $STH->{"clients_$by"}->rows > 0 ) {
 <div id="clients">
-<h2>Clients who asked '<%= $class %> <%= $type %> <%= $name %>' </h2>
+<h2>Clients who asked <%= $by eq 'question' ? "$class $type $name" : "*.$name" %> </h2>
 <table class="data table table-striped table-condensed">
 <thead>
 <tr>
@@ -17,7 +17,7 @@
 </tr>
 </thead>
 <tbody>
-% while( my $row = $STH->{clients_asking}->fetchrow_hashref ) {
+% while( my $row = $STH->{"clients_$by"}->fetchrow_hashref ) {
     <tr>
         <td><%= $row->{client} %></td>
         <td><span class="textDate"><%= $row->{first_ts} %></span></td>
@@ -30,7 +30,7 @@
 </div><!-- End of newest tab-pane -->
 
 % } else {
-<h2 class="error">No results found for question: '<%= $class %> <%= $type %> <%= $name %>'</h2>
+<h2 class="error">No results found for question: <%= $question %></h2>
 % }
 
 

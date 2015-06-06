@@ -62,6 +62,7 @@ sub clients_asking {
     my $class = 'IN';
     my $type  = 'A';
     my $name  = $parts[-1];
+    my $path = join '.', reverse split /\./, $name;
 
     if( @parts == 3 ) {
         ($class,$type) = map { uc } @parts[0,1];
@@ -69,18 +70,31 @@ sub clients_asking {
 
     # SQL Queries
     my %sql = (
-        query => q{
+        question => q{
             select id from question where class = ? and type = ? and name = ?
         },
-        clients_asking => q{
+        zone => q{
+            select id from zone where path <@ ?
+        },
+        clients_question => q{
 			select
 				ip as client, min(q.query_ts) as first_ts, max(q.query_ts) as last_ts, count(1) as reference_count
-			from
-				meta_question mq
+			from meta_question mq
 				inner join query q on mq.query_id = q.id
 				inner join client c on q.client_id = c.id
 			where
 				mq.question_id = ?
+			group by ip
+        },
+        clients_zone => q{
+			select
+				ip as client, min(q.query_ts) as first_ts, max(q.query_ts) as last_ts, count(1) as reference_count
+			from zone_question zq
+				inner join meta_question mq on zq.question_id = mq.question_id
+				inner join query q on mq.query_id = q.id
+				inner join client c on q.client_id = c.id
+			where
+				zq.zone_id = ?
 			group by ip
         },
     );
@@ -88,12 +102,20 @@ sub clients_asking {
     my $STH = $self->prepare_statements( \%sql );
 
     # Find the query
-    $STH->{query}->execute( $class, $type, $name );
-    if( $STH->{query}->rows > 0 ) {
-        my($id) = $STH->{query}->fetchrow_array;
+    my $by;
+    my $id;
 
-        $STH->{clients_asking}->execute( $id );
+    $STH->{question}->execute( $class, $type, $name );
+    if( $STH->{question}->rows > 0 ) {
+        $by = 'question';
+        ($id) = $STH->{question}->fetchrow_array;
     }
+    elsif( $STH->{zone}->execute($path) && $STH->{zone}->rows > 0 ) {
+        $by = 'zone';
+        ($id) = $STH->{zone}->fetchrow_array;
+    }
+
+    $STH->{"clients_$by"}->execute($id) if defined $id;
 
     $self->stash(
         STH      => $STH,
@@ -101,6 +123,8 @@ sub clients_asking {
         type     => $type,
         class    => $class,
         question => $question,
+        by       => $by,
+        found    => defined $id && defined $by,
     );
     $self->render('utility/clients_asking');
 }
