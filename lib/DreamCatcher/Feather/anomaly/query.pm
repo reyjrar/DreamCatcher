@@ -42,7 +42,7 @@ sub analyze {
 
     my %STH = map { $_ => $self->sth($_) } keys %{ $self->sql };
 
-    my $time = strftime("%FT%T", localtime(time() - 60*60*12));
+    my $time = strftime("%FT%T", localtime(time() - $self->check_period));
     $self->log(info => "anomaly::query checking queries since $time");
 
 	my $updates = 0;
