@@ -6,18 +6,6 @@ install:
     - conversation
     - find_or_create_conversation
   plugins:
-    client_stats:
-      level: 1
-      entities:
-        - client_stats
-        - client_stats_update
-        - client_stats_cleanup
-    server_stats:
-      level: 1
-      entities:
-        - server_stats
-        - server_stats_update
-        - server_stats_cleanup
     packet_store:
       level: 2
       entities:
