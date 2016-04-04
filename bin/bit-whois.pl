@@ -3,12 +3,13 @@
 use strict;
 use warnings;
 
+use CLI::Helpers qw(:output);
 use Net::Whois::Raw;
 use Net::Whois::Parser;
 $Net::Whois::Raw::OMIT_MSG   = 1;
 $Net::Whois::Raw::CHECK_FAIL = 0;
 $Net::Whois::Raw::CACHE_DIR  = "$ENV{HOME}/tmp";
-$Net::Whois::Raw::TIMEOUT    = 10;
+$Net::Whois::Raw::TIMEOUT    = 2;
 
 my $domain = shift @ARGV;
 $domain ||= 'google.com';
@@ -18,7 +19,7 @@ my @parts = split /\./, lc $domain;
 my %VALID = map { $_ => 1 } split '', q{ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-};
 
 my $word = shift @parts;
-my @variations = ( $domain );
+my %variations = ( $domain => 1 );
 
 for my $place ( 0 .. length($word)-1 ) {
     my $letter = substr($word,$place,1);
@@ -33,23 +34,33 @@ for my $place ( 0 .. length($word)-1 ) {
         next unless exists $valid{$new};
         my $copy = $word;
         substr($copy,$place,1,$new);
-        push @variations, join('.', $copy, @parts);
+        $variations{lc join('.', $copy, @parts)}++;
     }
 }
+debug("Found variations: ");
+debug_var([sort keys %variations]);
 
 my @available = ();
-foreach my $variation (@variations) {
-    my ($raw,$info) = (undef,'');
-    eval {
-        $raw = whois($variation);
-    };
-    my $error = $@;
+foreach my $variation (sort keys %variations) {
+    verbose("Trying $variation.");
+    my ($raw,$error,$info) = (undef,undef,'');
+    do {
+        sleep 60 if defined $raw;
+        local $@ = undef;
+        eval {
+            $raw = whois($variation);
+            1;
+        } or do {
+            $error = $@;
+            output({stderr=>1,color=>'red'}, "WHOIS ERROR: $error");
+        };
+    } while ( $raw =~ /LIMIT EXCEEDED/ );
 
     if( defined $raw && $raw =~ /No match for domain/ ) {
         $error = undef;
         $info  = undef;
     }
-    else {
+    elsif(defined $raw) {
         eval {
             my $result = parse_whois( raw => $raw, domain => $variation );
             die "parse error" unless defined $result && ref $result eq 'HASH';
@@ -73,22 +84,24 @@ foreach my $variation (@variations) {
     if( $domain eq $variation ) {
         # Reference:
         if( defined $info ) {
-            print "# Reference $domain found with $info\n";
+            output("# Reference $domain found with $info");
         }
         else {
-            print "# Reference $domain NOT FOUND\n";
+            output("# Reference $domain NOT FOUND");
         }
     }
     else {
-
-        printf "$domain variation $variation is %s\n", defined $info ? "taken ($info)" :
-                                                    defined $error  ? '!! ERROR !!' : '** AVAILABLE **';
-        print "(error) $error\n" if defined $error && length $error;
-        print map { "   $_\n" } split /[\r\n]+/, $raw if !$info && defined $error && defined $raw && length $raw;
+        output({color=>defined $error ? 'red' : defined $info ? 'cyan' : 'green'},
+            sprintf "$domain variation $variation is %s\n", defined $info ? "taken ($info)" :
+                                                    defined $error  ? '!! ERROR !!' : '** AVAILABLE **'
+        );
         push @available, $variation if !defined $info && !defined $error;
     }
 }
 if( @available ) {
-    printf "\n # [%s] Available Variations %d of %d, %0.2f%%\n\n", $domain, scalar(@available), scalar(@variations), 100*(scalar(@available) / scalar(@variations));
-    print "$_\n" for @available;
+    output({data=>1},"$_") for @available;
+    output({color=>'cyan'},
+        sprintf "\n # [%s] Available Variations %d of %d, %0.2f%%\n\n",
+            $domain, scalar(@available), scalar(keys %variations), 100*(scalar(@available) / scalar(keys %variations))
+    );
 }

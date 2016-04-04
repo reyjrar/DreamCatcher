@@ -1,0 +1,8 @@
+# Passive Collection
+
+* Add a whois collector
+  * whois when a new domain is seen
+  * record AUTH NS's, re-whois when they change or when the DB expires
+
+* Bit squatting DNS server needs to send the info for both bitflipped *AND*
+  squatted domain.
