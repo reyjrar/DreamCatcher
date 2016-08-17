@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-#
+# PODNAME: analyze.pl
 use strict;
 use warnings;
 use feature 'say';

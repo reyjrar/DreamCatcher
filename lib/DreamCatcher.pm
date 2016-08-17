@@ -50,6 +50,7 @@ sub startup {
 
     # List Module
     $r->get('/list')->to('list#index');
+    $r->get('/list/:id')->to('list#view');
 
     # Utilities Module
     $r->get('/utility')->to('utility#index');
