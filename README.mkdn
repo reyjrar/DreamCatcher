@@ -4,20 +4,24 @@ DreamCatcher - DreamCatcher is a DNS Monitoring Suite
 
 # VERSION
 
-version 0.1
+version 0.001
 
 # SYNOPSIS
 
-This is a complete DNS Monitoring Suite.  It is currently in __alpha__ status.
+This is a complete DNS Monitoring Suite.  It is currently in **alpha** status.
 
 A libpcap based sniffer daemon listens to DNS traffic on your network.  The
-conversations are recorded and analyzed to provide insight. 
+conversations are recorded and analyzed to provide insight.
 
-# PREREQUISITIES
+# PREREQUISISTES
 
-* Perl 5.14.2 or better
-* PostgreSQL 9.4
-  * ltree extension
+- **Perl**
+
+    5.14.2 or better
+
+- **PostgreSQL**
+
+    9.4 or better with the **ltree** extension
 
 # INSTALLATION
 
@@ -26,12 +30,12 @@ Installation in the works, for now try:
     perl Makefile.PL
     make
 
-Install DB schema:
+Then install the schema:
 
     cd sql
     ./deploy_database_schema.pl install
 
-Configure:
+Configure the instance:
 
     cp dreamcatcher.yml.default dreamcatcher.yml
     $EDITOR dreamcatcher.yml
@@ -40,14 +44,13 @@ Configure logging:
 
     $EDITOR logging.conf
 
-Start the sniffer:
+# USAGE
+
+Once you have the database schema and the dreamcatcher.yaml configured, run the collector:
 
     sudo ./bin/dreamcatcher.pl start
 
-# USAGE
-
-
-Starting the front-end is easy as:
+Now start the web application for viewing the data:
 
     morbo -v script/dream_catcher
 
@@ -57,31 +60,38 @@ Starting the front-end is easy as:
 - [Viewing a Server](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/1-server.png)
 - [Recently Asked Questions](https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/3-questions.png)
 
-# TODO
-
-* Port dns-monitor functions
-  * statistics
-  * analyzers
-    * client acting as server
-    * server authorized
-    * list tracking
-
-* Front end improvements
-  * List tracking
-  * Search functions
-  * Statistics
-
-* CLI
-  * Need to provide CLI tools which implement similar functionality as Web
-
 # AUTHOR
 
 Brad Lhotsky <brad@divisionbyzero.net>
 
 # COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2012 by Brad Lhotsky.
+This software is Copyright (c) 2017 by Brad Lhotsky.
 
 This is free software, licensed under:
 
     The (three-clause) BSD License
+
+# SUPPORT
+
+## Websites
+
+The following websites have more information about this module, and may be of help to you. As always,
+in addition to those websites please use your favorite search engine to discover more resources.
+
+- MetaCPAN
+
+    A modern, open-source CPAN search engine, useful to view POD in HTML format.
+
+    [http://metacpan.org/release/DreamCatcher](http://metacpan.org/release/DreamCatcher)
+
+- RT: CPAN's Bug Tracker
+
+    The RT ( Request Tracker ) website is the default bug/issue tracking system for CPAN.
+
+    [https://rt.cpan.org/Public/Dist/Display.html?Name=DreamCatcher](https://rt.cpan.org/Public/Dist/Display.html?Name=DreamCatcher)
+
+## Source Code
+
+This module's source code is available by visiting:
+[https://github.com/reyjrar/DreamCatcher](https://github.com/reyjrar/DreamCatcher)

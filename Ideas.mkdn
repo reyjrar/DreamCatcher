@@ -6,3 +6,19 @@
 
 * Bit squatting DNS server needs to send the info for both bitflipped *AND*
   squatted domain.
+
+# TODO
+
+* Port dns-monitor functions
+  * statistics
+  * analyzers
+    * client acting as server
+    * server authorized
+    * list tracking
+* Front end improvements
+  * List tracking
+  * Search functions
+  * Statistics
+* CLI
+  * Need to provide CLI tools which implement similar functionality as Web
+ 
