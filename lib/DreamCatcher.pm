@@ -1,7 +1,7 @@
 # ABSTRACT: DreamCatcher is a DNS Monitoring Suite
 package DreamCatcher;
 
-our $VERSION = 0.1;
+# VERSION
 
 use DreamCatcher::Helpers;
 use Mojo::Base 'Mojolicious';
@@ -62,24 +62,57 @@ sub startup {
 
 1;
 __END__
+=pod
+
 =head1 SYNOPSIS
 
 This is a complete DNS Monitoring Suite.  It is currently in B<alpha> status.
+
+A libpcap based sniffer daemon listens to DNS traffic on your network.  The
+conversations are recorded and analyzed to provide insight.
+
+=head1 PREREQUISISTES
+
+=over
+
+=item B<Perl>
+
+5.14.2 or better
+
+=item B<PostgreSQL>
+
+9.4 or better with the B<ltree> extension
+
+=back
 
 =head1 INSTALLATION
 
 Installation in the works, for now try:
 
-   perl Makefile.PL
-   make
+    perl Makefile.PL
+    make
+
+Then install the schema:
+
+    cd sql
+    ./deploy_database_schema.pl install
+
+Configure the instance:
+
+    cp dreamcatcher.yml.default dreamcatcher.yml
+    $EDITOR dreamcatcher.yml
+
+Configure logging:
+
+    $EDITOR logging.conf
 
 =head1 USAGE
 
-Currently the sniffer does not work.  It is possible to use this project in conjunction with
-the L<DNS Monitor|https://github.com/reyjrar/dns-monitor> as the databases are compatible.
+Once you have the database schema and the dreamcatcher.yaml configured, run the collector:
 
-Once you have the dns-monitor sniffer and analyzer running, you can startup the DreamCatcher front
-end using:
+    sudo ./bin/dreamcatcher.pl start
+
+Now start the web application for viewing the data:
 
     morbo -v script/dream_catcher
 
@@ -94,7 +127,5 @@ end using:
 =item L<Recently Asked Questions|https://github.com/reyjrar/DreamCatcher/raw/master/examples/screenshots/3-questions.png>
 
 =back
-
-=end html
 
 =cut

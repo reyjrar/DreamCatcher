@@ -4,12 +4,11 @@ use Mojo::Base 'DreamCatcher::Controller';
 
 sub index {
     my $self = shift;
-
-
     $self->render();
 }
 
 sub view {
+    my $self = shift;
     my $id = $self->stash('id');
 
     my %sql = (

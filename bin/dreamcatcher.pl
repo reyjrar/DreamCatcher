@@ -321,7 +321,7 @@ __END__
 
 =head1 SYNOPSIS
 
-dreamcatch.pl
+dreamcatcher.pl
 
 Options:
 
@@ -331,25 +331,6 @@ Options:
     --logging-config    Location of Log::Log4perl config file
     --pid-file          Location of the PID file
     --foreground        Don't daemonize, stay in the foreground.
-
-
-=head1 OPTIONS
-
-=over 8
-
-=item B<close>
-
-Run the close hook
-
-=item B<close-days>
-
-Integer, close indexes older than this number of days
-
-=item B<delete>
-
-Run the delete hook
-
-=back
 
 =head1 DESCRIPTION
 
@@ -363,7 +344,7 @@ up the sniffer, sniffer workers, and the analysis engine.
 
 =head1 CONFIGURATION
 
-The DreamCatcher config is stored in L<YAML|http://yam.org> format.  The defaults look like this:
+The DreamCatcher config is stored in L<YAML|http://yaml.org> format.  The defaults look like this:
 
     ---
     time_zone: America/New_York
