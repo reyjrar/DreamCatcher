@@ -1,17 +1,15 @@
-#!/usr/bin/env perl
-#
+#!perl
+# PODNAME: dc-component-analyze.pl
 use strict;
 use warnings;
 
 use FindBin;
-use Path::Tiny;
-use YAML;
+use Path::Tiny qw(path);
+use YAML ();
 
-use lib "$FindBin::Bin/../lib";
 use DreamCatcher::Packet;
 use DreamCatcher::Feathers;
 
-sub POE::Kernel::ASSERT_DEFAULT () { 1 }
 use POE qw(
     Filter::Line
     Wheel::ReadWrite

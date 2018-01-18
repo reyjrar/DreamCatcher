@@ -16,7 +16,7 @@ sub _build_interval { 3600; }
 
 sub _build_sql {
     return {
-        check             => q{
+        check => q{
             select
                 id,
                 refresh_url,
@@ -25,8 +25,8 @@ sub _build_sql {
                 where can_refresh = true
                     and (refresh_last_ts IS NULL OR NOW() - refresh_last_ts > refresh_every)
         },
-        refresh_entry     => q{select refresh_list_entry(?, ?, ?)},
-        unset_refresh     => q{update list_entry set refreshed = false where list_id = ?},
+        refresh_entry => q{select refresh_list_entry(?, ?, ?)},
+        unset_refresh => q{update list_entry set refreshed = false where list_id = ?},
     };
 }
 

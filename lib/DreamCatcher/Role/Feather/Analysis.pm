@@ -47,7 +47,6 @@ sub interval {
     return exists $self->config->{interval} && $self->config->{interval} > 0 ? $self->config->{interval} : $self->default_interval;
 }
 
-
 my %_sld_needs_more = map { $_ => 1 } qw(co com net org);
 sub strip_sld {
     my $self = shift;

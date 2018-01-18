@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!perl
 # PODNAME: dreamcatcher.pl
 # ABSTRACT: Umbrella daemon to run the sniffer and analysis engines
 #
@@ -9,9 +9,9 @@ use feature 'say';
 use Daemon::Daemonize qw(check_pidfile write_pidfile daemonize);
 use FindBin;
 use Getopt::Long::Descriptive;
-use Path::Tiny;
+use Path::Tiny qw(path);
 use Pod::Usage;
-use YAML;
+use YAML ();
 
 # POE Setup
 sub POE::Kernel::ASSERT_DEFAULT () { 1 }
@@ -25,8 +25,7 @@ use POE qw(
 
 #------------------------------------------------------------------------#
 # Path Setup
-my $path_base    = path("$FindBin::Bin")->parent;
-my $path_helpers = $path_base->child('helpers');
+my $path_base = path("$FindBin::Bin");
 
 #------------------------------------------------------------------------#
 # Argument Parsing
@@ -34,11 +33,11 @@ my ($opt,$usage) = describe_options(
     "%c %o ",
     [],
     [ 'config|c:s', "DreamCatcher Config File", {
-        default => $path_base->child('dreamcatcher.yml')->realpath->canonpath,
+        default => '/etc/dreamcatcher/main.yaml',
         callbacks => { exists => sub { -f shift } }
     }],
     [ 'logging-config|l:s', "Log4Perl Config File", {
-        default => $path_base->child('logging.conf')->realpath->canonpath,
+        default => '/etc/dreamcatcher/logging.conf',
         callbacks => { exists => sub { -f shift } }
     }],
     [ 'pid-file|p:s', "PID file location", { default => '/var/run/dreamcatcher.pid', }],
@@ -182,7 +181,7 @@ sub sniffer_dispatch_packets {
 sub sniffer_spawn_worker {
     my ($kernel,$heap) = @_[KERNEL,HEAP];
 
-    my $program = $path_helpers->child("parse-packets.pl")->realpath->canonpath;
+    my $program = $path_base->child("dc-component-parse.pl")->realpath->canonpath;
     my $worker = POE::Wheel::Run->new(
         Program      => $^X, # Special variable, current running Perl Version
         ProgramArgs  => [ $program, $opt->config ],
@@ -232,7 +231,7 @@ sub sniffer_spawn_worker {
 sub analyzer_start {
     my ($kernel,$heap) = @_[KERNEL,HEAP];
 
-    my $program = $path_helpers->child("run-analyze.pl")->realpath->canonpath;
+    my $program = $path_base->child("dc-component-analyze.pl")->realpath->canonpath;
     my $worker = POE::Wheel::Run->new(
         Program      => $^X, # Special variable, current running Perl Version
         ProgramArgs  => [ $program, $opt->config ],

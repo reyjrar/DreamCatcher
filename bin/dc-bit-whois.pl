@@ -1,5 +1,5 @@
-#!/usr/bin/env perl
-# PODNAME: bit-whois.pl
+#!perl
+# PODNAME: dc-bit-whois.pl
 use strict;
 use warnings;
 

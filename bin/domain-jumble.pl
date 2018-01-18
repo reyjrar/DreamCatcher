@@ -1,5 +1,5 @@
-#!/usr/bin/env perl
-# PODNAME: word-exploder.pl
+#!perl
+# PODNAME: domain-jumble.pl
 # ABSTRACT: Utility for combining words and checking the availability of domains.
 use strict;
 use warnings;
@@ -135,17 +135,13 @@ if( @available ) {
 __END__
 =pod
 
-=head1 NAME
-
-word-exploder.pl - Utility for checking availability of domain names with a combination of words.
-
 =head1 SYNOPSIS
 
-word-exploder.pl [options]
+domain-jumble.pl [options]
 
 See
 
-    word-exploder.pl --help
+    domain-jumble.pl --help
 
 For a list of options
 
@@ -159,7 +155,7 @@ and check the availability of those domains using whois.
 To check for domains which require the word "apple" and optionally have the words "rotten" or "fresh":
 
 
-    word-exploder.pl --tlds com --require apple rotten fresh
+    domain-jumble.pl --tlds com --require apple rotten fresh
 
 Looks for:
 
@@ -175,7 +171,7 @@ Looks for:
 
 If you want to have "fresh" or "rotten" match exclusively:
 
-    word-exploder.pl --tlds com --require apple --exclusive fresh,rotten
+    domain-jumble.pl --tlds com --require apple --exclusive fresh,rotten
 
 Will look for:
 
@@ -186,7 +182,7 @@ Will look for:
 
 Add fruit as an optional parameter:
 
-    word-exploder.pl --tlds com --require apple --exclusive fresh,rotten fruit
+    domain-jumble.pl --tlds com --require apple --exclusive fresh,rotten fruit
 
 Will check:
 
@@ -211,7 +207,7 @@ Will check:
 
 You can also specify --maxwords to limit how many words to join together, the default is 4:
 
-    word-exploder.pl --tlds com --maxwords 2 --require apple --exclusive fresh,rotten fruit
+    domain-jumble.pl --tlds com --maxwords 2 --require apple --exclusive fresh,rotten fruit
 
 Will now only look for:
 

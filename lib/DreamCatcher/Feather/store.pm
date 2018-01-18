@@ -15,12 +15,12 @@ sub _build_parent { 'conversation'; }
 # Queries we'd like the cache
 sub _build_sql {
     return {
-   		query         => q{select add_query( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )},
-   		question      => q{select find_or_create_question( ?, ?, ?, ? ) },
-   		response      => q{select add_response( ?, ?, ?, ?, ?, ?, ?,
-                                                ?, ?, ?, ?, ?, ?, ?,
-                                                ?, ?, ?, ?, ?, ? )},
-   		answer         => q{select find_or_create_answer( ?, ?, ?, ?, ?, ?, ?, ? )},
+   		query    => q{select add_query( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )},
+   		question => q{select find_or_create_question( ?, ?, ?, ? ) },
+   		response => q{select add_response( ?, ?, ?, ?, ?, ?, ?,
+                                           ?, ?, ?, ?, ?, ?, ?,
+                                           ?, ?, ?, ?, ?, ? )},
+   		answer    => q{select find_or_create_answer( ?, ?, ?, ?, ?, ?, ?, ? )},
     };
 }
 

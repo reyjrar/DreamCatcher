@@ -5,21 +5,21 @@ use warnings;
 
 use base 'Mojolicious::Plugin';
 
+use Const::Fast;
 use HTML::Entities;
 
-my %helpers = (
+const my %helpers => (
     make_badge => \&make_badge,
 );
 
 sub register {
     my($self,$app) = @_;
-
     $app->helper( %helpers );
 }
 
-my %_BADGES = (
+const my %_BADGES => (
     query_status => {
-        NOERROR => 'badge-success',
+        NOERROR  => 'badge-success',
         NXDOMAIN => 'badge-warning',
         SERVFAIL => 'badge-important',
         REFUSED  => 'badge-important',
@@ -39,7 +39,6 @@ sub make_badge {
     # Make sa
     return defined $class ? sprintf('<span class="badge %s">%s</span>', $class, $state) : $state;
 }
-
 
 # Return True;
 1;

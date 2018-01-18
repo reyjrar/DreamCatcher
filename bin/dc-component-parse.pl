@@ -1,20 +1,20 @@
-#!/usr/bin/env perl
-#
+#!perl
+# PODNAME: dc-component-parse.pl
 use strict;
 use warnings;
 
 use FindBin;
-use Path::Tiny;
+use Path::Tiny qw(path);
+use YAML ();
+
+use DreamCatcher::Packet;
+use DreamCatcher::Feathers;
+
 use POE qw(
     Filter::Reference
     Wheel::ReadWrite
     Component::Log4perl
 );
-use YAML;
-
-use lib "$FindBin::Bin/../lib";
-use DreamCatcher::Packet;
-use DreamCatcher::Feathers;
 
 # Global Object Instances
 my $config_file = $ARGV[0];

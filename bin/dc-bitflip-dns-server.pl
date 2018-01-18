@@ -1,5 +1,5 @@
-#!/usr/bin/env perl
-# PODNAME: simple-server.pl
+#!perl
+# PODNAME: dc-bitflip-dns-server.pl
 use strict;
 use warnings;
 

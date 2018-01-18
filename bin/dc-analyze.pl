@@ -1,5 +1,5 @@
-#!/usr/bin/env perl
-# PODNAME: analyze.pl
+#!perl
+# PODNAME: dc-analyze.pl
 use strict;
 use warnings;
 use feature 'say';
@@ -8,13 +8,8 @@ use CLI::Helpers qw(:output);
 use DreamCatcher::Feathers;
 use FindBin;
 use Getopt::Long::Descriptive;
-use Path::Tiny;
 use Pod::Usage;
-
-#------------------------------------------------------------------------#
-# Path Setup
-my $path_base    = path("$FindBin::Bin")->parent;
-my $path_helpers = $path_base->child('helpers');
+use YAML ();
 
 #------------------------------------------------------------------------#
 # Argument Parsing
@@ -26,7 +21,7 @@ my ($opt,$usage) = describe_options(
     [ 'max|m:i',      "Maximum number of records to process default: 5,000", {default=>5_000} ],
     [],
     [ 'config|c:s', "DreamCatcher Config File", {
-        default => $path_base->child('dreamcatcher.yml')->realpath->canonpath,
+        default => '/etc/dreamcatcher/main.yaml',
         callbacks => { exists => sub { -f shift } }
     }],
     [ 'help|h',    'print this menu and exit'],
@@ -102,7 +97,7 @@ __END__
 
 =head1 SYNOPSIS
 
-analyze.pl
+dc-analyze.pl
 
     Run one or more analysis feathers manually.
 

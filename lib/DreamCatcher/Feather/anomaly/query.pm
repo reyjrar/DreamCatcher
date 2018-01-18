@@ -2,7 +2,7 @@ package DreamCatcher::Feather::anomaly::query;
 # ABSTRACT: Calculate anomaly score for a query based on flags and opcodes
 
 use Const::Fast;
-use JSON::XS;
+use JSON::MaybeXS;
 use Moose;
 with qw(
     DreamCatcher::Role::Feather::Analysis

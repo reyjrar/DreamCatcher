@@ -8,7 +8,7 @@ with qw(
     DreamCatcher::Role::Feather::Anomaly
 );
 
-use JSON::XS;
+use JSON::MaybeXS;
 use POSIX qw(strftime);
 use Text::Soundex;
 use Text::Unidecode;

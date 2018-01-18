@@ -19,7 +19,6 @@ sub log {
     $self->logger->( @_ );
 }
 
-
 no Moose::Role;
 # Return TRUE
 1;
