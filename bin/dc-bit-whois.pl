@@ -7,13 +7,14 @@ use CLI::Helpers qw(:output);
 use Getopt::Long::Descriptive;
 use Net::Whois::Raw;
 use Net::Whois::Parser;
-$Net::Whois::Raw::OMIT_MSG   = 1;
-$Net::Whois::Raw::CHECK_FAIL = 0;
-$Net::Whois::Raw::CACHE_DIR  = "$ENV{HOME}/tmp";
-$Net::Whois::Raw::TIMEOUT    = 2;
 
+my %DEFAULT = (
+    cache_dir  => "$ENV{HOME}/tmp",
+);
 my ($opt,$usage) = describe_options("%c %o domain",
     ["This utility will find all bitflipped variations on a domain and check their availability."],
+    ['cache-dir|cache=s', "Directory to cache whois responses, default is $DEFAULT{cache_dir}",
+                            {default=>$DEFAULT{cache_dir}}],
     [],
     ['help', "Display this help.", {shortcircuit => 1}]
 );
@@ -21,6 +22,11 @@ if( $opt->help || !@ARGV ) {
     print $usage->text;
     exit;
 }
+# Configure Net::Whois::Raw
+$Net::Whois::Raw::OMIT_MSG   = 1;
+$Net::Whois::Raw::CHECK_FAIL = 0;
+$Net::Whois::Raw::CACHE_DIR  = $opt->cache_dir;
+$Net::Whois::Raw::TIMEOUT    = 2;
 
 my $domain = shift @ARGV;
 my @parts = split /\./, lc $domain;
