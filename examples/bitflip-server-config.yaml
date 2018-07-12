@@ -1,0 +1,10 @@
+---
+domains:
+  booking.com:
+    records:
+      A: 127.0.0.1
+      AAAA: "::1"
+      MX: 10 mx.example.com
+    flipped:
+      - bnoking.com
+      - bookiog.com
