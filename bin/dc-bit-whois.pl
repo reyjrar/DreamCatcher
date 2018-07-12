@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use CLI::Helpers qw(:output);
+use Getopt::Long::Descriptive;
 use Net::Whois::Raw;
 use Net::Whois::Parser;
 $Net::Whois::Raw::OMIT_MSG   = 1;
@@ -11,11 +12,18 @@ $Net::Whois::Raw::CHECK_FAIL = 0;
 $Net::Whois::Raw::CACHE_DIR  = "$ENV{HOME}/tmp";
 $Net::Whois::Raw::TIMEOUT    = 2;
 
+my ($opt,$usage) = describe_options("%c %o domain",
+    ["This utility will find all bitflipped variations on a domain and check their availability."],
+    [],
+    ['help', "Display this help.", {shortcircuit => 1}]
+);
+if( $opt->help || !@ARGV ) {
+    print $usage->text;
+    exit;
+}
+
 my $domain = shift @ARGV;
-$domain ||= 'google.com';
-
 my @parts = split /\./, lc $domain;
-
 my %VALID = map { $_ => 1 } split '', q{ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-};
 
 my $word = shift @parts;
