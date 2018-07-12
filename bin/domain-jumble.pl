@@ -116,12 +116,15 @@ foreach my $variation (keys %variations) {
         $error .= "\n$@" if $@;
     }
 
-    my $color = defined $info ? 'cyan'
-              : defined $error  ? 'red'
+    my $color = defined $info  ? 'cyan'
+              : defined $error ? 'red'
               : 'green';
     verbose({color=>$color},
-        sprintf "Variation $variation is %s", defined $info ? "taken ($info)" :
-                                              defined $error  ? '!! ERROR !!' : '** AVAILABLE **', $error
+        sprintf("Variation %s is %s",
+             $variation,
+             defined $info  ? "taken ($info)" :
+             defined $error ? '!! ERROR !!'   : '** AVAILABLE **'
+        ), $error
     );
     next if defined $error && length $error;
 

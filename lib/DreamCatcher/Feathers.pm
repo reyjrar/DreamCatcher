@@ -15,37 +15,7 @@ has 'tree' => (
     lazy    => 1,
     builder => '_build_tree',
 );
-has 'hash' => (
-    is      => 'ro',
-    isa      => 'HashRef',
-    lazy    => 1,
-    builder => '_build_hash'
-);
-has 'config' => (
-    is       => 'ro',
-    isa      => 'HashRef',
-    init_arg => 'Config',
-);
-has 'log_callback' => (
-    is       => 'ro',
-    isa      => 'CodeRef',
-    default  => sub { my $l = sub { warn join(": ", @_), "\n" }; return $l; },
-    init_arg => 'Log',
-);
-has 'schedule' => (
-    is      => 'ro',
-    isa     => 'HashRef',
-    lazy    => 1,
-    builder => '_build_schedule'
-);
-
-# Collect all of the plugins, though not ordered
-sub _build_hash {
-    my $self = shift;
-    return { map { $_->name => $_ } grep { $_->enabled } $self->plugins( Config => $self->config, Log => $self->log_callback ) };
-}
-
-# DAG Tree for determining plguin ordering
+# DAG Tree for determining plugin ordering
 sub _build_tree {
     my $self = shift;
     my $tree = Tree::DAG_Node->new();
@@ -89,6 +59,42 @@ sub _build_tree {
     return $tree;
 }
 
+has 'config' => (
+    is       => 'ro',
+    isa      => 'HashRef',
+    init_arg => 'Config',
+);
+
+has 'log_callback' => (
+    is       => 'ro',
+    isa      => 'CodeRef',
+    default  => sub { my $l = sub { warn join(": ", @_), "\n" }; return $l; },
+    init_arg => 'Log',
+);
+
+has 'hash' => (
+    is      => 'ro',
+    isa      => 'HashRef',
+    lazy    => 1,
+    builder => '_build_hash'
+);
+sub _build_hash {
+    my $self = shift;
+    return { map { $_->name => $_ } grep { $_->enabled } $self->plugins( Config => $self->config, Log => $self->log_callback ) };
+}
+
+has 'schedule' => (
+    is      => 'ro',
+    isa     => 'HashRef',
+    lazy    => 1,
+    builder => '_build_schedule'
+);
+sub _build_schedule {
+    my ($self) = @_;
+    my %sched = map { $_->name => $_->interval } @{ $self->chain('analysis') };
+    return \%sched;
+}
+
 # Order the plugins using their "parent" attributes
 sub chain {
     my ($self,$function) = @_;
@@ -110,11 +116,6 @@ sub process {
     return 1;
 }
 
-sub _build_schedule {
-    my ($self) = @_;
-    my %sched = map { $_->name => $_->interval } @{ $self->chain('analysis') };
-    return \%sched;
-}
 
 __PACKAGE__->meta->make_immutable;
 1;

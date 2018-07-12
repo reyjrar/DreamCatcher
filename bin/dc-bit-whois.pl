@@ -19,7 +19,7 @@ my @parts = split /\./, lc $domain;
 my %VALID = map { $_ => 1 } split '', q{ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-};
 
 my $word = shift @parts;
-my %variations = ( $domain => 1 );
+my %variations = map { $_ => 1 } ( lc $domain );
 
 for my $place ( 0 .. length($word)-1 ) {
     my $letter = substr($word,$place,1);
@@ -34,7 +34,10 @@ for my $place ( 0 .. length($word)-1 ) {
         next unless exists $valid{$new};
         my $copy = $word;
         substr($copy,$place,1,$new);
-        $variations{lc join('.', $copy, @parts)}++;
+        my $variation = lc join('.', $copy, @parts);
+        verbose({color=>'yellow'}, "New bit variation on $domain: $variation")
+            unless exists $variations{$variation};
+        $variations{$variation} = 1;
     }
 }
 debug("Found variations: ");
@@ -56,20 +59,24 @@ foreach my $variation (sort keys %variations) {
         };
     } while ( $raw =~ /LIMIT EXCEEDED/ );
 
-    if( defined $raw && $raw =~ /No match for domain/ ) {
+    if( defined $raw && $raw =~ /No match for domain/  || $raw =~ /NOT FOUND/ ) {
         $error = undef;
         $info  = undef;
     }
-    elsif(defined $raw) {
+    elsif( defined $raw && $raw =~ /WHOIS LIMIT EXCEEDED/ ) {
+        undef($info);
+        $error = $raw;
+    }
+    else {
         eval {
             my $result = parse_whois( raw => $raw, domain => $variation );
             die "parse error" unless defined $result && ref $result eq 'HASH';
 
-            if( exists $result->{nameservers} ) {
+            if( $result->{nameservers} && grep { defined } @{ $result->{nameservers} } ) {
                 $info = join (',', sort map { exists $_->{domain} ? $_->{domain} : $_->{ip}  } @{ $result->{nameservers} } );
             }
-            elsif(exists $result->{emails} ) {
-                $info = join( ',', sort @{ $result->{emails} } );
+            elsif( $result->{emails} && grep { defined } @{ $result->{emails} } ) {
+                $info = join( ',', sort grep { defined } @{ $result->{emails} } );
             }
             else {
                 foreach my $f (qw(admin_email tech_email billing_email)) {
@@ -83,25 +90,27 @@ foreach my $variation (sort keys %variations) {
 
     if( $domain eq $variation ) {
         # Reference:
-        if( defined $info ) {
-            output("# Reference $domain found with $info");
-        }
-        else {
-            output("# Reference $domain NOT FOUND");
-        }
+        output({color=>'cyan',sticky=>1}, defined $info ?
+            "Reference $domain found with $info" : "Reference $domain not found."
+        );
     }
     else {
-        output({color=>defined $error ? 'red' : defined $info ? 'cyan' : 'green'},
-            sprintf "$domain variation $variation is %s\n", defined $info ? "taken ($info)" :
-                                                    defined $error  ? '!! ERROR !!' : '** AVAILABLE **'
+        verbose({color=>defined $error ? 'red' : defined $info ? 'yellow' : 'green'},
+            sprintf "%s variation %s is %s",
+                $domain,
+                $variation,
+                defined $info ? "taken ($info)" : defined $error  ? '!! ERROR !!' : '** AVAILABLE **',
         );
+        output({stderr=>1,color=>'red'}, sprintf "(error) %s - %s", $variation, $error) if defined $error && length $error;
         push @available, $variation if !defined $info && !defined $error;
     }
 }
 if( @available ) {
-    output({data=>1},"$_") for @available;
-    output({color=>'cyan'},
-        sprintf "\n # [%s] Available Variations %d of %d, %0.2f%%\n\n",
-            $domain, scalar(@available), scalar(keys %variations), 100*(scalar(@available) / scalar(keys %variations))
+    output({color=>'cyan',clear=>1}, sprintf "# [%s] Available Variations %d of %d, %0.2f%%",
+            $domain,
+            scalar(@available),
+            scalar(keys %variations),
+            100*(scalar(@available) / scalar(keys %variations))
     );
+    output({indent=>1,data=>1}, @available);
 }
