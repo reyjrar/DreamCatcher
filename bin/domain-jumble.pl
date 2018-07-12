@@ -82,6 +82,13 @@ sub build_list {
 }
 my $num_variants = scalar keys %variations;
 my @available = ();
+my @NotFound = split /\n/, <<EOM;
+No match for domain
+NOT FOUND
+Unknown domain name
+Object not found
+EOM
+my $NotFound = join('|', map { quotemeta } @NotFound);
 foreach my $variation (keys %variations) {
     my ($raw,$info) = (undef,'');
     eval {
@@ -91,7 +98,7 @@ foreach my $variation (keys %variations) {
     };
     my $error = $@;
 
-    if( defined $raw && $raw =~ /No match for domain/ ) {
+    if( defined $raw && $raw =~ /^$NotFound/o ) {
         $error = undef;
         $info  = undef;
     }
@@ -124,7 +131,7 @@ foreach my $variation (keys %variations) {
              $variation,
              defined $info  ? "taken ($info)" :
              defined $error ? '!! ERROR !!'   : '** AVAILABLE **'
-        ), $error
+        ), $error ? $error : (),
     );
     next if defined $error && length $error;
 

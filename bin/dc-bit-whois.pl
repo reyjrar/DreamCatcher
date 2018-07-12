@@ -57,6 +57,14 @@ for my $place ( 0 .. length($word)-1 ) {
 debug("Found variations: ");
 debug_var([sort keys %variations]);
 
+my @NotFound = split /\n/, <<EOM;
+No match for domain
+NOT FOUND
+Unknown domain name
+Object not found
+EOM
+my $NotFound = join('|', map { quotemeta } @NotFound);
+
 my @available = ();
 foreach my $variation (sort keys %variations) {
     verbose("Trying $variation.");
@@ -73,7 +81,7 @@ foreach my $variation (sort keys %variations) {
         };
     } while ( $raw =~ /LIMIT EXCEEDED/ );
 
-    if( defined $raw && $raw =~ /No match for domain/  || $raw =~ /NOT FOUND/ ) {
+    if( defined $raw && $raw =~ /^$NotFound/o ) {
         $error = undef;
         $info  = undef;
     }
