@@ -21,7 +21,7 @@ my ($opt,$usage) = describe_options(
     [ 'max|m=i',      "Maximum number of records to process default: 5,000", {default=>5_000} ],
     [],
     [ 'config|c=s', "DreamCatcher Config File", {
-        default => '/etc/dreamcatcher/main.yaml',
+        default   => '/etc/dreamcatcher/main.yaml',
         callbacks => { exists => sub { -f shift } }
     }],
     [ 'help|h',    'print this menu and exit'],
