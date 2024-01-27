@@ -83,7 +83,7 @@ in addition to those websites please use your favorite search engine to discover
 
     A modern, open-source CPAN search engine, useful to view POD in HTML format.
 
-    [http://metacpan.org/release/DreamCatcher](http://metacpan.org/release/DreamCatcher)
+    [https://metacpan.org/release/DreamCatcher](https://metacpan.org/release/DreamCatcher)
 
 - RT: CPAN's Bug Tracker
 

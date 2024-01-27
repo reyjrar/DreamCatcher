@@ -66,8 +66,8 @@ sub handle_request {
         src_ip => $q{peerhost},
         query  => {
             class => $q{qclass},
-            type => $q{qtype},
-            name => $q{qname},
+            type  => $q{qtype},
+            name  => $q{qname},
         },
     };
 
@@ -105,10 +105,10 @@ sub handle_request {
 }
 
 my $ns = Net::DNS::Nameserver->new(
-    LocalAddr => $opt->addr,
-    LocalPort => $opt->port,
+    LocalAddr    => $opt->addr,
+    LocalPort    => $opt->port,
     ReplyHandler => \&handle_request,
-    Verbose => (CLI::Helpers::def('VERBOSE') || CLI::Helpers::def('DEBUG')) ? 1 : 0,
+    Verbose      => (CLI::Helpers::def('VERBOSE') || CLI::Helpers::def('DEBUG')) ? 1 : 0,
 );
 output({color=>'cyan'}, "bitflip dns server started");
 $ns->main_loop;

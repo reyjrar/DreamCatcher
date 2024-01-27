@@ -32,15 +32,15 @@ my $path_base = path("$FindBin::Bin");
 my ($opt,$usage) = describe_options(
     "%c %o ",
     [],
-    [ 'config|c:s', "DreamCatcher Config File", {
+    [ 'config|c=s', "DreamCatcher Config File", {
         default => '/etc/dreamcatcher/main.yaml',
         callbacks => { exists => sub { -f shift } }
     }],
-    [ 'logging-config|l:s', "Log4Perl Config File", {
+    [ 'logging-config|l=s', "Log4Perl Config File", {
         default => '/etc/dreamcatcher/logging.conf',
         callbacks => { exists => sub { -f shift } }
     }],
-    [ 'pid-file|p:s', "PID file location", { default => '/var/run/dreamcatcher.pid', }],
+    [ 'pid-file|p=s', "PID file location", { default => '/var/run/dreamcatcher.pid', }],
     [ 'foreground|F', "Run in foreground." ],
 
     [],
