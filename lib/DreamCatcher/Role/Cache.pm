@@ -14,9 +14,9 @@ has 'cache' => (
 );
 
 sub _build_cache {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	return CHI->new(driver => 'FastMmap', namespace => $self->name, expires_in => 30);
+    return CHI->new(driver => 'FastMmap', namespace => $self->name, expires_in => 30);
 }
 
 no Moose::Role;

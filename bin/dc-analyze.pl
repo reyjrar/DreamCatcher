@@ -17,10 +17,10 @@ my ($opt,$usage) = describe_options(
     "%c %o",
     [],
     [ 'feather|f=s@', "Specify a feather to run, multiple options accepted." ],
-    [ 'period|p:i',   "Number of seconds to check, default: 7200", {default=>7200} ],
-    [ 'max|m:i',      "Maximum number of records to process default: 5,000", {default=>5_000} ],
+    [ 'period|p=i',   "Number of seconds to check, default: 7200", {default=>7200} ],
+    [ 'max|m=i',      "Maximum number of records to process default: 5,000", {default=>5_000} ],
     [],
-    [ 'config|c:s', "DreamCatcher Config File", {
+    [ 'config|c=s', "DreamCatcher Config File", {
         default => '/etc/dreamcatcher/main.yaml',
         callbacks => { exists => sub { -f shift } }
     }],
@@ -125,7 +125,7 @@ command line.
 
 =head1 CONFIGURATION
 
-The DreamCatcher config is stored in L<YAML|http://yam.org> format.  The defaults look like this:
+The DreamCatcher config is stored in L<YAML|http://yaml.org> format.  The defaults look like this:
 
     ---
     time_zone: America/New_York

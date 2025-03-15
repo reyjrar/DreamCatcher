@@ -49,12 +49,12 @@ sub sth {
 }
 
 sub _build_dbh {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	die "No db section in config!" unless exists $self->config->{db} && ref $self->config->{db} eq 'HASH';
+    die "No db section in config!" unless exists $self->config->{db} && ref $self->config->{db} eq 'HASH';
 
-	my %db = %{ $self->config->{db} };
-	my $dbconn = DBIx::Connector->new( @db{qw(dsn user pass)}, {
+    my %db = %{ $self->config->{db} };
+    my $dbconn = DBIx::Connector->new( @db{qw(dsn user pass)}, {
             PrintError  => 0,
             RaiseError  => 0,
             HandleError => Exception::Class::DBI->handler,

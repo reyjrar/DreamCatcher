@@ -45,10 +45,10 @@ sub analyze {
     my $time = strftime("%FT%T", localtime(time() - $self->check_period));
     $self->log(info => "anomaly::query checking queries since $time");
 
-	my $updates = 0;
+    my $updates = 0;
     my $errors  = 0;
-	$STH{check}->execute($time);
-	while( my $ent = $STH{check}->fetchrow_hashref ) {
+    $STH{check}->execute($time);
+    while( my $ent = $STH{check}->fetchrow_hashref ) {
         my $score   = 0;
         my %analysis = ();
 
@@ -90,7 +90,7 @@ sub analyze {
         }
     }
 
-	$self->log(info => "anomaly::query posted $updates updates, $errors errors");
+    $self->log(info => "anomaly::query posted $updates updates, $errors errors");
 }
 
 

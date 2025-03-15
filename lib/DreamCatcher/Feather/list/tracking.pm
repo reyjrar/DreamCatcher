@@ -46,11 +46,12 @@ sub _build_sql {
 sub analyze {
     my ($self) = @_;
 
-	my $check_ts = strftime('%FT%T',localtime(time - $self->check_period));
-	$self->log(debug => sprintf "list::tracking starting analysis for past %d seconds (from %s), max %d records.",
-                $self->check_period,
-                $check_ts,
-                $self->batch_max,
+    my $check_ts = strftime('%FT%T',localtime(time - $self->check_period));
+    $self->log(debug =>
+        sprintf "list::tracking starting analysis for past %d seconds (from %s), max %d records.",
+            $self->check_period,
+            $check_ts,
+            $self->batch_max,
     );
     my $updates = 0;
     my $errors  = 0;

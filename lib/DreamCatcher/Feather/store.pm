@@ -7,7 +7,7 @@ use Moose;
 
 with qw(
     DreamCatcher::Role::Feather::Sniffer
-	DreamCatcher::Role::RRData
+    DreamCatcher::Role::RRData
 );
 
 sub _build_parent { 'conversation'; }
@@ -15,25 +15,25 @@ sub _build_parent { 'conversation'; }
 # Queries we'd like the cache
 sub _build_sql {
     return {
-   		query    => q{select add_query( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )},
-   		question => q{select find_or_create_question( ?, ?, ?, ? ) },
-   		response => q{select add_response( ?, ?, ?, ?, ?, ?, ?,
+        query    => q{select add_query( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )},
+        question => q{select find_or_create_question( ?, ?, ?, ? ) },
+        response => q{select add_response( ?, ?, ?, ?, ?, ?, ?,
                                            ?, ?, ?, ?, ?, ?, ?,
                                            ?, ?, ?, ?, ?, ? )},
-   		answer    => q{select find_or_create_answer( ?, ?, ?, ?, ?, ?, ?, ? )},
+        answer    => q{select find_or_create_answer( ?, ?, ?, ?, ?, ?, ?, ? )},
     };
 }
 
 sub process {
-	my ( $self,$packet ) = @_;
+    my ( $self,$packet ) = @_;
 
-	# Packet ID
+    # Packet ID
     my $dnsp = $packet->dns;
     my $info = $packet->details;
 
-	# Check for query/response
-	if( $dnsp->header->qr ) {
-		# Answer
+    # Check for query/response
+    if( $dnsp->header->qr ) {
+        # Answer
         my $sth = $self->sth('response');
         eval {
             $sth->execute(
@@ -64,26 +64,26 @@ sub process {
             return;
         }
 
-		my ($response_id) = $sth->fetchrow_array;
-		return unless defined $response_id && $response_id > 0;
+        my ($response_id) = $sth->fetchrow_array;
+        return unless defined $response_id && $response_id > 0;
 
 
-		my @sets = ();
-		foreach my $section (qw(answer additional authority pre prerequisite update zone)) {
-			my @records = ();
-			eval {
-				no strict;
-				@records = $dnsp->$section();
-			};
-			if( @records ) {
-				push @sets, { name => $section eq 'pre' ? 'prerequisite' : $section, rr => \@records };
-			}
-		}
-		foreach my $set ( @sets ) {
-			foreach my $pa ( @{ $set->{rr} } ) {
-				my %data = $self->rr_data( $pa );
+        my @sets = ();
+        foreach my $section (qw(answer additional authority pre prerequisite update zone)) {
+            my @records = ();
+            eval {
+                no strict;
+                @records = $dnsp->$section();
+            };
+            if( @records ) {
+                push @sets, { name => $section eq 'pre' ? 'prerequisite' : $section, rr => \@records };
+            }
+        }
+        foreach my $set ( @sets ) {
+            foreach my $pa ( @{ $set->{rr} } ) {
+                my %data = $self->rr_data( $pa );
 
-				next unless defined $data{value} && length $data{value};
+                next unless defined $data{value} && length $data{value};
 
                 my $lsh = $self->sth('answer');
                 eval {
@@ -102,11 +102,11 @@ sub process {
                     $self->log(error => "Attempt to create answer failed: $ex->errstr");
                     next;
                 }
-			}
-		}
-	}
-	else {
-		# Query
+            }
+        }
+    }
+    else {
+        # Query
         my $sth = $self->sth('query');
         eval {
             $sth->execute(
@@ -129,11 +129,11 @@ sub process {
             return;
         }
 
-		my ($query_id) = $sth->fetchrow_array;
-		return unless defined $query_id && $query_id > 0;
+        my ($query_id) = $sth->fetchrow_array;
+        return unless defined $query_id && $query_id > 0;
 
         # Tag questions
-		foreach my $pq ( $dnsp->question ) {
+        foreach my $pq ( $dnsp->question ) {
             my $lsh = $self->sth('question');
             eval {
                 $lsh->execute(
@@ -143,8 +143,8 @@ sub process {
                     $pq->qname
                 );
             };
-		}
-	}
+        }
+    }
 }
 
 __PACKAGE__->meta->make_immutable;

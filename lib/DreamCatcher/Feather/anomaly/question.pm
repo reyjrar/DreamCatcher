@@ -37,11 +37,11 @@ sub analyze {
 
     my %STH = map { $_ => $self->sth($_) } keys %{ $self->sql };
 
-	my $updates = 0;
+    my $updates = 0;
     my $errors  = 0;
 
-	$STH{check}->execute();
-	while( my $ent = $STH{check}->fetchrow_hashref ) {
+    $STH{check}->execute();
+    while( my $ent = $STH{check}->fetchrow_hashref ) {
         my $score = 0;
         my %analysis = ();
 
@@ -112,7 +112,7 @@ sub analyze {
         }
     }
 
-	$self->log(info => "anomaly::question posted $updates updates, $errors errors");
+    $self->log(info => "anomaly::question posted $updates updates, $errors errors");
 }
 
 

@@ -5,9 +5,9 @@ use Moose::Role;
 use namespace::autoclean;
 
 sub rr_data {
-	my ($self,$pa) = @_;
+    my ($self,$pa) = @_;
 
-	my %data = ( value => undef, opts => undef, ttl => undef );
+    my %data = ( value => undef, opts => undef, ttl => undef );
 
     my $class = ref $pa;
 
@@ -54,7 +54,7 @@ sub rr_data {
                      : undef;
     }
 
-	return wantarray ? %data : \%data;
+    return wantarray ? %data : \%data;
 }
 
 no Moose::Role;

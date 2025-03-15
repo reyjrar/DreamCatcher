@@ -9,11 +9,11 @@ my $_dbh;
 # Database Connection
 has dbconn => sub {
     my ($self) = @_;
-	if( ! defined $_dbh ) {
-		my %c = %{ $self->app->config->{db} };
-		$_dbh =  DBIx::Connector->new( @c{qw{dsn user pass}});
-	}
-	return $_dbh;
+    if( ! defined $_dbh ) {
+        my %c = %{ $self->app->config->{db} };
+        $_dbh =  DBIx::Connector->new( @c{qw{dsn user pass}});
+    }
+    return $_dbh;
 };
 
 # Prepare a hash of statements
