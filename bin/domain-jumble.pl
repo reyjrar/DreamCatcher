@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Algorithm::Permute qw(permute);
-use CLI::Helpers qw(:output);
+use CLI::Helpers qw(:output preprocess_argv);
 use Getopt::Long::Descriptive;
 use Net::Whois::Parser;
 use Net::Whois::Raw;
