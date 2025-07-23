@@ -48,11 +48,11 @@ my $CFG = YAML::LoadFile( $configFile ) or die "unable to load $configFile: $!\n
 
 #------------------------------------------------------------------------#
 # Load Schema YAML
-my $deployFile = File::Spec->catfile( @BasePath, 'sql', 'schema', 'deploy.yml' );
+my $deployFile = File::Spec->catfile( @BasePath, qw(sql schema deploy.yml);
 my $SCHEMA = YAML::LoadFile( $deployFile ) or die "unable to load $deployFile: $!\n";
 
 # Connect to the Database:
-my $dbConn = DBI->connect( $CFG->{db}{dsn}, $CFG->{db}{user}, $CFG->{db}{pass},
+my $dbConn = DBI->connect( @{ $CFG->{db} }{qw(dsn user pass)},
     {PrintError => 0, RaiseError => 1} );
 
 if( $MODE eq 'install' ) {
