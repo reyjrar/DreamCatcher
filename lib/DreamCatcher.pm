@@ -16,7 +16,7 @@ sub startup {
     $self->sessions->default_expiration(3600*24*7);
 
     # App Configuration
-    my $config = $self->plugin( yaml_config => {
+    $self->plugin( yaml_config => {
         file      => 'dreamcatcher.yml',
         stash_key => 'config',
         class     => 'YAML::XS',

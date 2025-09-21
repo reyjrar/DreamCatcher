@@ -130,7 +130,7 @@ sub clients_asking {
 }
 
 sub client_server_map {
-    my ($self,$app) = @_;
+    my $self = shift;
 
     my %sql = (
         conversations => q{

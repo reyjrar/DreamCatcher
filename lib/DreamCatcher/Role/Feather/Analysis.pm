@@ -52,7 +52,6 @@ sub strip_sld {
     my $self = shift;
     my ($domain) = @_;
 
-    my $without_sld = undef;
     chomp($domain);
     my @parts = map { lc } split /\./, $domain;
 

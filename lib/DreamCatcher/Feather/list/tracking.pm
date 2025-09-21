@@ -58,8 +58,8 @@ sub analyze {
     my %STH = map { $_ => $self->sth($_) } keys %{ $self->sql };
     my %results = ();
     foreach my $type (qw(answers questions)) {
-        $STH{questions}->execute($check_ts);
-        while( my $ent = $STH{questions}->fetchrow_hashref ) {
+        $STH{$type}->execute($check_ts);
+        while( my $ent = $STH{$type}->fetchrow_hashref ) {
             my $id = join(":", $ent->{list_id}, $ent->{client_id});
             if(exists $results{$id})  {
                 $results{$id}->{reference_count} += $ent->{reference_count};
