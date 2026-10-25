@@ -5,6 +5,7 @@ use warnings;
 
 use CLI::Helpers qw(:output);
 use Getopt::Long::Descriptive;
+use Net::RDAP;
 use Net::Whois::Raw;
 use Net::Whois::Parser;
 
@@ -67,7 +68,7 @@ my $NotFound = join('|', map { quotemeta } @NotFound);
 
 my @available = ();
 foreach my $variation (sort keys %variations) {
-    verbose("Trying $variation.");
+    debug("Trying $variation.");
     my ($raw,$error,$info) = (undef,undef,'');
     do {
         sleep 60 if defined $raw;
@@ -135,4 +136,72 @@ if( @available ) {
             100*(scalar(@available) / scalar(keys %variations))
     );
     output({indent=>1,data=>1}, @available);
+}
+
+sub get_domain_info {
+    my ($domain) = @_;
+
+    # Setup RDAP
+    state $rdap = Net::RDAP->new(use_cache => 1);
+
+    my $info;
+    my $result = $rdap->domain($domain);
+    if ( ref $result eq "Net::RDAP::Error" ) {
+        $info = fallback_whois($domain);
+    } else {
+    }
+}
+
+sub fallback_whois {
+    my ($domain) = @_;
+
+    debug("---> Fallback for '$variation'");
+    my ($raw,$error) = (undef,undef,'');
+    do {
+        sleep 60 if defined $raw;
+        local $@ = undef;
+        eval {
+            $raw = whois($domain);
+            debug($raw);
+            1;
+        } or do {
+            $error = $@;
+            output({stderr=>1,color=>'red'}, "WHOIS ERROR: $error");
+        };
+    } while ( $raw =~ /LIMIT EXCEEDED/ );
+
+    if( defined $raw && $raw =~ /^$NotFound/o ) {
+        return { error => 'NOT FOUND' };
+    }
+    elsif( defined $raw && $raw =~ /WHOIS LIMIT EXCEEDED/ ) {
+        return { error => 'LIMIT EXCEEDED' };
+    }
+
+    # Process raw whois data
+    my $result;
+    eval {
+        $result = parse_whois( raw => $raw, domain => $domain );
+        die "parse error" unless defined $result && ref $result eq 'HASH';
+        1;
+    } or do {
+        my $err = $@;
+        debug($err);
+        return { error => 'PARSE FAILED' };
+    };
+
+    my %info;
+    if( $result->{nameservers} && grep { defined } @{ $result->{nameservers} } ) {
+        $info{ns} = [sort map { exists $_->{domain} ? $_->{domain} : $_->{ip}  } @{ $result->{nameservers} } ];
+    }
+    elsif( $result->{emails} && grep { defined } @{ $result->{emails} } ) {
+        $info{emails} = [sort grep { defined } @{ $result->{emails} } ];
+    }
+    else {
+        foreach my $f (qw(admin_email tech_email billing_email)) {
+            my $email = $result->{$f};
+            next unless $email;
+            push @{ $info{emails} }, $email;
+        }
+    }
+    return \%info;
 }
